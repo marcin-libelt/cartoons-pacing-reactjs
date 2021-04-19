@@ -13,10 +13,9 @@ define([
     var factory = {
 
         selectedFactoryBox: null,
-        selectAddressBox: null,
         refreshFactoryBoxUrl: null,
-        selectCartonBox: null,
-        selectedAddressBox: null,
+        cartonsBox: null,
+        cartonListBox: null,
 
         refreshFactoryBox()
         {
@@ -39,7 +38,7 @@ define([
                 self.selectedFactoryBox.html(response.html);
 
                 if (window.selectedFactoryId) {
-                    self.selectAddressBox.show();
+                    self.cartonsBox.show();
                 }
             });
         },
@@ -62,8 +61,7 @@ define([
                 window.selectFactoryModal = $('#' + modalId).modal({
                     closed: function () {
                         $(this).html('');
-                        self.selectedAddressBox.html($t('Not selected'));
-                        self.selectCartonBox.hide();
+                        self.cartonListBox.html($t('None'));
                         self.refreshFactoryBox();
                     },
                     opened: function () {
@@ -85,10 +83,9 @@ define([
             var buttonElement = $(button);
 
             factory.selectedFactoryBox = $('#' + config.selected_factory_box);
-            factory.selectAddressBox = $('#' + config.select_address_box);
-            factory.selectedAddressBox = $('#' + config.selected_address_box);
-            factory.selectCartonBox = $('#' + config.select_carton_box);
             factory.refreshFactoryBoxUrl = config.refresh_factory_box_url;
+            factory.cartonsBox = $('#' + config.cartons_box);
+            factory.cartonListBox = $('#' + config.carton_list_box);
 
             buttonElement.click(function () {
                 factory.selectFactory($(this), config.url, config.modal_id);

@@ -5,7 +5,7 @@
  */
 ?>
 <div id="select_factory_modal"></div>
-<div id="select_address_modal"></div>
+<div id="add_carton_modal"></div>
 <form class="new_asn_form">
     <fieldset class="fieldset">
         <legend class="legend">
@@ -23,27 +23,18 @@
             <?= __('Not selected') ?>
         </div>
     </fieldset>
-    <fieldset class="fieldset" style="display: none" id="select_address">
+    <fieldset class="fieldset" style="display: none" id="cartons">
         <legend class="legend">
-            <span><?= __('Address') ?></span>
+            <span><?= __('Cartons') ?></span>
             <button
                 class="primary"
                 style="float: right"
-                id="select_address_button"
+                id="add_carton_button"
             >
-                <?= __('Select Address') ?>
+                <?= __('Add Carton') ?>
             </button>
         </legend>
-        <div id="selected_address">
-            <?= __('Not selected') ?>
-        </div>
-    </fieldset>
-    <fieldset class="fieldset" style="display: none" id="select_carton">
-        <legend class="legend">
-            <span><?= __('Cartons') ?></span>
-            <button class="primary" style="float: right"><?= __('Add Carton') ?></button>
-        </legend>
-        <div id="cartons">
+        <div id="carton_list">
             <?= __('None') ?>
         </div>
     </fieldset>
@@ -57,21 +48,17 @@
     "#select_factory_button" : {
         "asnCreator_selectFactoryButton": {
             "selected_factory_box": "selected_factory",
-            "selected_address_box": "selected_address",
-            "select_address_box": "select_address",
-            "select_carton_box": "select_carton",
+            "cartons_box": "cartons",
+            "carton_list_box": "carton_list",
             "url": "<?= $this->getUrl('itvoice_asn_creator/SelectFactory/Index') ?>",
             "modal_id": "select_factory_modal",
             "refresh_factory_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/factory') ?>"
         }
     },
-    "#select_address_button" : {
-        "asnCreator_selectAddressButton": {
-            "url": "<?= $this->getUrl('itvoice_asn_creator/SelectAddress/Index') ?>",
-            "modal_id": "select_address_modal",
-            "selected_address_box": "selected_address",
-            "select_carton_box": "select_carton",
-            "refresh_address_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/address') ?>"
+    "#add_carton_button" : {
+        "asnCreator_addCartonButton": {
+            "modal_id": "add_carton_modal",
+            "url": "<?= $this->getUrl('itvoice_asn_creator/AddCarton/Index') ?>"
         }
     }
 }

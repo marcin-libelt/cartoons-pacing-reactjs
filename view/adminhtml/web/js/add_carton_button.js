@@ -4,10 +4,10 @@
  */
 define([
     'jquery',
-    'asnCreator_address'
-], function ($, address) {
+    'asnCreator_carton'
+], function ($, carton) {
 
     return function (config, button) {
-        return address.initSelectAddressButton(config, button);
+        return carton.initAddCartonButton(config, button);
     };
 });

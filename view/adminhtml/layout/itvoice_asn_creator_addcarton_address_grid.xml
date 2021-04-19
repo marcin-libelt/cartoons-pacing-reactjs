@@ -7,6 +7,6 @@
 -->
 <layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/layout_generic.xsd">
     <container name="root">
-        <block class="ITvoice\AsnCreator\Block\Adminhtml\Creator\Address" template="ITvoice_AsnCreator::creator/address.phtml" name="selected_address" />
+        <block class="ITvoice\AsnCreator\Block\Adminhtml\Creator\AddCarton\Address\Grid" name="address_grid"/>
     </container>
 </layout>

@@ -3,11 +3,11 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Controller\Adminhtml\SelectAddress;
+namespace ITvoice\AsnCreator\Controller\Adminhtml\AddCarton;
 
 /**
  * Class Index
- * @package ITvoice\AsnCreator\Controller\Adminhtml\SelectAddress
+ * @package ITvoice\AsnCreator\Controller\Adminhtml\AddCarton
  */
 class Index extends \Magento\Backend\App\Action
 {
@@ -19,10 +19,6 @@ class Index extends \Magento\Backend\App\Action
      * @var \Magento\Framework\View\Result\LayoutFactory
      */
     protected $resultLayoutFactory;
-    /**
-     * @var \ITvoice\Factory\Model\FactoryRepository
-     */
-    protected $factoryRepository;
 
     /**
      * Creator constructor.
@@ -33,11 +29,9 @@ class Index extends \Magento\Backend\App\Action
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory,
-        \ITvoice\Factory\Model\FactoryRepository $factoryRepository
+        \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory
     ) {
         $this->jsonFactory = $jsonFactory;
-        $this->factoryRepository = $factoryRepository;
         $this->resultLayoutFactory = $resultLayoutFactory;
         parent::__construct($context);
     }

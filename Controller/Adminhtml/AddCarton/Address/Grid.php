@@ -3,16 +3,16 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Controller\Adminhtml\SelectAddress;
-
+namespace ITvoice\AsnCreator\Controller\Adminhtml\AddCarton\Address;
 /**
- * Class Index
- * @package ITvoice\AsnCreator\Controller\Adminhtml\SelectAddress
+ * Class Grid
+ * @package ITvoice\AsnCreator\Controller\Adminhtml\AddCarton\Address
  */
 class Grid extends \Magento\Backend\App\Action
 {
     /**
      * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface|void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function execute()
     {

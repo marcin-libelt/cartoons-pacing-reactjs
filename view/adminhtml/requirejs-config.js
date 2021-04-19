@@ -6,9 +6,9 @@ var config = {
     "map": {
         "*": {
             "asnCreator_factory": "ITvoice_AsnCreator/js/factory",
-            "asnCreator_address": "ITvoice_AsnCreator/js/address",
+            "asnCreator_carton": "ITvoice_AsnCreator/js/carton",
             "asnCreator_selectFactoryButton": "ITvoice_AsnCreator/js/select_factory_button",
-            "asnCreator_selectAddressButton": "ITvoice_AsnCreator/js/select_address_button"
+            "asnCreator_addCartonButton": "ITvoice_AsnCreator/js/add_carton_button"
         }
     }
 };
