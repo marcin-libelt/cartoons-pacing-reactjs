@@ -21,6 +21,25 @@ class Grid extends \ITvoice\Client\Block\Adminhtml\Client\Address\Grid
     }
 
     /**
+     * @return \ITvoice\Client\Block\Adminhtml\Client\Grid|void
+     */
+    protected function _prepareColumns()
+    {
+        parent::_prepareColumns();
+
+        $this->addColumn(
+            'button',
+            [
+                'header' => '',
+                'index' => '',
+                'renderer' => \ITvoice\AsnCreator\Block\Adminhtml\Creator\AddCarton\Address\Grid\Renderer\SelectButton::class,
+                'filter' => false,
+                'sortable' => false,
+            ]
+        );
+    }
+
+    /**
      * @param $collection
      * @return $this|mixed
      */

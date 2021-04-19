@@ -11,11 +11,18 @@ define([
     'use strict';
 
     var carton = {
-        newCartonPopup(buttonElement, url, modalId)
+        newCartonPopup(url, modalId)
+        {
+            this.selectAddressPopup(url, modalId);
+        },
+
+        selectAddressPopup(url, modalId)
         {
             var data = {
                 form_key: FORM_KEY,
             }
+
+            var self = this;
 
             $.ajax({
                 type: "POST",
@@ -24,18 +31,49 @@ define([
                 showLoader: true,
                 data: data
             }).done(function (response) {
-                window.addCartonModal = $('#' + modalId).modal({
+                window.selectCartonAddressModal = $('#' + modalId).modal({
+                    closed: function () {
+                        self.selectProductsPopup(url, modalId);
+                    },
+                    opened: function () {
+                    },
+                    modalClass: 'magento',
+                    type: 'popup',
+                    title: $t('Select Address'),
+                    buttons: []
+                });
+                window.selectCartonAddressModal.html(response.html);
+                window.selectCartonAddressModal.modal('openModal');
+            });
+        },
+
+        selectProductsPopup(url, modalId)
+        {
+            var data = {
+                form_key: FORM_KEY,
+            }
+
+            var self = this;
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                showLoader: true,
+                data: data
+            }).done(function (response) {
+                window.selectProductsAddressModal = $('#' + modalId).modal({
                     closed: function () {
                     },
                     opened: function () {
                     },
                     modalClass: 'magento',
                     type: 'popup',
-                    title: $t('New Carton'),
+                    title: $t('Select Products'),
                     buttons: []
                 });
-                window.addCartonModal.html(response.html);
-                window.addCartonModal.modal('openModal');
+                window.selectProductsAddressModal.html(response.html);
+                window.selectProductsAddressModal.modal('openModal');
             });
         }
     }
@@ -46,7 +84,7 @@ define([
             var buttonElement = $(button);
 
             buttonElement.click(function () {
-                carton.newCartonPopup($(this), config.url, config.modal_id);
+                carton.newCartonPopup(config.url, config.modal_id);
                 return false;
             });
         }
