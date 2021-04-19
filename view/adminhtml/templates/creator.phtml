@@ -5,32 +5,74 @@
  */
 ?>
 <div id="select_factory_modal"></div>
+<div id="select_address_modal"></div>
 <form class="new_asn_form">
     <fieldset class="fieldset">
         <legend class="legend">
             <span><?= __('Factory') ?></span>
+            <button
+                class="primary"
+                style="float: right"
+                id="select_factory_button"
+                disabled="disabled"
+            >
+                <?= __('Select Factory') ?>
+            </button>
         </legend>
-        <button
-            class="primary"
-            style="float: right"
-            data-mage-init='{"asnCreator_selectFactoryButton": <?= $block->getSelectFactoryButtonConfig() ?> }'
-        >
-            <?= __('Select Factory') ?>
-        </button>
-        <div class="selected_factory">
+        <div id="selected_factory">
+            <?= __('Not selected') ?>
         </div>
     </fieldset>
-    <fieldset class="fieldset" style="display: none" id="select_address_box">
+    <fieldset class="fieldset" style="display: none" id="select_address">
         <legend class="legend">
             <span><?= __('Address') ?></span>
+            <button
+                class="primary"
+                style="float: right"
+                id="select_address_button"
+            >
+                <?= __('Select Address') ?>
+            </button>
         </legend>
-        <button class="primary" style="float: right"><?= __('Select Address') ?></button>
+        <div id="selected_address">
+            <?= __('Not selected') ?>
+        </div>
     </fieldset>
-    <fieldset class="fieldset" style="display: none">
+    <fieldset class="fieldset" style="display: none" id="select_carton">
         <legend class="legend">
             <span><?= __('Cartons') ?></span>
+            <button class="primary" style="float: right"><?= __('Add Carton') ?></button>
         </legend>
-        <button class="primary" style="float: right"><?= __('Add Carton') ?></button>
+        <div id="cartons">
+            <?= __('None') ?>
+        </div>
     </fieldset>
 </form>
-
+<script type="text/javascript">
+    window.selectedFactoryId = null;
+    window.selectedAddressId = null;
+</script>
+<script type="text/x-magento-init">
+{
+    "#select_factory_button" : {
+        "asnCreator_selectFactoryButton": {
+            "selected_factory_box": "selected_factory",
+            "selected_address_box": "selected_address",
+            "select_address_box": "select_address",
+            "select_carton_box": "select_carton",
+            "url": "<?= $this->getUrl('itvoice_asn_creator/SelectFactory/Index') ?>",
+            "modal_id": "select_factory_modal",
+            "refresh_factory_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/factory') ?>"
+        }
+    },
+    "#select_address_button" : {
+        "asnCreator_selectAddressButton": {
+            "url": "<?= $this->getUrl('itvoice_asn_creator/SelectAddress/Index') ?>",
+            "modal_id": "select_address_modal",
+            "selected_address_box": "selected_address",
+            "select_carton_box": "select_carton",
+            "refresh_address_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/address') ?>"
+        }
+    }
+}
+</script>

@@ -6,10 +6,10 @@
 namespace ITvoice\AsnCreator\Controller\Adminhtml\Index;
 
 /**
- * Class Factory
+ * Class Address
  * @package ITvoice\AsnCreator\Controller\Adminhtml\Index
  */
-class Factory extends \Magento\Backend\App\Action
+class Address extends \Magento\Backend\App\Action
 {
     /**
      * @var \Magento\Framework\Controller\Result\JsonFactory
@@ -20,13 +20,13 @@ class Factory extends \Magento\Backend\App\Action
      */
     protected $resultLayoutFactory;
     /**
-     * @var \ITvoice\Factory\Model\FactoryRepository
-     */
-    protected $factoryRepository;
-    /**
      * @var \Magento\Framework\Registry
      */
     protected $coreRegistry;
+    /**
+     * @var \ITvoice\Client\Model\AddressFactory
+     */
+    protected $addressFactory;
 
     /**
      * Creator constructor.
@@ -38,13 +38,13 @@ class Factory extends \Magento\Backend\App\Action
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory,
-        \ITvoice\Factory\Model\FactoryRepository $factoryRepository,
+        \ITvoice\Client\Model\Client\AddressFactory $addressFactory,
         \Magento\Framework\Registry $coreRegistry
     ) {
         $this->jsonFactory = $jsonFactory;
         $this->resultLayoutFactory = $resultLayoutFactory;
-        $this->factoryRepository = $factoryRepository;
         $this->coreRegistry = $coreRegistry;
+        $this->addressFactory = $addressFactory;
         parent::__construct($context);
     }
 
@@ -55,15 +55,17 @@ class Factory extends \Magento\Backend\App\Action
     public function execute()
     {
         $jsonResponse = $this->jsonFactory->create();
-        $factoryId = $this->getRequest()->getParam('factory_id');
-        $factory = $this->factoryRepository->getById($factoryId);
+        $addressId = $this->getRequest()->getParam('address_id');
 
-        if ($factory) {
-            $this->coreRegistry->register('selected_factory', $factory);
+        $address = $this->addressFactory->create()->load($addressId);
+
+        if ($address) {
+            $this->coreRegistry->register('selected_address', $address);
             $this->resultLayoutFactory->create()->renderResult($this->getResponse());
+
             $jsonResponse->setData([
                 'html' => $this->getResponse()->getContent(),
-                'id' => $factory->getId(),
+                'id' => $address->getId(),
             ]);
         } else {
             $jsonResponse->setData([

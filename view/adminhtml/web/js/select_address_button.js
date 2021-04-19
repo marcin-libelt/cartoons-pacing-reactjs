@@ -4,10 +4,10 @@
  */
 define([
     'jquery',
-    'asnCreator_factory'
-], function ($, factory) {
+    'asnCreator_address'
+], function ($, address) {
 
     return function (config, button) {
-        return factory.initSelectFactoryButton(config, button);
+        return address.initSelectAddressButton(config, button);
     };
 });

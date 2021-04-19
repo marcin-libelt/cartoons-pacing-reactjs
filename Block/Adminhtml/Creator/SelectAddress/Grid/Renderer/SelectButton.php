@@ -3,7 +3,7 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Block\Adminhtml\Creator\SelectFactory\Grid\Renderer;
+namespace ITvoice\AsnCreator\Block\Adminhtml\Creator\SelectAddress\Grid\Renderer;
 
 /**
  * Class SelectButton
@@ -21,7 +21,7 @@ class SelectButton extends \Magento\Backend\Block\Widget\Grid\Column\Renderer\Ab
             \Magento\Backend\Block\Widget::class
         )->getButtonHtml(
             'Select',
-            'window.selectedFactoryId = "' . $row->getId() . '"; window.selectFactoryModal.modal(\'closeModal\')',
+            'window.selectedAddressId = "' . $row->getId() . '"; window.selectAddressModal.modal(\'closeModal\')',
             '',
             ''
         );

@@ -1,0 +1,64 @@
+<?php
+/**
+ * Copyright © Alekseon sp. z o.o.
+ * http://www.alekseon.com/
+ */
+?>
+<div>
+    <div class="order-history">
+        <table class="admin__table-secondary order-account-information-table">
+            <tbody>
+                <tr>
+                    <th><?= __('Supplier') ?></th>
+                    <td><?= $block->getFactory()->getSupplier() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('MBIL Factory Code') ?></th>
+                    <td><?= $block->getFactory()->getMbilFactoryCode() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Sage Code') ?></th>
+                    <td><?= $block->getFactory()->getSageCode() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('MID Code') ?></th>
+                    <td><?= $block->getFactory()->getMidCode() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('ID') ?></th>
+                    <td><?= $block->getFactory()->getId() ?></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="order-totals">
+        <table class="admin__table-secondary order-account-information-table">
+            <tbody>
+                <tr>
+                    <th><?= __('Street') ?></th>
+                    <td><?= $block->getFactory()->getStreet() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('City') ?></th>
+                    <td><?= $block->getFactory()->getCity() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Post Code') ?></th>
+                    <td><?= $block->getFactory()->getPostCode() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Country') ?></th>
+                    <td><?= $block->getFactory()->getCountry() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Phone') ?></th>
+                    <td><?= $block->getFactory()->getPhone() ?></td>
+                </tr>
+                <tr>
+                    <th><?= __('Currency') ?></th>
+                    <td><?= $block->getFactory()->getCurrency() ?></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

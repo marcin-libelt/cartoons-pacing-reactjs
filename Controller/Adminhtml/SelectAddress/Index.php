@@ -3,13 +3,13 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Controller\Adminhtml\Index;
+namespace ITvoice\AsnCreator\Controller\Adminhtml\SelectAddress;
 
 /**
- * Class Factory
- * @package ITvoice\AsnCreator\Controller\Adminhtml\Index
+ * Class Index
+ * @package ITvoice\AsnCreator\Controller\Adminhtml\SelectAddress
  */
-class Factory extends \Magento\Backend\App\Action
+class Index extends \Magento\Backend\App\Action
 {
     /**
      * @var \Magento\Framework\Controller\Result\JsonFactory
@@ -23,10 +23,6 @@ class Factory extends \Magento\Backend\App\Action
      * @var \ITvoice\Factory\Model\FactoryRepository
      */
     protected $factoryRepository;
-    /**
-     * @var \Magento\Framework\Registry
-     */
-    protected $coreRegistry;
 
     /**
      * Creator constructor.
@@ -38,13 +34,11 @@ class Factory extends \Magento\Backend\App\Action
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory,
-        \ITvoice\Factory\Model\FactoryRepository $factoryRepository,
-        \Magento\Framework\Registry $coreRegistry
+        \ITvoice\Factory\Model\FactoryRepository $factoryRepository
     ) {
         $this->jsonFactory = $jsonFactory;
-        $this->resultLayoutFactory = $resultLayoutFactory;
         $this->factoryRepository = $factoryRepository;
-        $this->coreRegistry = $coreRegistry;
+        $this->resultLayoutFactory = $resultLayoutFactory;
         parent::__construct($context);
     }
 
@@ -55,21 +49,11 @@ class Factory extends \Magento\Backend\App\Action
     public function execute()
     {
         $jsonResponse = $this->jsonFactory->create();
-        $factoryId = $this->getRequest()->getParam('factory_id');
-        $factory = $this->factoryRepository->getById($factoryId);
+        $this->resultLayoutFactory->create()->renderResult($this->getResponse());
 
-        if ($factory) {
-            $this->coreRegistry->register('selected_factory', $factory);
-            $this->resultLayoutFactory->create()->renderResult($this->getResponse());
-            $jsonResponse->setData([
-                'html' => $this->getResponse()->getContent(),
-                'id' => $factory->getId(),
-            ]);
-        } else {
-            $jsonResponse->setData([
-                'html' => '',
-            ]);
-        }
+        $jsonResponse->setData([
+            'html' => $this->getResponse()->getContent()
+        ]);
 
         return $jsonResponse;
     }

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Alekseon sp. z o.o.
+ * http://www.alekseon.com/
+ */
+-->
+<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/layout_generic.xsd">
+    <container name="root">
+        <block class="ITvoice\AsnCreator\Block\Adminhtml\Creator\Factory" template="ITvoice_AsnCreator::creator/factory.phtml" name="selected_factory" />
+    </container>
+</layout>
