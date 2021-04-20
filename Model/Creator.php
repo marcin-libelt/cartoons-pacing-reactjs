@@ -64,7 +64,7 @@ class Creator
                 $itemCollection->addPurchaseOrder($purchaseOrder);
             }
 
-            $itemCollection->getSelect()->group('main_table.product_id');
+            $itemCollection->getSelect()->group('product_id');
             $productIds = [];
             foreach ($itemCollection as $item) {
                 $productIds[] = $item->getProductId();

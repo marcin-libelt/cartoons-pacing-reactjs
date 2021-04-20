@@ -86,7 +86,7 @@ class Grid extends \ITvoice\Client\Block\Adminhtml\Client\Address\Grid
     {
         $itemCollection = $this->creatorItemFactory->create()->getCollection();
         $itemCollection->addFieldToFilter('carton_id', ['null' => true]);
-        $itemCollection->getSelect()->group('main_table.door');
+        $itemCollection->getSelect()->group('door');
 
         $customerNames = [];
         foreach ($itemCollection as $item) {

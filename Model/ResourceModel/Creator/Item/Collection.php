@@ -17,14 +17,6 @@ class Collection extends AbstractCollection
      * @var \Magento\Backend\Model\Auth\Session
      */
     protected $authSession;
-    /**
-     * @var
-     */
-    protected $purchaseOrderItemTable = 'itvoice_purchase_order_item';
-    /**
-     * @var bool
-     */
-    protected $purchaseOrderItemTableJoined = false;
 
     /**
      * Collection constructor.
@@ -77,30 +69,7 @@ class Collection extends AbstractCollection
         }
 
         $this->addFieldToFilter('user_id', $this->getUserId());
-        $this->joinPurchaseOrderItemTable();
         return parent::_beforeLoad();
-    }
-
-    /**
-     *
-     */
-    public function joinPurchaseOrderItemTable()
-    {
-        if ($this->purchaseOrderItemTableJoined) {
-            return $this;
-        }
-
-        $this->getSelect()->joinLeft(
-            ['po_item' => $this->getResource()->getTable($this->purchaseOrderItemTable)],
-            'main_table.po_item_id = po_item.entity_id',
-            [
-                'door' => 'door',
-                'product_id' => 'product_id'
-            ],
-        );
-
-        $this->purchaseOrderItemTableJoined = true;
-        return $this;
     }
 
     /**

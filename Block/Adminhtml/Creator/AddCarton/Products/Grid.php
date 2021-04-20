@@ -74,7 +74,7 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
             ->addFieldToFilter('carton_id', ['null' => true]);
 
         $itemCollection->getSelect()
-            ->group('main_table.product_id');
+            ->group('product_id');
 
         $productIds = [];
 
