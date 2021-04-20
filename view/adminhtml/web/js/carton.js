@@ -11,18 +11,22 @@ define([
     'use strict';
 
     var carton = {
-        newCartonPopup(url, modalId)
+        newCartonPopup(config)
         {
-            this.selectAddressPopup(url, modalId);
+            this.selectAddressPopup(config);
         },
 
-        selectAddressPopup(url, modalId)
+        selectAddressPopup(config)
         {
             var data = {
                 form_key: FORM_KEY,
             }
 
             var self = this;
+            var url = config.select_address_url;
+            var modalId = config.select_address_modal_id;
+
+            window.selectedAddressId = null;
 
             $.ajax({
                 type: "POST",
@@ -33,7 +37,9 @@ define([
             }).done(function (response) {
                 window.selectCartonAddressModal = $('#' + modalId).modal({
                     closed: function () {
-                        self.selectProductsPopup(url, modalId);
+                        if (window.selectedAddressId) {
+                            self.selectProductsPopup(config);
+                        }
                     },
                     opened: function () {
                     },
@@ -47,13 +53,17 @@ define([
             });
         },
 
-        selectProductsPopup(url, modalId)
+        selectProductsPopup(config)
         {
             var data = {
                 form_key: FORM_KEY,
+                factory_id: window.selectedFactoryId,
+                address_id: window.selectedAddressId,
             }
 
             var self = this;
+            var url = config.select_items_url;
+            var modalId = config.select_items_modal_id;
 
             $.ajax({
                 type: "POST",
@@ -84,7 +94,7 @@ define([
             var buttonElement = $(button);
 
             buttonElement.click(function () {
-                carton.newCartonPopup(config.url, config.modal_id);
+                carton.newCartonPopup(config);
                 return false;
             });
         }

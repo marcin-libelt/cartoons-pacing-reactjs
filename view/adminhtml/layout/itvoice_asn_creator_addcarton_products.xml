@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Alekseon sp. z o.o.
+ * http://www.alekseon.com/
+ */
+-->
+<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/layout_generic.xsd">
+    <container name="root">
+        <block class="ITvoice\AsnCreator\Block\Adminhtml\Creator\AddCarton" template="ITvoice_AsnCreator::creator/addCarton.phtml" name="add_carton">
+            <block class="ITvoice\AsnCreator\Block\Adminhtml\Creator\AddCarton\Products" name="products_grid_container" />
+        </block>
+    </container>
+</layout>

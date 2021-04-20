@@ -5,7 +5,8 @@
  */
 ?>
 <div id="select_factory_modal"></div>
-<div id="add_carton_modal"></div>
+<div id="select_address_modal"></div>
+<div id="select_items_modal"></div>
 <form class="new_asn_form">
     <fieldset class="fieldset">
         <legend class="legend">
@@ -57,8 +58,10 @@
     },
     "#add_carton_button" : {
         "asnCreator_addCartonButton": {
-            "modal_id": "add_carton_modal",
-            "url": "<?= $this->getUrl('itvoice_asn_creator/AddCarton/Index') ?>"
+            "select_address_modal_id": "select_address_modal",
+            "select_items_modal_id": "select_items_modal",
+            "select_address_url": "<?= $this->getUrl('itvoice_asn_creator/AddCarton/Address') ?>",
+            "select_items_url": "<?= $this->getUrl('itvoice_asn_creator/AddCarton/Products') ?>"
         }
     }
 }

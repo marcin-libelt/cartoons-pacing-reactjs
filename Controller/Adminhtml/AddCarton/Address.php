@@ -6,10 +6,10 @@
 namespace ITvoice\AsnCreator\Controller\Adminhtml\AddCarton;
 
 /**
- * Class Index
+ * Class Address
  * @package ITvoice\AsnCreator\Controller\Adminhtml\AddCarton
  */
-class Index extends \Magento\Backend\App\Action
+class Address extends \Magento\Backend\App\Action
 {
     /**
      * @var \Magento\Framework\Controller\Result\JsonFactory

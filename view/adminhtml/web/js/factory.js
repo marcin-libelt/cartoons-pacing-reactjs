@@ -43,7 +43,7 @@ define([
             });
         },
 
-        selectFactory(buttonElement, url, modalId)
+        selectFactory(url, modalId)
         {
             var data = {
                 form_key: FORM_KEY,
@@ -88,7 +88,7 @@ define([
             factory.cartonListBox = $('#' + config.carton_list_box);
 
             buttonElement.click(function () {
-                factory.selectFactory($(this), config.url, config.modal_id);
+                factory.selectFactory(config.url, config.modal_id);
                 return false;
             });
 

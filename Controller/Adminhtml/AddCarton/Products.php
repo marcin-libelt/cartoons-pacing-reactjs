@@ -3,13 +3,13 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Controller\Adminhtml\Index;
+namespace ITvoice\AsnCreator\Controller\Adminhtml\AddCarton;
 
 /**
- * Class Factory
- * @package ITvoice\AsnCreator\Controller\Adminhtml\Index
+ * Class Products
+ * @package ITvoice\AsnCreator\Controller\Adminhtml\AddCarton
  */
-class Factory extends \Magento\Backend\App\Action
+class Products extends \Magento\Backend\App\Action
 {
     /**
      * @var \Magento\Framework\Controller\Result\JsonFactory
@@ -24,13 +24,13 @@ class Factory extends \Magento\Backend\App\Action
      */
     protected $factoryRepository;
     /**
+     * @var \ITvoice\Client\Model\Client\AddressFactory
+     */
+    protected $addressFactory;
+    /**
      * @var \Magento\Framework\Registry
      */
-    protected $coreRegistry;
-    /**
-     * @var \ITvoice\AsnCreator\Model\Creator
-     */
-    protected $creator;
+    protected $registry;
 
     /**
      * Creator constructor.
@@ -43,42 +43,51 @@ class Factory extends \Magento\Backend\App\Action
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory,
         \ITvoice\Factory\Model\FactoryRepository $factoryRepository,
-        \Magento\Framework\Registry $coreRegistry,
-        \ITvoice\AsnCreator\Model\Creator $creator
+        \ITvoice\Client\Model\Client\AddressFactory $addressFactory,
+        \Magento\Framework\Registry $registry
     ) {
         $this->jsonFactory = $jsonFactory;
         $this->resultLayoutFactory = $resultLayoutFactory;
         $this->factoryRepository = $factoryRepository;
-        $this->coreRegistry = $coreRegistry;
-        $this->creator = $creator;
+        $this->addressFactory = $addressFactory;
+        $this->registry = $registry;
         parent::__construct($context);
     }
 
+    /**
+     *
+     */
+    protected function initAddress()
+    {
+        $addressId = $this->getRequest()->getParam('address_id');
+        $address = $this->addressFactory->create()->load($addressId);
+        $this->registry->register('current_address', $address);
+    }
+
+    /**
+     *
+     */
+    protected function initFactory()
+    {
+        $factoryId = $this->getRequest()->getParam('factory_id');
+        $factory = $this->factoryRepository->getById($factoryId);
+        $this->registry->register('current_factory', $factory);
+    }
 
     /**
      * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface|void
      */
     public function execute()
     {
+        $this->initAddress();
+        $this->initFactory();
+
         $jsonResponse = $this->jsonFactory->create();
-        $factoryId = $this->getRequest()->getParam('factory_id');
-        $factory = $this->factoryRepository->getById($factoryId);
+        $this->resultLayoutFactory->create()->renderResult($this->getResponse());
 
-        if ($factory) {
-            $this->coreRegistry->register('selected_factory', $factory);
-            $this->resultLayoutFactory->create()->renderResult($this->getResponse());
-            $jsonResponse->setData([
-                'html' => $this->getResponse()->getContent(),
-                'id' => $factory->getId(),
-            ]);
-        } else {
-            $jsonResponse->setData([
-                'html' => '',
-            ]);
-        }
-
-
-        $this->creator->prepareCreatorTablesForUser($factory);
+        $jsonResponse->setData([
+            'html' => $this->getResponse()->getContent()
+        ]);
 
         return $jsonResponse;
     }

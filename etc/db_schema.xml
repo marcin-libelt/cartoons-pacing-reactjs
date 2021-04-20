@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Alekseon sp. z o.o.
+ * http://www.alekseon.com/
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="itvoice_asn_creator_carton" resource="default" engine="innodb" comment="ITvoice ASN Creator Carton">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true"
+                comment="Entity ID"/>
+        <column xsi:type="int" name="user_id" unsigned="true" nullable="false" comment="User ID" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ITVOICE_ASN_CREATOR_CARTON_ADMIN_USER"
+                    table="itvoice_asn_creator_carton" column="user_id" referenceTable="admin_user"
+                    referenceColumn="user_id" onDelete="CASCADE"/>
+    </table>
+    <table name="itvoice_asn_creator_item" resource="default" engine="innodb" comment="ITvoice ASN Creator Items">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true"
+                comment="Entity ID"/>
+        <column xsi:type="int" name="user_id" unsigned="true" nullable="false" comment="User ID" />
+        <column xsi:type="int" name="carton_id" unsigned="true" nullable="true" comment="Carton ID" />
+        <column xsi:type="int" name="po_item_id" unsigned="true" nullable="false" comment="PO Item ID" />
+        <column xsi:type="varchar" name="supplier" nullable="false" length="64" comment="Supplier Name" />
+        <column xsi:type="varchar" name="door" nullable="false" length="64" comment="Door Name" />
+        <column xsi:type="varchar" name="product_id" length="64" comment="Product ID" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ITVOICE_ASN_CREATOR_ITEM_CARTON"
+                    table="itvoice_asn_creator_item" column="carton_id" referenceTable="itvoice_asn_creator_carton"
+                    referenceColumn="entity_id" onDelete="SET NULL"/>
+        <constraint xsi:type="foreign" referenceId="ITVOICE_ASN_CREATOR_ITEM_PO_ITEM"
+                    table="itvoice_asn_creator_item" column="po_item_id" referenceTable="itvoice_purchase_order_item"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="ITVOICE_ASN_CREATOR_ITEM_ADMIN_USER"
+                    table="itvoice_asn_creator_item" column="user_id" referenceTable="admin_user"
+                    referenceColumn="user_id" onDelete="CASCADE"/>
+    </table>
+    <table name="itvoice_asn_creator_product" resource="default" engine="innodb" comment="ITvoice ASN Creator Products">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true"
+                comment="Entity ID"/>
+        <column xsi:type="int" name="user_id" unsigned="true" nullable="false" comment="User ID" />
+        <column xsi:type="varchar" name="product_id" length="64" comment="Product ID" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ITVOICE_ASN_CREATOR_PRODUCT_ADMIN_USER"
+                    table="itvoice_asn_creator_product" column="user_id" referenceTable="admin_user"
+                    referenceColumn="user_id" onDelete="CASCADE"/>
+    </table>
+</schema>
