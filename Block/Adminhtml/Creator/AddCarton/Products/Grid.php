@@ -14,10 +14,6 @@ use ITvoice\PurchaseOrder\Model\ResourceModel\PurchaseOrderItem;
 class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
 {
     /**
-     * @var \ITvoice\AsnCreator\Model\ResourceModel\Creator\Products\CollectionFactory
-     */
-    protected $productCollectionFactory;
-    /**
      * @var \ITvoice\AsnCreator\Model\ResourceModel\Creator\Item\CollectionFactory
      */
     protected $itemCollectionFactory;
@@ -30,19 +26,18 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
      * Grid constructor.
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Backend\Helper\Data $backendHelper
-     * @param \ITvoice\AsnCreator\Model\ResourceModel\Creator\Product\CollectionFactory $collectionFactory
+     * @param \ITvoice\AsnCreator\Model\ResourceModel\Creator\Item\CollectionFactory $itemCollectionFactory
+     * @param \Magento\Framework\Registry $registry
      * @param array $data
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Backend\Helper\Data $backendHelper,
-        \ITvoice\AsnCreator\Model\ResourceModel\Creator\Product\CollectionFactory $productCollectionFactory,
         \ITvoice\AsnCreator\Model\ResourceModel\Creator\Item\CollectionFactory $itemCollectionFactory,
         \Magento\Framework\Registry $registry,
         array $data = []
     )
     {
-        $this->productCollectionFactory = $productCollectionFactory;
         $this->itemCollectionFactory = $itemCollectionFactory;
         $this->registry = $registry;
         parent::__construct($context, $backendHelper, $data);
@@ -79,11 +74,11 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
         $productIds = [];
 
         foreach ($itemCollection as $item) {
-            $productIds[] = $item->getProductId();
+            $productIds[] = $item->getId();
         }
 
-        $collection = $this->productCollectionFactory->create();
-        $collection->addFieldToFilter('product_id', ['in' => $productIds]);
+        $collection = $this->itemCollectionFactory->create();
+        $collection->addFieldToFilter('entity_id', ['in' => $productIds]);
 
         $this->setCollection($collection);
         parent::_prepareCollection();

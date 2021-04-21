@@ -40,16 +40,4 @@
                     table="itvoice_asn_creator_item" column="user_id" referenceTable="admin_user"
                     referenceColumn="user_id" onDelete="CASCADE"/>
     </table>
-    <table name="itvoice_asn_creator_product" resource="default" engine="innodb" comment="ITvoice ASN Creator Products">
-        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true"
-                comment="Entity ID"/>
-        <column xsi:type="int" name="user_id" unsigned="true" nullable="false" comment="User ID" />
-        <column xsi:type="varchar" name="product_id" length="64" comment="Product ID" />
-        <constraint xsi:type="primary" referenceId="PRIMARY">
-            <column name="entity_id"/>
-        </constraint>
-        <constraint xsi:type="foreign" referenceId="ITVOICE_ASN_CREATOR_PRODUCT_ADMIN_USER"
-                    table="itvoice_asn_creator_product" column="user_id" referenceTable="admin_user"
-                    referenceColumn="user_id" onDelete="CASCADE"/>
-    </table>
 </schema>
