@@ -24,6 +24,16 @@
             <?= __('Not selected') ?>
         </div>
     </fieldset>
+
+    <fieldset class="fieldset">
+        <div id="react-category-root"></div>
+        <script>
+            require(['react-app'], function (App) {
+                let React = App.init('react-category-root', {});
+            });
+        </script>
+    </fieldset>
+
     <fieldset class="fieldset" style="display: none" id="cartons">
         <legend class="legend">
             <span><?= __('Cartons') ?></span>
