@@ -15,7 +15,6 @@ define([
         selectedFactoryBox: null,
         refreshFactoryBoxUrl: null,
         cartonsBox: null,
-        cartonListBox: null,
 
         refreshFactoryBox()
         {
@@ -61,7 +60,6 @@ define([
                 window.selectFactoryModal = $('#' + modalId).modal({
                     closed: function () {
                         $(this).html('');
-                        self.cartonListBox.html($t('None'));
                         self.refreshFactoryBox();
                     },
                     opened: function () {
@@ -85,7 +83,6 @@ define([
             factory.selectedFactoryBox = $('#' + config.selected_factory_box);
             factory.refreshFactoryBoxUrl = config.refresh_factory_box_url;
             factory.cartonsBox = $('#' + config.cartons_box);
-            factory.cartonListBox = $('#' + config.carton_list_box);
 
             buttonElement.click(function () {
                 factory.selectFactory(config.url, config.modal_id);

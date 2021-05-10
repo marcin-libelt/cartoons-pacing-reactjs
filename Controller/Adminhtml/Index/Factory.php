@@ -43,14 +43,12 @@ class Factory extends \Magento\Backend\App\Action
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory,
         \ITvoice\Factory\Model\FactoryRepository $factoryRepository,
-        \Magento\Framework\Registry $coreRegistry,
-        \ITvoice\AsnCreator\Model\Creator $creator
+        \Magento\Framework\Registry $coreRegistry
     ) {
         $this->jsonFactory = $jsonFactory;
         $this->resultLayoutFactory = $resultLayoutFactory;
         $this->factoryRepository = $factoryRepository;
         $this->coreRegistry = $coreRegistry;
-        $this->creator = $creator;
         parent::__construct($context);
     }
 
@@ -76,9 +74,6 @@ class Factory extends \Magento\Backend\App\Action
                 'html' => '',
             ]);
         }
-
-
-        $this->creator->prepareCreatorTablesForUser($factory);
 
         return $jsonResponse;
     }

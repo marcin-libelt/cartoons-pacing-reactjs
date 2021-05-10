@@ -25,7 +25,7 @@
         </div>
     </fieldset>
 
-    <fieldset class="fieldset">
+    <fieldset class="fieldset" id ="cartons" style="display: none">
         <div id="react-category-root"></div>
         <script>
             require(['react-app'], function (App) {
@@ -33,26 +33,9 @@
             });
         </script>
     </fieldset>
-
-    <fieldset class="fieldset" style="display: none" id="cartons">
-        <legend class="legend">
-            <span><?= __('Cartons') ?></span>
-            <button
-                class="primary"
-                style="float: right"
-                id="add_carton_button"
-            >
-                <?= __('Add Carton') ?>
-            </button>
-        </legend>
-        <div id="carton_list">
-            <?= __('None') ?>
-        </div>
-    </fieldset>
 </form>
 <script type="text/javascript">
     window.selectedFactoryId = null;
-    window.selectedAddressId = null;
 </script>
 <script type="text/x-magento-init">
 {
@@ -60,18 +43,9 @@
         "asnCreator_selectFactoryButton": {
             "selected_factory_box": "selected_factory",
             "cartons_box": "cartons",
-            "carton_list_box": "carton_list",
             "url": "<?= $this->getUrl('itvoice_asn_creator/SelectFactory/Index') ?>",
             "modal_id": "select_factory_modal",
             "refresh_factory_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/factory') ?>"
-        }
-    },
-    "#add_carton_button" : {
-        "asnCreator_addCartonButton": {
-            "select_address_modal_id": "select_address_modal",
-            "select_items_modal_id": "select_items_modal",
-            "select_address_url": "<?= $this->getUrl('itvoice_asn_creator/AddCarton/Address') ?>",
-            "select_items_url": "<?= $this->getUrl('itvoice_asn_creator/AddCarton/Products') ?>"
         }
     }
 }
