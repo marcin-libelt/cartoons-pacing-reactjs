@@ -81,7 +81,7 @@ class GetItems extends \Magento\Backend\App\Action
                      'doorCode' => $doorCode,
                      'PO' => $purchaseOrder->getDocumentNo(),
                      'name' => $poItem->getStyleName(),
-                     'sku' => $poItem->getSkuid(),
+                     'sku' => $productId,
                      'sizes' => [],
                  ];
              } else {
@@ -90,7 +90,7 @@ class GetItems extends \Magento\Backend\App\Action
 
             $data[$rowId]['sizes'][] = [
                 'qty' => $poItem->getQty(),
-                'barcode' => '', // @todo we dont have it ?
+                'barcode' => $poItem->getSkuid(), // @todo we dont have it, for now its skuid ?
                 'size' => $poItem->getSize(),
             ];
         }
