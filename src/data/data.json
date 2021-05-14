@@ -1,0 +1,462 @@
+[
+  {
+    "id": 0,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.12401",
+    "doorCode": "#12401",
+    "PO": "PO120-109-03-03542",
+    "name": "VERTON",
+    "sku": "116-1000-192",
+    "sizes": [
+      {
+        "qty": 4,
+        "barcode": 59068431831,
+        "size": 37
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431489,
+        "size": 38
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431613,
+        "size": 39
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431185,
+        "size": 40
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431806,
+        "size": 41
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431533,
+        "size": 42
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431686,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 1,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.12401",
+    "doorCode": "#12401",
+    "PO": "PO120-109-03-03542",
+    "name": "PASTURIA",
+    "sku": "193-1000-461",
+    "sizes": [
+      {
+        "qty": 2,
+        "barcode": 59068431252,
+        "size": 37
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431189,
+        "size": 38
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431727,
+        "size": 39
+      },
+      {
+        "qty": 2,
+        "barcode": 59068431625,
+        "size": 40
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431564,
+        "size": 41
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431151,
+        "size": 42
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431121,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 2,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.12401",
+    "doorCode": "#12401",
+    "PO": "PO120-109-03-03542",
+    "name": "MITROC",
+    "sku": "383-1000-448",
+    "sizes": [
+      {
+        "qty": 2,
+        "barcode": 59068431958,
+        "size": 37
+      },
+      {
+        "qty": 2,
+        "barcode": 59068431815,
+        "size": 38
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431816,
+        "size": 39
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431343,
+        "size": 40
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431500,
+        "size": 41
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431115,
+        "size": 42
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431657,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 3,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.12401",
+    "doorCode": "#12401",
+    "PO": "PO120-109-04-03558",
+    "name": "APEX",
+    "sku": "221-1000-136",
+    "sizes": [
+      {
+        "qty": 1,
+        "barcode": 59068431733,
+        "size": 37
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431302,
+        "size": 38
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431834,
+        "size": 39
+      },
+      {
+        "qty": 2,
+        "barcode": 59068431241,
+        "size": 40
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431573,
+        "size": 41
+      },
+      {
+        "qty": 2,
+        "barcode": 59068431145,
+        "size": 42
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431704,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 4,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.12401",
+    "doorCode": "#12401",
+    "PO": "PO120-109-04-03558",
+    "name": "MANTRIX",
+    "sku": "208-1000-457",
+    "sizes": [
+      {
+        "qty": 1,
+        "barcode": 59068431565,
+        "size": 37
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431377,
+        "size": 38
+      },
+      {
+        "qty": 2,
+        "barcode": 59068431850,
+        "size": 39
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431482,
+        "size": 40
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431460,
+        "size": 41
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431121,
+        "size": 42
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431794,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 5,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.12401",
+    "doorCode": "#12401",
+    "PO": "PO120-109-03-03542",
+    "name": "MULTRON",
+    "sku": "236-1000-246",
+    "sizes": [
+      {
+        "qty": 3,
+        "barcode": 59068431245,
+        "size": 37
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431893,
+        "size": 38
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431768,
+        "size": 39
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431215,
+        "size": 40
+      },
+      {
+        "qty": 2,
+        "barcode": 59068431688,
+        "size": 41
+      },
+      {
+        "qty": 2,
+        "barcode": 59068431765,
+        "size": 42
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431515,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 6,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.12401",
+    "doorCode": "#12401",
+    "PO": "PO120-112-01-03322",
+    "name": "RONBERT",
+    "sku": "234-1000-242",
+    "sizes": [
+      {
+        "qty": 4,
+        "barcode": 59068431548,
+        "size": 37
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431164,
+        "size": 38
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431693,
+        "size": 39
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431270,
+        "size": 40
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431827,
+        "size": 41
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431499,
+        "size": 42
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431485,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 7,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.87389",
+    "doorCode": "#87389",
+    "PO": "PO120-109-04-03558",
+    "name": "CIRCUM",
+    "sku": "341-1000-308",
+    "sizes": [
+      {
+        "qty": 3,
+        "barcode": 59068431249,
+        "size": 37
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431378,
+        "size": 38
+      },
+      {
+        "qty": 2,
+        "barcode": 59068431801,
+        "size": 39
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431324,
+        "size": 40
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431973,
+        "size": 41
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431530,
+        "size": 42
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431247,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 8,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.87389",
+    "doorCode": "#87389",
+    "PO": "PO120-109-04-03558",
+    "name": "PROXSOFT",
+    "sku": "382-1000-336",
+    "sizes": [
+      {
+        "qty": 2,
+        "barcode": 59068431594,
+        "size": 37
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431404,
+        "size": 38
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431237,
+        "size": 39
+      },
+      {
+        "qty": 1,
+        "barcode": 59068431810,
+        "size": 40
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431265,
+        "size": 41
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431888,
+        "size": 42
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431956,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  },
+  {
+    "id": 9,
+    "doorLabel": "SAMPLE DOOR DUMMY TEXT BO.87389",
+    "doorCode": "#87389",
+    "PO": "PO120-109-05-04081",
+    "name": "ZOUNDS",
+    "sku": "341-1000-496",
+    "sizes": [
+      {
+        "qty": 2,
+        "barcode": 59068431856,
+        "size": 37
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431988,
+        "size": 38
+      },
+      {
+        "qty": 3,
+        "barcode": 59068431524,
+        "size": 39
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431820,
+        "size": 40
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431357,
+        "size": 41
+      },
+      {
+        "qty": 5,
+        "barcode": 59068431487,
+        "size": 42
+      },
+      {
+        "qty": 4,
+        "barcode": 59068431893,
+        "size": 43
+      }
+    ],
+    "type": "style"
+  }
+]

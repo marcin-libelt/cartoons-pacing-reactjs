@@ -6,8 +6,9 @@ define([
     'jquery',
     "Magento_Ui/js/modal/modal",
     'mage/translate',
-    'Magento_Ui/js/modal/alert'
-], function ($, modal, $t, alert) {
+    'Magento_Ui/js/modal/alert',
+    'react-app'
+], function ($, modal, $t, alert, ReactApp) {
     'use strict';
 
     var factory = {
@@ -37,7 +38,25 @@ define([
                 self.selectedFactoryBox.html(response.html);
 
                 if (window.selectedFactoryId) {
-                    self.cartonsBox.show();
+
+                    var data = {
+                        form_key: FORM_KEY,
+                        factory_id: response.id,
+                    }
+                    $.ajax({
+                        type: "GET",
+                        url: self.factoryGetItemsUrl,
+                        dataType: 'json',
+                        showLoader: true,
+                        data: data
+                    }).done(function (response){
+                        require(['react-app'], function (ReactApp) {
+                            ReactApp.init('react-category-root', {
+                                data: response
+                            });
+                        });
+                    })
+
                 }
             });
         },
@@ -82,6 +101,7 @@ define([
 
             factory.selectedFactoryBox = $('#' + config.selected_factory_box);
             factory.refreshFactoryBoxUrl = config.refresh_factory_box_url;
+            factory.factoryGetItemsUrl = config.factory_get_items_url;
             factory.cartonsBox = $('#' + config.cartons_box);
 
             buttonElement.click(function () {

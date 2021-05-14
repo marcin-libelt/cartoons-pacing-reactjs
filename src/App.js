@@ -3,13 +3,13 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DndProvider } from 'react-dnd'
 import Container from './container'
 
-const App = function() {
+const App = function({ parameter }) {
     return (
-        <div className="App">
+        <React.StrictMode>
             <DndProvider backend={HTML5Backend}>
-                <Container />
+                <Container data={parameter.data}/>
             </DndProvider>
-        </div>
+        </React.StrictMode>
     )
 }
 

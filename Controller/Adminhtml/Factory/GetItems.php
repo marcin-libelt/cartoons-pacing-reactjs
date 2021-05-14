@@ -66,7 +66,7 @@ class GetItems extends \Magento\Backend\App\Action
         $poItems->addFieldToFilter('purchase_order_id', ['in' => $purchaseOrderIds]);
 
         $idMap = [];
-
+        $limit = 0;
         foreach ($poItems as $poItem) {
              $doorCode = $poItem->getDoor();  // @todo replace with door code, for now we dont have door code
              $purchaseOrder = $purchaseOrders[$poItem->getPurchaseOrderId()];
@@ -77,27 +77,33 @@ class GetItems extends \Magento\Backend\App\Action
              if (!isset($idMap[$itemId])) {
                  $rowId = $idMap[$itemId] = $poItem->getId();
                  $data[$rowId] = [
+                     'id' => $rowId,
                      'doorLabel' => $poItem->getDoor(),
                      'doorCode' => $doorCode,
                      'PO' => $purchaseOrder->getDocumentNo(),
                      'name' => $poItem->getStyleName(),
                      'sku' => $productId,
                      'sizes' => [],
+                     'type' => 'style'
                  ];
              } else {
                  $rowId = $idMap[$itemId];
              }
 
-            $data[$rowId]['sizes'][] = [
-                'qty' => $poItem->getQty(),
-                'barcode' => $poItem->getSkuid(), // @todo we dont have it, for now its skuid ?
-                'size' => $poItem->getSize(),
-            ];
+
+             $data[$rowId]['sizes'][] = [
+                 'qty' => $poItem->getQty(),
+                 'barcode' => $poItem->getSkuid(), // @todo we dont have it, for now its skuid ?
+                 'size' => $poItem->getSize(),
+             ];
+
+             $limit += 1;  // TODO remove this limitation for PRODUCTION env
+             if($limit == 100) {
+                 break;
+             }
         }
 
-        $data['type'] = 'style';
-
-        $jsonResponse->setData($data);
+        $jsonResponse->setData(array_values($data));
         return $jsonResponse;
     }
 
