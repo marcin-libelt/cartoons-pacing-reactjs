@@ -178,14 +178,23 @@
     font-size: 13px;
 }
 
-.sticky-card {
-    position: sticky;
-    top: 10px;
-}
-
 .dustbin-toggler {
     vertical-align: middle;
     line-height: 1.4;
     margin-left: 6px;
     cursor: pointer;
+}
+
+.size-input {
+    width: 9%;
+    float: left;
+    padding: 3px 4px 7px;
+}
+
+.size-input > div {
+    text-align: center;
+}
+
+.size-input input[type="number"] {
+    width: 100%;
 }

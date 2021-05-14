@@ -404,7 +404,7 @@ export const Container = memo(function Container(props) {
                     </div>
                 </div>
                 <div className="col col-7">
-                    <div style={{height: '100%'}}>
+                    <div className={'mb-3'}>
                         {dustbins.map(({
                                            accepts,
                                            uid,

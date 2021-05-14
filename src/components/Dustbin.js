@@ -35,7 +35,8 @@ export const Dustbin = memo(function Dustbin({
 
     const styles = {
         borderWidth: '0 0 1px',
-        backgroundColor: '#d4c7af'
+        backgroundColor: '#d4c7af',
+        width: '100%'
     }
 
     const styles2 = {
@@ -61,23 +62,23 @@ export const Dustbin = memo(function Dustbin({
         </p>
         <div className={'card-body'} style={ !isOpen2 ? styles2 : {}}>
 
-            { isOpen2 ? <React.Fragment><div className={'row mb-4'}>
-                    <div className={'col mb-1'}>
+            { isOpen2 ? <React.Fragment><div className={'row mb-4'} style={{ marginLeft: '-10px', marginRight: '-10px'}}>
+                    <div className={'col mb-1'} style={{ padding: '0 10px'}}>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Gross weight</label>
                         <input type="text" style={styles} value={info.gross_weight}
                                onChange={(e) => setCartonInfo(e.target.value, 'gross_weight', uid)}/><br/>
                     </div>
-                    <div className={'col mb-1'}>
+                    <div className={'col mb-1'} style={{ padding: '0 10px'}}>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Net weight</label>
                         <input type="text" style={styles} value={info.net_weight}
                                onChange={(e) => setCartonInfo(e.target.value, 'net_weight', uid)} placeholder={''}/><br/>
                     </div>
-                    <div className={'col mb-1'}>
+                    <div className={'col mb-1'} style={{ padding: '0 10px'}}>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Dimensions</label>
                         <input type="text" style={styles} value={info.dimensions}
                                onChange={(e) => setCartonInfo(e.target.value, 'dimensions', uid)} placeholder={''}/><br/>
                     </div>
-                    <div className={'col mb-1'}>
+                    <div className={'col mb-1'} style={{ padding: '0 10px'}}>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Suffix</label>
                         <input type="text" style={styles} value={info.suffix}
                                onChange={(e) => setCartonInfo(e.target.value, 'suffix', uid)} placeholder={''}/><br/>
