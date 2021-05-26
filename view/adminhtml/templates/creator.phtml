@@ -25,18 +25,10 @@
         </div>
     </fieldset>
 
-    <fieldset class="fieldset" id ="cartons" style="display: none">
+    <fieldset class="fieldset">
         <div id="react-category-root"></div>
-        <script>
-            require(['react-app'], function (App) {
-                let React = App.init('react-category-root', {});
-            });
-        </script>
     </fieldset>
 </form>
-<script type="text/javascript">
-    window.selectedFactoryId = null;
-</script>
 <script type="text/x-magento-init">
 {
     "#select_factory_button" : {
@@ -45,7 +37,8 @@
             "cartons_box": "cartons",
             "url": "<?= $this->getUrl('itvoice_asn_creator/SelectFactory/Index') ?>",
             "modal_id": "select_factory_modal",
-            "refresh_factory_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/factory') ?>"
+            "refresh_factory_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/factory') ?>",
+            "factory_get_items_url": "<?= $this->getUrl('itvoice_asn_creator/factory/getitems') ?>"
         }
     }
 }

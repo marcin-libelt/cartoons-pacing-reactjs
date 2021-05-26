@@ -70,9 +70,8 @@ class GetItems extends \Magento\Backend\App\Action
         $poItems->addFieldToFilter('purchase_order_id', ['in' => $purchaseOrderIds]);
 
         $idMap = [];
-
+        $limit = 0;
         foreach ($poItems as $poItem) {
-
             $qty = (int) $poItem->getBalanceQty();
             if ($qty <= 0) {
                 continue;
@@ -111,11 +110,14 @@ class GetItems extends \Magento\Backend\App\Action
                 'barcode' => $poItem->getBarcode(),
                 'size' => $poItem->getSize(),
             ];
+
+             $limit += 1;  // TODO remove this limitation for PRODUCTION env
+             if ($limit == 100) {
+                 break;
+             }
         }
 
-        $data['type'] = 'style';
-
-        $jsonResponse->setData($data);
+        $jsonResponse->setData(array_values($data));
         return $jsonResponse;
     }
 
