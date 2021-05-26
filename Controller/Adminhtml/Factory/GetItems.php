@@ -33,6 +33,10 @@ class GetItems extends \Magento\Backend\App\Action
     /**
      * GetItems constructor.
      * @param Context $context
+     * @param \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
+     * @param \ITvoice\Factory\Model\FactoryRepository $factoryRepository
+     * @param \ITvoice\PurchaseOrder\Model\PurchaseOrderFactory $purchaseOrderFactory
+     * @param \ITvoice\PurchaseOrder\Model\PurchaseOrderItemFactory $purchaseOrderItemFactory
      */
     public function __construct(
         Context $context,
@@ -68,30 +72,44 @@ class GetItems extends \Magento\Backend\App\Action
         $idMap = [];
 
         foreach ($poItems as $poItem) {
-             $doorCode = $poItem->getDoor();  // @todo replace with door code, for now we dont have door code
-             $purchaseOrder = $purchaseOrders[$poItem->getPurchaseOrderId()];
-             $productId = $poItem->getproductId();
 
-             $itemId = $doorCode . '-' . $productId . $purchaseOrder->getId();
+            $qty = (int) $poItem->getBalanceQty();
+            if ($qty <= 0) {
+                continue;
+            }
 
-             if (!isset($idMap[$itemId])) {
-                 $rowId = $idMap[$itemId] = $poItem->getId();
-                 $data[$rowId] = [
-                     'doorLabel' => $poItem->getDoor(),
-                     'doorCode' => $doorCode,
-                     'PO' => $purchaseOrder->getDocumentNo(),
-                     'name' => $poItem->getStyleName(),
-                     'sku' => $productId,
-                     'sizes' => [],
-                 ];
-             } else {
-                 $rowId = $idMap[$itemId];
-             }
+            $shippingDoorCode = $poItem->getShippingDoorCode();
+            $purchaseOrder = $purchaseOrders[$poItem->getPurchaseOrderId()];
+            $productId = $poItem->getproductId();
+
+            $itemId = $shippingDoorCode . '-' . $productId . $purchaseOrder->getId();
+
+            if (!isset($idMap[$itemId])) {
+             $shippingAddress =  $poItem->getShippingAddress();
+             $client = $shippingAddress->getClient();
+
+             $rowId = $idMap[$itemId] = $poItem->getId();
+             $data[$rowId] = [
+                 'doorLabel' => $poItem->getDoor(),
+                 'doorCode' => $shippingDoorCode,
+                 'PO' => $purchaseOrder->getDocumentNo(),
+                 'name' => $poItem->getStyleName(),
+                 'sku' => $productId,
+                 'joorSONumber' => $purchaseOrder->getJoorSoNumber(),
+                 'orderType' => $poItem->getOrderType(),
+                 'unit_selling_price' => $poItem->getUnitSellingPrice(),
+                 'clientName' => $client->getCustomerName(),
+                 'warehouseLocation' => $shippingAddress->getWarehouseLocation(),
+                 'sizes' => [],
+             ];
+            } else {
+             $rowId = $idMap[$itemId];
+            }
 
             $data[$rowId]['sizes'][] = [
-                'qty' => $poItem->getQty(),
-                'barcode' => $poItem->getSkuid(), // @todo we dont have it, for now its skuid ?
-                'size' => $poItem->getSize(),
+            'qty' => $qty,
+            'barcode' => $poItem->getSkuid(), // @todo we dont have it, for now its skuid ?
+            'size' => $poItem->getSize(),
             ];
         }
 
