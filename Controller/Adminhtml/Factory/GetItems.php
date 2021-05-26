@@ -85,31 +85,31 @@ class GetItems extends \Magento\Backend\App\Action
             $itemId = $shippingDoorCode . '-' . $productId . $purchaseOrder->getId();
 
             if (!isset($idMap[$itemId])) {
-             $shippingAddress =  $poItem->getShippingAddress();
-             $client = $shippingAddress->getClient();
+                $shippingAddress =  $poItem->getShippingAddress();
+                $client = $shippingAddress->getClient();
 
-             $rowId = $idMap[$itemId] = $poItem->getId();
-             $data[$rowId] = [
-                 'doorLabel' => $poItem->getDoor(),
-                 'doorCode' => $shippingDoorCode,
-                 'PO' => $purchaseOrder->getDocumentNo(),
-                 'name' => $poItem->getStyleName(),
-                 'sku' => $productId,
-                 'joorSONumber' => $purchaseOrder->getJoorSoNumber(),
-                 'orderType' => $poItem->getOrderType(),
-                 'unit_selling_price' => $poItem->getUnitSellingPrice(),
-                 'clientName' => $client->getCustomerName(),
-                 'warehouseLocation' => $shippingAddress->getWarehouseLocation(),
-                 'sizes' => [],
-             ];
+                $rowId = $idMap[$itemId] = $poItem->getId();
+                $data[$rowId] = [
+                    'doorLabel' => $poItem->getDoor(),
+                    'doorCode' => $shippingDoorCode,
+                    'PO' => $purchaseOrder->getDocumentNo(),
+                    'name' => $poItem->getStyleName(),
+                    'sku' => $productId,
+                    'joorSONumber' => $purchaseOrder->getJoorSoNumber(),
+                    'orderType' => $poItem->getOrderType(),
+                    'unit_selling_price' => $poItem->getUnitSellingPrice(),
+                    'clientName' => $client->getCustomerName(),
+                    'warehouseLocation' => $shippingAddress->getWarehouseLocation(),
+                    'sizes' => [],
+                ];
             } else {
-             $rowId = $idMap[$itemId];
+                $rowId = $idMap[$itemId];
             }
 
             $data[$rowId]['sizes'][] = [
-            'qty' => $qty,
-            'barcode' => $poItem->getSkuid(), // @todo we dont have it, for now its skuid ?
-            'size' => $poItem->getSize(),
+                'qty' => $qty,
+                'barcode' => $poItem->getBarcode(),
+                'size' => $poItem->getSize(),
             ];
         }
 
