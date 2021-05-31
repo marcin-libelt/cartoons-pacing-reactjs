@@ -128,7 +128,7 @@ class GetItems extends \Magento\Backend\App\Action
     {
         $purchaseOrder = [];
         $factoryId = $this->getRequest()->getParam('factory_id');
-        $factory = $this->factoryRepository->getById($factoryId);
+        $factory = $this->factoryRepository->getByEntityId($factoryId);
         if ($factory) {
             $poCollection = $this->purchaseOrderFactory->create()->getCollection();
             $poCollection->addFieldToFilter('supplier', $factory->getSupplier());
