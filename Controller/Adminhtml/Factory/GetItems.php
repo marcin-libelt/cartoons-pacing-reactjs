@@ -62,13 +62,14 @@ class GetItems extends \Magento\Backend\App\Action
         }
 
         $jsonResponse = $this->jsonFactory->create();
-        $data = [];
+
 
         $purchaseOrders = $this->getPurchaseOrders();
         $purchaseOrderIds = array_keys($purchaseOrders);
         $poItems = $this->purchaseOrderItemFactory->create()->getCollection();
         $poItems->addFieldToFilter('purchase_order_id', ['in' => $purchaseOrderIds]);
 
+        $orders = [];
         $idMap = [];
         $limit = 0;
         foreach ($poItems as $poItem) {
@@ -79,7 +80,7 @@ class GetItems extends \Magento\Backend\App\Action
 
             $shippingDoorCode = $poItem->getShippingDoorCode();
             $purchaseOrder = $purchaseOrders[$poItem->getPurchaseOrderId()];
-            $productId = $poItem->getproductId();
+            $productId = $poItem->getProductId();
 
             $itemId = $shippingDoorCode . '-' . $productId . $purchaseOrder->getId();
 
@@ -88,7 +89,7 @@ class GetItems extends \Magento\Backend\App\Action
                 $client = $shippingAddress->getClient();
 
                 $rowId = $idMap[$itemId] = $poItem->getId();
-                $data[$rowId] = [
+                $orders[$rowId] = [
                     'doorLabel' => $poItem->getDoor(),
                     'doorCode' => $shippingDoorCode,
                     'PO' => $purchaseOrder->getDocumentNo(),
@@ -105,7 +106,7 @@ class GetItems extends \Magento\Backend\App\Action
                 $rowId = $idMap[$itemId];
             }
 
-            $data[$rowId]['sizes'][] = [
+            $orders[$rowId]['sizes'][] = [
                 'qty' => $qty,
                 'barcode' => $poItem->getBarcode(),
                 'size' => $poItem->getSize(),
@@ -117,8 +118,23 @@ class GetItems extends \Magento\Backend\App\Action
              }
         }
 
-        $jsonResponse->setData(array_values($data));
+        $data = [
+            'cartons' => $this->getFactoryCartons(),
+            'orders' => array_values($orders),
+        ];
+
+        $jsonResponse->setData($data);
         return $jsonResponse;
+    }
+
+    /**
+     * @return false|mixed
+     */
+    protected function getFactory()
+    {
+        $factoryId = $this->getRequest()->getParam('factory_id');
+        $factory = $this->factoryRepository->getByEntityId($factoryId);
+        return $factory;
     }
 
     /**
@@ -127,8 +143,7 @@ class GetItems extends \Magento\Backend\App\Action
     protected function getPurchaseOrders()
     {
         $purchaseOrder = [];
-        $factoryId = $this->getRequest()->getParam('factory_id');
-        $factory = $this->factoryRepository->getByEntityId($factoryId);
+        $factory = $this->getFactory();
         if ($factory) {
             $poCollection = $this->purchaseOrderFactory->create()->getCollection();
             $poCollection->addFieldToFilter('supplier', $factory->getSupplier());
@@ -139,5 +154,19 @@ class GetItems extends \Magento\Backend\App\Action
         }
 
         return $purchaseOrder;
+    }
+
+    /**
+     *
+     */
+    protected function getFactoryCartons()
+    {
+        $factoryCartons = $this->getFactory()->getCartonCollection();
+        $cartons = [];
+        foreach ($factoryCartons as $carton) {
+            $cartons[] = $carton->getDimensions();
+        }
+
+        return $cartons;
     }
 }
