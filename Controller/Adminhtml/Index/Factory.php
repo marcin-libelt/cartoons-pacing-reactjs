@@ -60,7 +60,7 @@ class Factory extends \Magento\Backend\App\Action
     {
         $jsonResponse = $this->jsonFactory->create();
         $factoryId = $this->getRequest()->getParam('factory_id');
-        $factory = $this->factoryRepository->getById($factoryId);
+        $factory = $this->factoryRepository->getByEntityId($factoryId);
 
         if ($factory) {
             $this->coreRegistry->register('selected_factory', $factory);

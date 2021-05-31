@@ -43,4 +43,13 @@ class Grid extends \ITvoice\Factory\Block\Adminhtml\Factory\Grid
             ]
         );
     }
+
+    /**
+     * @param \Magento\Catalog\Model\Entity|\Magento\Framework\DataObject $item
+     * @return false
+     */
+    public function getRowUrl($item)
+    {
+        return false;
+    }
 }
