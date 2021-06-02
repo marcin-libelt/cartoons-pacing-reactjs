@@ -55,7 +55,8 @@ define([
                                 data: response,
                                 factory_id: currentFactoryId,
                                 post_url: self.factoryPostCartonsUrl,
-                                form_key: FORM_KEY
+                                form_key: FORM_KEY,
+                                jquery: $
                             });
                         });
                     })

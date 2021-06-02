@@ -10,6 +10,7 @@ import axios from "axios";
 export const Container = memo(function Container(props) {
 
     const { data } = props;
+    console.log(data);
 
     // for now only 1 Type ( style )
     const [dustbins, setDustbins] = useState([]);
@@ -387,13 +388,16 @@ export const Container = memo(function Container(props) {
             }
         })
 
-        axios.post(data.post_url, resultObject)
-            .then(function (response) {
-                setLoadingMsg("")
-            })
-            .catch(function (error) {
-                setLoadingMsg("")
-            });
+        data.jquery.ajax({
+            type: "POST",
+            url: data.post_url,
+            dataType: 'json',
+            data: JSON.stringify(resultObject)
+        }).done(function (response) {
+            console.log(response)
+            setLoadingMsg("")
+        });
+
     }
 
     function handleSetCartonInfo(value, field, uid) {
