@@ -89,18 +89,19 @@ export const BoxAfter = memo(function BoxAfter({ name, type, id, doorLabel, PO, 
             </p>
         </div>
         <div className={'card-body p-3'}>
-
-            <div className={''}>
-                {sizes.map(({qty, size, barcode}, index) => <div key={index} className="size-input">
-                    <div className="">
-                        {size}
-                    </div>
-                    <input type="number"
-                               value={qty}
-                               onChange={(e) => handleSetQty(parseInt(e.target.value), id, cartonBox, barcode)}
-                               className=""/>
-                </div>)}
-            </div>
+            <form onSubmit={ev => { ev.preventDefault()}}>
+                <div className={''}>
+                    {sizes.map(({qty, size, barcode}, index) => <div key={index} className="size-input">
+                        <div className="">
+                            {size}
+                        </div>
+                        <input type="number"
+                                   value={qty}
+                                   onChange={(e) => handleSetQty(parseInt(e.target.value), id, cartonBox, barcode)}
+                                   className=""/>
+                    </div>)}
+                </div>
+            </form>
         </div>
     </div>);
 });

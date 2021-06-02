@@ -38,6 +38,8 @@ export const Container = memo(function Container(props) {
         const index = boxes.indexOf(result);
         const totalQty = qtyReducer(result.sizes);
 
+        console.log(id, totalQty);
+
         // quit if no items to distribute left
         if(totalQty === 0) {
             return; // Abort!
@@ -355,7 +357,8 @@ export const Container = memo(function Container(props) {
             cartons: [],
             invoice_amount: invAmount,
             invoice_number: invNumber,
-            factory_id: data.factory_id
+            factory_id: data.factory_id,
+            form_key: data.form_key
         };
 
         dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix },index) => {

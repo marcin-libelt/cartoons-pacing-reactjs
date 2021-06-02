@@ -54,7 +54,8 @@ define([
                             ReactApp.init('react-category-root', {
                                 data: response,
                                 factory_id: currentFactoryId,
-                                post_url: self.factoryPostCartonsUrl
+                                post_url: self.factoryPostCartonsUrl,
+                                form_key: FORM_KEY
                             });
                         });
                     })
