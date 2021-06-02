@@ -7,7 +7,7 @@ const App = function({ parameter }) {
     return (
         <React.StrictMode>
             <DndProvider backend={HTML5Backend}>
-                <Container data={parameter.data}/>
+                <Container data={parameter}/>
             </DndProvider>
         </React.StrictMode>
     )

@@ -52,7 +52,9 @@ define([
                     }).done(function (response){
                         require(['react-app'], function (ReactApp) {
                             ReactApp.init('react-category-root', {
-                                data: response
+                                data: response,
+                                factory_id: currentFactoryId,
+                                post_url: self.factoryPostCartonsUrl
                             });
                         });
                     })
@@ -102,6 +104,7 @@ define([
             factory.selectedFactoryBox = $('#' + config.selected_factory_box);
             factory.refreshFactoryBoxUrl = config.refresh_factory_box_url;
             factory.factoryGetItemsUrl = config.factory_get_items_url;
+            factory.factoryPostCartonsUrl = config.factory_post_cartons_url;
             factory.cartonsBox = $('#' + config.cartons_box);
 
             buttonElement.click(function () {

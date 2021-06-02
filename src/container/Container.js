@@ -5,6 +5,7 @@ import { ItemTypes, FieldsMap } from '../ItemTypes';
 import uuid from 'react-uuid'
 import update from 'immutability-helper';
 import { qtyReducer, validateCartonInput } from '../helper';
+import axios from "axios";
 
 export const Container = memo(function Container(props) {
 
@@ -19,10 +20,12 @@ export const Container = memo(function Container(props) {
     const [loadingMsg, setLoadingMsg] = useState("");
     const [afterSubmition, setAfterSubmition] = useState(false);
     const [cartonOptions, setCartonOptions] = useState([]);
+    const [invAmount, setInvAmount] = useState(0);
+    const [invNumber, setInvNumber] = useState(0)
 
     useEffect(function () {
-        setBoxes(props.data.orders); // props.data
-        setCartonOptions(props.data.cartons);
+        setBoxes(data.data.orders); // props.data
+        setCartonOptions(data.data.cartons);
         handleNewDustbin();
     }, []);
 
@@ -348,7 +351,12 @@ export const Container = memo(function Container(props) {
         setLoadingMsg("trwa wysyłanie");
         // pobierz listę kartonóœ
 
-        let resultObject = [];
+        let resultObject = {
+            cartons: [],
+            invoice_amount: invAmount,
+            invoice_number: invNumber,
+            factory_id: data.factory_id
+        };
 
         dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix },index) => {
 
@@ -370,19 +378,19 @@ export const Container = memo(function Container(props) {
                     net_weight,
                     dimensions,
                     suffix,
-                    items: itemsCollection,
-                    invoice_amount: 0.00,
-                    invoice_number: 1000001
+                    items: itemsCollection
                 }
-                resultObject.push(binData)
+                resultObject.cartons.push(binData)
             }
         })
-        const jsonString = JSON.stringify(resultObject)
 
-        console.log(jsonString)
-        // wyślij
-        // ustaw
-        setAfterSubmition(true);
+        axios.post(data.post_url, resultObject)
+            .then(function (response) {
+                setLoadingMsg("")
+            })
+            .catch(function (error) {
+                setLoadingMsg("")
+            });
     }
 
     function handleSetCartonInfo(value, field, uid) {
