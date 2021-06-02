@@ -22,12 +22,32 @@ export const Container = memo(function Container(props) {
     const [invAmount, setInvAmount] = useState(0);
     const [invNumber, setInvNumber] = useState(0)
 
+    const [totals, setTotals] = useState({
+        cartons: 0,
+        units: 0,
+        value: 0
+    })
+
     useEffect(function () {
         setBoxes(data.data.orders); // props.data
         setCartonOptions(data.data.cartons);
         handleNewDustbin();
     }, []);
 
+    useEffect(() => {
+        const updatedState = update(totals, {
+            ['cartons']: { $set: dustbins.length }
+        })
+        setTotals(updatedState);
+    }, [dustbins])
+
+    useEffect(() => {
+console.log('a');
+        const updatedState = update(totals, {
+            ['units']: { $set: 100 }
+        })
+        setTotals(updatedState);
+    }, [pickedItems])
     /**
      *
      * @type {(function(*, *): void)|*}
@@ -365,7 +385,7 @@ export const Container = memo(function Container(props) {
             form_key: data.form_key
         };
 
-        dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix },index) => {
+        dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix, joorSONumber },index) => {
 
             const allpackedItemInDustbin = pickedItems.filter(item => item.cartonBox === uid);
             if(allpackedItemInDustbin) {
@@ -380,11 +400,12 @@ export const Container = memo(function Container(props) {
 
                 const binData = {
                     cartonId: uid,
-                    doorCode: doorCode,
+                    doorCode,
                     gross_weight,
                     net_weight,
                     dimensions,
                     suffix,
+                    joorSONumber,
                     items: itemsCollection
                 }
                 resultObject.cartons.push(binData)
@@ -452,6 +473,13 @@ export const Container = memo(function Container(props) {
                         </input>
                     </div>
                 </form>
+            </div>
+        </div>
+        <div className="row">
+            <div className="col">
+                total cartons #: {totals.cartons} <br/>
+                total units #: {0} <br/>
+                total value #: {0} <br/>
             </div>
         </div>
         <div className="row">
