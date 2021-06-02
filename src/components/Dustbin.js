@@ -12,8 +12,12 @@ export const Dustbin = memo(function Dustbin({
                                                  uid,
                                                  info,
                                                  toDoorLabel,
+                                                 orderType,
+                                                 joorSONumber,
                                                  handleRemoveDustbin,
-                                                 setCartonInfo
+                                                 setCartonInfo,
+                                                 index,
+                                                 cartonOptions
                                              }) {
 
     const [{isOver, canDrop,}, drop] = useDrop({
@@ -24,6 +28,7 @@ export const Dustbin = memo(function Dustbin({
             canDrop: monitor.canDrop()
         }),
     });
+
     const [isOpen2, setIsOpen2] = useState(true);
     const isActive = isOver && canDrop;
     let backgroundColor = '#dcd0b9';
@@ -44,10 +49,23 @@ export const Dustbin = memo(function Dustbin({
         paddingBottom: '0.5rem',
     }
 
-    return (<div className={'card sticky-card mb-2'} ref={drop} role="Dustbin" style={{backgroundColor, borderRadius: '10px', overflow: 'hidden'}}>
+    const dustbinStyles = {
+        borderRadius: '10px',
+        overflow: 'hidden',
+        backgroundColor: backgroundColor,
+        top: 20 + (index * 39) + 'px'
+    }
+
+    return (<div className={'card sticky-card mb-2'} ref={drop} role="Dustbin" style={{...dustbinStyles}}>
         <p className={'m-0 cartonHead'}>
             <span className={'label'}>CartonBox</span>
-            <span>{toDoorLabel ? toDoorLabel : 'doorCode not set yet'}</span>
+
+            {toDoorLabel ? <>
+                <span title={'Door Label'}>{toDoorLabel}</span>&nbsp;/&nbsp;
+                <span title={'Order Type'}>{orderType}</span>&nbsp;/&nbsp;
+                <span title={'SO number'}>{joorSONumber}</span>
+                </> : <span style={{color: '#463f31', fontStyle: 'italic'}}>{'empty'}</span>}
+
             <span className={'dustbin-toggler'} onClick={() => { setIsOpen2(!isOpen2) }}>
                 { isOpen2 ? <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                  className="bi bi-caret-down-fill" viewBox="0 0 16 16">
@@ -63,22 +81,25 @@ export const Dustbin = memo(function Dustbin({
         <div className={'card-body'} style={ !isOpen2 ? styles2 : {}}>
 
             { isOpen2 ? <React.Fragment><div className={'row mb-4'} style={{ marginLeft: '-10px', marginRight: '-10px'}}>
-                    <div className={'col mb-1'} style={{ padding: '0 10px'}}>
+                    <div className={'col col-xs-2 mb-1'} style={{ padding: '0 10px', flex: 'auto'}}>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Gross weight</label>
                         <input type="text" style={styles} value={info.gross_weight}
                                onChange={(e) => setCartonInfo(e.target.value, 'gross_weight', uid)}/><br/>
                     </div>
-                    <div className={'col mb-1'} style={{ padding: '0 10px'}}>
+                    <div className={'col col-xs-2 mb-1'} style={{ padding: '0 10px', flex: 'auto'}}>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Net weight</label>
                         <input type="text" style={styles} value={info.net_weight}
                                onChange={(e) => setCartonInfo(e.target.value, 'net_weight', uid)} placeholder={''}/><br/>
                     </div>
-                    <div className={'col mb-1'} style={{ padding: '0 10px'}}>
+                    <div className={'col col-xs-6 mb-1'} style={{ padding: '0 10px', flex: 'auto'}}>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Dimensions</label>
-                        <input type="text" style={styles} value={info.dimensions}
-                               onChange={(e) => setCartonInfo(e.target.value, 'dimensions', uid)} placeholder={''}/><br/>
+                        <select className="form-control"
+                                onChange={(e) => setCartonInfo(e.target.value, 'dimensions', uid)}
+                                style={styles} value={info.dimensions}>
+                            { cartonOptions.map((opt, index) => <option key={index}>{opt}</option>)}
+                        </select>
                     </div>
-                    <div className={'col mb-1'} style={{ padding: '0 10px'}}>
+                    <div className={'col col-xs-2 mb-1'} style={{ padding: '0 10px', flex: 'auto'}}>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Suffix</label>
                         <input type="text" style={styles} value={info.suffix}
                                onChange={(e) => setCartonInfo(e.target.value, 'suffix', uid)} placeholder={''}/><br/>

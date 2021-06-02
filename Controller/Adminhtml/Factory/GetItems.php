@@ -90,6 +90,7 @@ class GetItems extends \Magento\Backend\App\Action
 
                 $rowId = $idMap[$itemId] = $poItem->getId();
                 $orders[$rowId] = [
+                    'id' => $rowId,
                     'doorLabel' => $poItem->getDoor(),
                     'doorCode' => $shippingDoorCode,
                     'PO' => $purchaseOrder->getDocumentNo(),
@@ -101,6 +102,7 @@ class GetItems extends \Magento\Backend\App\Action
                     'clientName' => $client->getCustomerName(),
                     'warehouseLocation' => $shippingAddress->getWarehouseLocation(),
                     'sizes' => [],
+                    'type' => 'style'
                 ];
             } else {
                 $rowId = $idMap[$itemId];

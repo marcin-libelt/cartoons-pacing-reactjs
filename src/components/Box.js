@@ -1,5 +1,6 @@
 import React, {memo, useState} from 'react';
 import { useDrag } from 'react-dnd';
+import { qtyReducer } from '../helper';
 const style = {
     border: '1px dashed gray',
     backgroundColor: 'white',
@@ -7,11 +8,17 @@ const style = {
     cursor: 'move'
 };
 
-function qtyReducer(accu, curr, i)  {
-    return i > 1 ? accu + curr.qty : accu.qty + curr.qty
+const labelStyle = {
+    fontSize: '10px',
+    paddingRight: '10px',
+    color: '#757575'
 }
 
-export const Box = memo(function Box({ name, type, id, doorLabel, PO, doorCode, sku, sizes, isDropped }) {
+export const Box = memo(function Box({ name, type, id, doorLabel, PO, doorCode, sku, sizes, clientName,
+                                         joorSONumber,
+                                         orderType,
+                                         unit_selling_price,
+                                         warehouseLocation, isDropped }) {
 
     const [{ opacity }, drag] = useDrag(() => ({
         type,
@@ -23,19 +30,26 @@ export const Box = memo(function Box({ name, type, id, doorLabel, PO, doorCode, 
             opacity: monitor.isDragging() ? 0.4 : 1,
         }),
     }), [type]);
-
     const backgroundColor = '#e9ecef'; // qty > 0 ? '' : '#e9ecef'
 
-    return sizes.reduce(qtyReducer) > 0 ? <div className={'card'} ref={drag} role="Box" style={{ ...style, opacity, backgroundColor, borderRadius: '10px', overflow: 'hidden' }}>
+
+    return qtyReducer(sizes) > 0 ? <div className={'card'} ref={drag} role="Box" style={{ ...style, opacity, backgroundColor, borderRadius: '10px', overflow: 'hidden' }}>
         <div className={'m-0 px-2 py-1'} style={{backgroundColor: '#c5c5c5'}}>
-            <p className={'m-0 mb-2'}>
-                <strong>{name}</strong>
-                <span style={{float: 'right', fontSize: '12px',lineHeight: '2'}}>{PO}</span>
-            </p>
-            <p className={'m-0'}>
-                <span style={{}}><span>{sku}</span></span>
-                <span style={{float: 'right',fontSize: '12px', lineHeight: '2'}}>{doorLabel}</span>
-            </p>
+
+            <div className={'d-flex'} style={{fontSize: '12px'}}>
+                <p style={{width: '40%', lineHeight: '1.5'}} className={'m-0'}>
+                    <strong style={{lineHeight: '2'}}>{name}</strong><span style={{fontSize: '13px', fontStyle: 'italic', marginLeft: '8px'}}>{sku}</span><br/>
+                    <span className={'label'} style={labelStyle}>PO number:</span>{PO}<br/>
+                    <span className={'label'} style={labelStyle}>SO number:</span>{joorSONumber}<br/>
+                </p>
+                <p style={{ width: '60%', lineHeight: '1.5'}} className={'m-0'}>
+                    <span className={'label'} style={labelStyle}>door label:</span>{doorLabel}<br/>
+                    <span className={'label'} style={labelStyle}>client name:</span>{clientName}
+                    &nbsp;/&nbsp;<strong style={{color: warehouseLocation === 'VAT' ? '#8e6009' : '#1b1fb9'}}>{warehouseLocation}</strong><br/>
+                    <span className={'label'} style={labelStyle}>order type:</span>{orderType}<br/>
+                    <span className={'label'} style={labelStyle}>unit price:</span>{parseFloat(unit_selling_price) + ' €'}
+                </p>
+            </div>
         </div>
         <div className={'card-body p-3'}>
             <div className={'d-flex'}>

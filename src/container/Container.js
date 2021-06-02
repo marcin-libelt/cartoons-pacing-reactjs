@@ -4,8 +4,7 @@ import { Box } from '../components/Box';
 import { ItemTypes, FieldsMap } from '../ItemTypes';
 import uuid from 'react-uuid'
 import update from 'immutability-helper';
-import data1 from './../data/data.json';
-import '../assets/styles.css';
+import { qtyReducer, validateCartonInput } from '../helper';
 
 export const Container = memo(function Container(props) {
 
@@ -16,17 +15,16 @@ export const Container = memo(function Container(props) {
     const [pickedItems, setPickedItems] = useState([]);
     const [boxes, setBoxes] = useState([]);
     const [filter, setFilter] = useState("");
+    const [filterSo, setFilterSo] = useState("");
     const [loadingMsg, setLoadingMsg] = useState("");
     const [afterSubmition, setAfterSubmition] = useState(false);
+    const [cartonOptions, setCartonOptions] = useState([]);
 
     useEffect(function () {
-        setBoxes(props.data); // props.data
+        setBoxes(props.data.orders); // props.data
+        setCartonOptions(props.data.cartons);
         handleNewDustbin();
     }, []);
-
-    function qtyReducer(accu, curr, i)  {
-        return i > 1 ? accu + curr.qty : accu.qty + curr.qty
-    }
 
     /**
      *
@@ -35,7 +33,7 @@ export const Container = memo(function Container(props) {
     const handleDrop = useCallback((cartonBox, { id, doorCode }) => {
         const result = boxes.find(item => item.id === id);
         const index = boxes.indexOf(result);
-        const totalQty = result.sizes.reduce(qtyReducer);
+        const totalQty = qtyReducer(result.sizes);
 
         // quit if no items to distribute left
         if(totalQty === 0) {
@@ -43,26 +41,36 @@ export const Container = memo(function Container(props) {
         }
 
         // sprzwdz czy karton ma item z tym samym doorCodem
-        const thisDustbin = dustbins.find(bin => bin.uid === cartonBox);
-        if(!!thisDustbin.toDoorCode && thisDustbin.toDoorCode !== result.doorCode) {
-            alert('toDoor != door. Aborting');
+        // jednakowe pola w kartonie:
+        // -- doorCode,
+        // -- joorSONumber,
+        // -- orderType
+        //
+        const targetDustbin = dustbins.find(bin => bin.uid === cartonBox);
+        if(!validateCartonInput(targetDustbin, {
+            doorCode: result.doorCode,
+            orderType: result.orderType,
+            joorSONumber: result.joorSONumber
+        })) {
             return; // Abort!
         }
 
+
         // jeśli nie ma doorcode, oznacza ze karton jest pusty
-        if(!thisDustbin.toDoorCode) {
+        if(targetDustbin.isEmpty) {
             // ustaw doorCode dla kartonu
-            const index = dustbins.indexOf(thisDustbin);
+            const index = dustbins.indexOf(targetDustbin);
             const updatedDustbin = update(dustbins, {
                 [index]: {
-                    toDoorCode: {$set: result.doorCode},
+                    isEmpty: {$set: false},
+                    orderType: {$set: result.orderType},
+                    joorSONumber: {$set: result.joorSONumber},
+                    doorCode: {$set: result.doorCode},
                     toDoorLabel: {$set: result.doorLabel}
                 }
             });
             setDustbins(updatedDustbin)
         }
-
-
 
         // update -------- Right
         // check if given ID exists in group
@@ -86,7 +94,12 @@ export const Container = memo(function Container(props) {
                 sku: result.sku,
                 PO: result.PO,
                 name: result.name,
-                sizes: copy
+                sizes: copy,
+                clientName: result.clientName,
+                joorSONumber: result.joorSONumber,
+                orderType: result.orderType,
+                unit_selling_price: result.unit_selling_price,
+                warehouseLocation: result.warehouseLocation
             }
             setPickedItems(prevState => [...prevState, newTarget])
 
@@ -137,7 +150,12 @@ export const Container = memo(function Container(props) {
             PO: result.PO,
             sku: result.sku,
             sizes: zero,
-            type: result.type
+            type: result.type,
+            clientName: result.clientName,
+            joorSONumber: result.joorSONumber,
+            orderType: result.orderType,
+            unit_selling_price: result.unit_selling_price,
+            warehouseLocation: result.warehouseLocation
         }
         setBoxes(prevState => {
             prevState[index] = updateSource;
@@ -150,12 +168,15 @@ export const Container = memo(function Container(props) {
         const newDustbin = {
             uid: uuid(),
             accepts: [ItemTypes.STYLE],
-            toDoorCode: null,
-            toDoorLabel: null, // TODO:  dodaj kolejne 4 pola
+            doorCode: null,  // unique for dustbin
+            orderType: null, // unique for dustbin
+            joorSONumber: null, // unique for dustbin
+            toDoorLabel: null,
             gross_weight: '',
             net_weight: '',
             dimensions: '',
-            suffix: ''
+            suffix: '',
+            isEmpty: true
         };
         setDustbins(prevState => {
             return [...prevState, newDustbin];
@@ -185,8 +206,11 @@ export const Container = memo(function Container(props) {
 
             setDustbins(update(dustbins, {
                 [index]: {
-                    toDoorCode: { $set: null},
-                    toDoorLabel: { $set: null}
+                    isEmpty: { $set: true},
+                    doorCode: { $set: null},
+                    toDoorLabel: { $set: null},
+                    orderType: { $set: null},
+                    joorSONumber: { $set: null}
                 }
             }))
         }
@@ -326,7 +350,7 @@ export const Container = memo(function Container(props) {
 
         let resultObject = [];
 
-        dustbins.forEach( ({ uid, toDoorCode, gross_weight, net_weight, dimensions, suffix },index) => {
+        dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix },index) => {
 
             const allpackedItemInDustbin = pickedItems.filter(item => item.cartonBox === uid);
             if(allpackedItemInDustbin) {
@@ -341,12 +365,14 @@ export const Container = memo(function Container(props) {
 
                 const binData = {
                     cartonId: uid,
-                    doorCode: toDoorCode,
+                    doorCode: doorCode,
                     gross_weight,
                     net_weight,
                     dimensions,
                     suffix,
-                    items: itemsCollection
+                    items: itemsCollection,
+                    invoice_amount: 0.00,
+                    invoice_number: 1000001
                 }
                 resultObject.push(binData)
             }
@@ -370,27 +396,70 @@ export const Container = memo(function Container(props) {
         setDustbins(newState)
     }
 
-    function filterBy(value, field) {
-        setFilter(value);
+    function filterBy(ev, field = '') {
+        if(field === 'so') {
+            setFilterSo(ev.target.value);
+        } else {
+            setFilter(ev.target.value);
+        }
     }
 
     return <div className="container" style={{ position: 'relative', color: '#212529', fontSize: '15px'}}>
+        <div className={'new-carton'}>
+            <button type="button" onClick={handleNewDustbin} className="btn btn-primary btn-sm">
+                +&nbsp;&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                  className="bi bi-box-seam" viewBox="0 0 16 16">
+                <path
+                    d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
+            </svg></button>
+        </div>
         <div className={'row'}>
-            <div className={'col d-flex my-3 justify-content-between'}>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text" id="inputGroup-sizing-default">Filter by: PO number or SKU</span>
+            <div className={'col d-flex my-3 flex-column'}>
+                <h4>Filter by:</h4>
+                <form onSubmit={ev => { ev.preventDefault()}}>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text" id="inputGroup-sizing-default">PO number or SKU</span>
+                        </div>
+                        <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev)} value={filter}  aria-label="Sizing example input"
+                               aria-describedby="inputGroup-sizing-default">
+                        </input>
                     </div>
-                    <input type="text" className={'form-control'} onChange={(e) => filterBy(e.target.value)} value={filter}  aria-label="Sizing example input"
-                           aria-describedby="inputGroup-sizing-default">
-                    </input>
-                </div>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text" id="inputGroup-sizing-default">SO number</span>
+                        </div>
+                        <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev, 'so')} value={filterSo}  aria-label="Sizing example input"
+                               aria-describedby="inputGroup-sizing-default">
+                        </input>
+                    </div>
+                </form>
             </div>
         </div>
         <div className="row">
                 <div className="col col-5">
                     <div className={'d-flex flex-column'}>
-                        { boxes.length > 0 ? boxes.filter(box => box.PO.includes(filter) || box.sku.includes(filter)).map(({ name, type, sku, PO, doorCode, doorLabel, id, sizes}, index, ) => (
+                        { boxes.length > 0 ? boxes.filter(
+                            box => (
+                                box.PO.includes(filter)
+                                || box.sku.includes(filter)
+                                )
+                                && box.joorSONumber.includes(filterSo)
+                        ).map(({
+                                                                                               name,
+                                                                                               type,
+                                                                                               sku,
+                                                                                               PO,
+                                                                                               doorCode,
+                                                                                               doorLabel,
+                                                                                               id,
+                                                                                               sizes,
+                                                                                               clientName,
+                                                                                               joorSONumber,
+                                                                                               orderType,
+                                                                                               unit_selling_price,
+                                                                                               warehouseLocation
+                                                                                           }, index, ) => (
                             <Box name={name}
                                  type={type}
                                  sku={sku}
@@ -399,16 +468,23 @@ export const Container = memo(function Container(props) {
                                  id={id}
                                  PO={PO}
                                  sizes={sizes}
+                                 clientName={clientName}
+                                 joorSONumber={joorSONumber}
+                                 orderType={orderType}
+                                 unit_selling_price={unit_selling_price}
+                                 warehouseLocation={warehouseLocation}
                                  boxAfter={false}
                                  key={index}/>)) : <p>There is no items left for search criteria: "{filter}".</p>}
                     </div>
                 </div>
                 <div className="col col-7">
-                    <div className={'mb-3'}>
+                    <div className={'mb-3'} style={{ height: '100%'}}>
                         {dustbins.map(({
                                            accepts,
                                            uid,
                                            toDoorLabel,
+                                           orderType,
+                                           joorSONumber,
                                            gross_weight,
                                             net_weight,
                                             dimensions,
@@ -427,29 +503,29 @@ export const Container = memo(function Container(props) {
                                             handleSetQty={handleSetQty}
                                             uid={uid}
                                             toDoorLabel={toDoorLabel}
+                                            orderType={orderType}
+                                            joorSONumber={joorSONumber}
                                             setCartonInfo={handleSetCartonInfo}
                                             readOnly={false}
                                             info={info}
+                                            cartonOptions={cartonOptions}
                                             assignedItems={pickedItems && pickedItems.filter(item => item.cartonBox === uid)}
+                                            index={index}
                                             key={index}/>
                         })}
-                        <button type="button" onClick={handleNewDustbin} className="btn btn-primary btn-sm">
-                            +&nbsp;&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 className="bi bi-box-seam" viewBox="0 0 16 16">
-                                <path
-                                    d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
-                            </svg>&nbsp;&nbsp;add another carton</button>
                     </div>
-
                 </div>
             </div>
         <div className={'row'}>
+            <div className={'col col-xs-12'}>
+                dwa pola
+            </div>
             <div className={'col mb-4'}>
                 <button type="button" onClick={ submitPacking } className="btn primary btn-lg">Submit</button>
             </div>
         </div>
         { loadingMsg ? <span className={'mask'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#fff', opacity: 0.4 }}>
-            <span>{}</span>
+            <span>{loadingMsg}</span>
         </span> : ''}
         </div>
 });
