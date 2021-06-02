@@ -391,8 +391,8 @@ export const Container = memo(function Container(props) {
         data.jquery.ajax({
             type: "POST",
             url: data.post_url,
-            dataType: 'json',
-            data: JSON.stringify(resultObject)
+            data: resultObject,
+            dataType: 'json'
         }).done(function (response) {
             console.log(response)
             setLoadingMsg("")
