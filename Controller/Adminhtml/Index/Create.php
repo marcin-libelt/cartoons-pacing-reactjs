@@ -48,12 +48,10 @@ class Create extends \Magento\Backend\App\Action
 
         $jsonResponse = $this->jsonFactory->create();
 
-        //var_dump($this->getRequest()->getParams());
-        //die();
-
         $asnCreator = $this->asnCreatorFactory->create();
         try {
             $asnCreator->setFactoryId($this->getRequest()->getParam('factory_id'));
+            $asnCreator->setCartonsData($this->getRequest()->getParam('cartons'));
             $asn = $asnCreator->create();
             $data = [
                 'message' => __('Asn %1 has been created.', $asn->getAsnNumber())
