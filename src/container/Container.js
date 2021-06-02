@@ -5,12 +5,10 @@ import { ItemTypes, FieldsMap } from '../ItemTypes';
 import uuid from 'react-uuid'
 import update from 'immutability-helper';
 import { qtyReducer, validateCartonInput } from '../helper';
-import axios from "axios";
 
 export const Container = memo(function Container(props) {
 
     const { data } = props;
-    console.log(data);
 
     // for now only 1 Type ( style )
     const [dustbins, setDustbins] = useState([]);
@@ -284,7 +282,12 @@ export const Container = memo(function Container(props) {
      * @param cartonBox
      * @param barcode
      */
-    function handleSetQty(value, id, cartonBox, barcode) {
+    function handleSetQty(ev, id, cartonBox, barcode) {
+        const value = ev.target.value;
+        if(value === "") {
+            return
+        }
+
         const newState = setQty(value, id, cartonBox, barcode);
         if(!newState) {
             return;
@@ -454,28 +457,31 @@ export const Container = memo(function Container(props) {
         <div className="row">
                 <div className="col col-5">
                     <div className={'d-flex flex-column'}>
-                        { boxes.length > 0 ? boxes.filter(
-                            box => (
-                                box.PO.includes(filter)
-                                || box.sku.includes(filter)
+
+                        { boxes.length > 0 ? boxes.map((box, index) => {
+
+                            const { name,
+                                   type,
+                                   sku,
+                                   PO,
+                                   doorCode,
+                                   doorLabel,
+                                   id,
+                                   sizes,
+                                   clientName,
+                                   joorSONumber,
+                                   orderType,
+                                   unit_selling_price,
+                                   warehouseLocation } = box;
+
+                            const isVisible = (
+                                    box.PO.includes(filter)
+                                    || box.sku.includes(filter)
                                 )
                                 && box.joorSONumber.includes(filterSo)
-                        ).map(({
-                                                                                               name,
-                                                                                               type,
-                                                                                               sku,
-                                                                                               PO,
-                                                                                               doorCode,
-                                                                                               doorLabel,
-                                                                                               id,
-                                                                                               sizes,
-                                                                                               clientName,
-                                                                                               joorSONumber,
-                                                                                               orderType,
-                                                                                               unit_selling_price,
-                                                                                               warehouseLocation
-                                                                                           }, index, ) => (
-                            <Box name={name}
+
+                            return (<Box name={name}
+                                 hidden={!isVisible}
                                  type={type}
                                  sku={sku}
                                  doorLabel={doorLabel}
@@ -489,7 +495,7 @@ export const Container = memo(function Container(props) {
                                  unit_selling_price={unit_selling_price}
                                  warehouseLocation={warehouseLocation}
                                  boxAfter={false}
-                                 key={index}/>)) : <p>There is no items left for search criteria: "{filter}".</p>}
+                                 key={index}/>)}) : <p>There is no items left for search criteria: "{filter}".</p> }
                     </div>
                 </div>
                 <div className="col col-7">

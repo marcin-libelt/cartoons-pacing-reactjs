@@ -96,6 +96,7 @@ export const Dustbin = memo(function Dustbin({
                         <select className="form-control"
                                 onChange={(e) => setCartonInfo(e.target.value, 'dimensions', uid)}
                                 style={styles} value={info.dimensions}>
+                            <option key={'select'}>{'-- select --'}</option>
                             { cartonOptions.map((opt, index) => <option key={index}>{opt}</option>)}
                         </select>
                     </div>
