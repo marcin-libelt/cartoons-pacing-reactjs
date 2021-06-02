@@ -14,7 +14,7 @@ const labelStyle = {
     color: '#757575'
 }
 
-export const Box = memo(function Box({ name, type, id, doorLabel, PO, doorCode, sku, sizes, clientName,
+export const Box = memo(function Box({ name, hidden, type, id, doorLabel, PO, doorCode, sku, sizes, clientName,
                                          joorSONumber,
                                          orderType,
                                          unit_selling_price,
@@ -33,7 +33,7 @@ export const Box = memo(function Box({ name, type, id, doorLabel, PO, doorCode, 
     const backgroundColor = '#e9ecef'; // qty > 0 ? '' : '#e9ecef'
 
 
-    return qtyReducer(sizes) > 0 ? <div className={'card'} ref={drag} role="Box" style={{ ...style, opacity, backgroundColor, borderRadius: '10px', overflow: 'hidden' }}>
+    return qtyReducer(sizes) > 0 ? <div hidden={hidden} className={'card'} ref={drag} role="Box" style={{ ...style, opacity, backgroundColor, borderRadius: '10px', overflow: 'hidden' }}>
         <div className={'m-0 px-2 py-1'} style={{backgroundColor: '#c5c5c5'}}>
 
             <div className={'d-flex'} style={{fontSize: '12px'}}>
@@ -97,7 +97,7 @@ export const BoxAfter = memo(function BoxAfter({ name, type, id, doorLabel, PO, 
                         </div>
                         <input type="number"
                                    value={qty}
-                                   onChange={(e) => handleSetQty(parseInt(e.target.value), id, cartonBox, barcode)}
+                                   onChange={(e) => handleSetQty(e, id, cartonBox, barcode)}
                                    className=""/>
                     </div>)}
                 </div>

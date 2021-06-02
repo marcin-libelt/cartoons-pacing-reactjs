@@ -59,6 +59,7 @@ define([
                                 jquery: $
                             });
                         });
+                        $('#select_factory_button').remove();
                     })
 
                 }
