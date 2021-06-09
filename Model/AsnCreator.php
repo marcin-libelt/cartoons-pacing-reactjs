@@ -35,9 +35,21 @@ class AsnCreator
      */
     protected $addressRepository;
     /**
+     * @var \ITvoice\PurchaseOrder\Model\PurchaseOrderFactory
+     */
+    protected $purchaseOrderFactory;
+    /**
+     * @var \Magento\Framework\DB\TransactionFactory
+     */
+    protected $transactionFactory;
+    /**
      * @var
      */
     protected $asn;
+    /**
+     * @var
+     */
+    protected $poItems;
 
     /**
      * AsnCreator constructor.
@@ -48,7 +60,9 @@ class AsnCreator
         \ITvoice\Factory\Model\FactoryRepository $factoryRepository,
         \Magento\SalesSequence\Model\Manager $sequenceManager,
         \Magento\Framework\Stdlib\DateTime\DateTimeFactory $dateFactory,
-        \ITvoice\Client\Model\AddressRepository $addressRepository
+        \ITvoice\Client\Model\AddressRepository $addressRepository,
+        \ITvoice\PurchaseOrder\Model\PurchaseOrderFactory $purchaseOrderFactory,
+        \Magento\Framework\DB\TransactionFactory $transactionFactory
     )
     {
         $this->asnFactory = $asnFactory;
@@ -56,6 +70,8 @@ class AsnCreator
         $this->sequenceManager = $sequenceManager;
         $this->dateFactory = $dateFactory;
         $this->addressRepository = $addressRepository;
+        $this->purchaseOrderFactory = $purchaseOrderFactory;
+        $this->transactionFactory = $transactionFactory;
     }
 
     /**
@@ -79,6 +95,7 @@ class AsnCreator
             throw new LocalizedException(__('Incorrect factory ID.'));
         }
         $this->getAsn()->setFactory($factory->getSupplier());
+        $this->getAsn()->setFactoryCode($factory->getSageCode());
         return $this;
     }
 
@@ -87,6 +104,8 @@ class AsnCreator
      */
     public function setCartonsData($cartonsData)
     {
+        $this->initPoItems($cartonsData);
+
         $dataMap = [
             'carton_dimensions' => 'dimensions',
             'joor_so_number' => 'joorSONumber',
@@ -114,13 +133,6 @@ class AsnCreator
             $cartonData['customer_account_number'] = $customerAddress->getSageCode();
             $cartonData['destination'] = $customerAddress->getShippingMethod();
 
-            /**
-             * @TODO: how to fill this data ?
-             */
-            $cartonData['customer_po'] = '';
-            $cartonData['door_name'] = '';
-            $cartonData['store_code'] = '';
-
             $carton = $this->getAsn()->addCarton($cartonNumber, $cartonData);
             $carton->setAddress($customerAddress);
 
@@ -135,26 +147,36 @@ class AsnCreator
      */
     protected function setItemsData($carton, $itemsData)
     {
-        $itemsCounter = 0;
         foreach ($itemsData as $data) {
 
             $sizes = $data['sizes'] ?? [];
 
             foreach ($sizes as $sizeData) {
-                $itemsCounter++;
+                $productId = $data['sku'];
+                $barcode = $sizeData['barcode'];
                 $qty = (int) $sizeData['qty'] ?? 0;
+                $poItem = $this->getPoItem($data['PO'], $barcode);
 
-                $itemData = [
-                    'product_id' => $data['sku'] ?? '',
-                    'qty' => $qty,
-                    'warehouse_location' => $carton->getAddress()->getWarehouseLocation(),
-                    'season' => '', // @TODO for now its missing ?
-                    'style_name' => '', // @TODO for now its missing ?
-                    'colourway' => '', // @TODO for now its missing ?
-                    'division' => '', // @TODO for now its missing ?
+                $item = $carton->getItem($productId);
+                if (!$item) {
+                    $itemData = [
+                        'product_id' => $productId,
+                        'warehouse_location' => $carton->getAddress()->getWarehouseLocation(),
+                        'season' => $poItem->getSeason(),
+                        'style_name' => $poItem->getStyleName(),
+                        'colourway' => $poItem->getColourway(),
+                        'division' => '', // @TODO for now its missing ?
+                    ];
+
+                    $item = $carton->addItem($productId, $itemData);;
+                }
+
+                $simpleItemData = [
+                    'size' => $poItem->getSize()
                 ];
 
-                $carton->addItem($itemsCounter, $itemData);
+                $simpleItem = $item->addSimpleItem($barcode, $qty, $simpleItemData);
+                $simpleItem->setPoItem($poItem);
             }
         }
     }
@@ -187,6 +209,52 @@ class AsnCreator
     }
 
     /**
+     * @param $cartonsData
+     * @return $this
+     */
+    protected function initPoItems($cartonsData)
+    {
+        $selectedPoArray = [];
+        foreach ($cartonsData as $cartonData) {
+            $items = $cartonData['items'] ?? [];
+            foreach ($items as $itemData) {
+                $po = $itemData['PO'];
+                $selectedPoArray[$po] = $po;
+            }
+        }
+
+        $poCollection = $this->purchaseOrderFactory->create()->getCollection();
+        $poCollection->addFieldToFilter('document_no', ['in' => $selectedPoArray]);
+        foreach ($poCollection as $po) {
+            $poItems = $po->getItems();
+            foreach($poItems as $item) {
+                $this->poItems[$po->getDocumentNo()][$item->getBarcode()] = $item;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $poNumber
+     * @param $barcode
+     * @return mixed
+     * @throws LocalizedException
+     */
+    protected function getPoItem($poNumber, $barcode)
+    {
+        if ($this->poItems === null) {
+            $this->poItems = [];
+        }
+
+        if (isset($this->poItems[$poNumber][$barcode])) {
+            return $this->poItems[$poNumber][$barcode];
+        } else {
+            throw new LocalizedException(__('Incorrect PO Item.'));
+        }
+    }
+
+    /**
      *
      */
     public function create()
@@ -194,9 +262,13 @@ class AsnCreator
         $this->validate();
         $this->getAsn()->setType(Asn::ASN_TYPE_INTERNAL);
         $this->generateAsnNumber();
-        $date = $this->dateFactory->create()->gmtDate('Y-m-d');
+        $date = $this->dateFactory->create()->gmtDate('d/m/Y');
         $this->getAsn()->setAsnCreatedDate($date);
-        //$this->getAsn()->save();
+
+        $transaction = $this->transactionFactory->create();
+        $transaction->addObject($this->getAsn());
+        $transaction->save();
+
         return $this->getAsn();
     }
 }

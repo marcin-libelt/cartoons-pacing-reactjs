@@ -47,8 +47,8 @@ class Create extends \Magento\Backend\App\Action
         }
 
         $jsonResponse = $this->jsonFactory->create();
-
         $asnCreator = $this->asnCreatorFactory->create();
+
         try {
             $asnCreator->setFactoryId($this->getRequest()->getParam('factory_id'));
             $asnCreator->setCartonsData($this->getRequest()->getParam('cartons'));
