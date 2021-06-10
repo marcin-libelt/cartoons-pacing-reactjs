@@ -73,7 +73,7 @@ class GetItems extends \Magento\Backend\App\Action
         $idMap = [];
         $limit = 0;
         foreach ($poItems as $poItem) {
-            $qty = (int) $poItem->getBalanceQty();
+            $qty = (int) $poItem->getBalanceQty() - $poItem->getInternalUsedQty();
             if ($qty <= 0) {
                 continue;
             }
