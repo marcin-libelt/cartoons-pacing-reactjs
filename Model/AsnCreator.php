@@ -131,6 +131,8 @@ class AsnCreator
         $dataMap = [
             'carton_dimensions' => 'dimensions',
             'joor_so_number' => 'joorSONumber',
+            'gross_weight' => 'gross_weight',
+            'net_weight' => 'net_weight',
         ];
 
         $cartonCounter = 0;
@@ -179,6 +181,7 @@ class AsnCreator
                 $qty = (int) $sizeData['qty'] ?? 0;
                 $po = $data['PO'];
                 $poItem = $this->getPoItem($po, $barcode);
+                $carton->setCustomerPo($po);
 
                 $item = $carton->getItem($productId);
                 if (!$item) {
