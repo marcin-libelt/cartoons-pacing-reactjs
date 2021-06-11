@@ -5,6 +5,7 @@
  */
 namespace ITvoice\AsnCreator\Setup;
 
+use Alekseon\Dataflows\Model\Schedule;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
@@ -27,6 +28,10 @@ class UpgradeData implements UpgradeDataInterface
      * @var \ITvoice\Asn\Model\AsnFactory
      */
     protected $asnFactory;
+    /**
+     * @var \Alekseon\Dataflows\Setup\DataflowSetupFactory
+     */
+    protected $dataflowSetupFactory;
 
     /**
      * UpgradeData constructor.
@@ -37,12 +42,14 @@ class UpgradeData implements UpgradeDataInterface
     public function __construct(
         SequenceCreator $sequenceCreator,
         \ITvoice\AsnVerification\Model\AsnFactoryItemFactory $asnFactoryItemFactory,
-        \ITvoice\Asn\Model\AsnFactory $asnFactory
+        \ITvoice\Asn\Model\AsnFactory $asnFactory,
+        \Alekseon\Dataflows\Setup\DataflowSetupFactory $dataflowSetupFactory
     )
     {
         $this->sequenceCreator = $sequenceCreator;
         $this->asnFactoryItemFactory = $asnFactoryItemFactory;
         $this->asnFactory = $asnFactory;
+        $this->dataflowSetupFactory = $dataflowSetupFactory;
     }
 
     /**
@@ -60,6 +67,10 @@ class UpgradeData implements UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '1.0.2') < 0) {
             $this->setIsReleasedForCurrentExistingAsns();
+        }
+
+        if (version_compare($context->getVersion(), '1.0.3') < 0) {
+            $this->createReleaseAsnProfile($setup);
         }
 
         $setup->endSetup();
@@ -87,6 +98,23 @@ class UpgradeData implements UpgradeDataInterface
             [
                 'asn_number in (?)' =>  $currentAsnNumbers
             ],
+        );
+    }
+
+    /**
+     * @param $setup
+     */
+    protected function createReleaseAsnProfile($setup)
+    {
+        $dataflowsSetup = $this->dataflowSetupFactory->create(['setup' => $setup]);
+        $dataflowsSetup->createSchedule(
+            'release_asn',
+            [
+                'name' => 'Release Asn',
+                'status' => Schedule::STATUS_ENABLED,
+                'profile_class' => 'ITvoice\AsnCreator\Model\Profile\ReleaseAsnProfile',
+                'schedule' => '*/5 * * * *',
+            ]
         );
     }
 }

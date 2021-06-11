@@ -467,12 +467,13 @@ export const Container = memo(function Container(props) {
                     })
                         .done(function (response, status) {
                             const finalMsg = response.message + '\n ';
+                            var redirectUrl = response.redirect_url;
 
                             swal(response.message, {
                                 icon: status,
                             });
                             setTimeout(() => {
-                                window.location.reload(true);
+                                window.location.href = redirectUrl;
                             }, 1500);
                         })
                         .error(function(response, status){

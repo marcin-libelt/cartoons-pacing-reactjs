@@ -100,6 +100,28 @@ class AsnCreator
     }
 
     /**
+     * @param $invoiceAmount
+     */
+    public function setInvoiceAmount($invoiceAmount)
+    {
+        if ($invoiceAmount) {
+            $this->getAsn()->setInvoiceAmount((float)$invoiceAmount);
+        }
+        return $this;
+    }
+
+    /**
+     * @param $invoiceAmount
+     */
+    public function setInvoiceNumber($invoiceNumber)
+    {
+        if ($invoiceNumber) {
+            $this->getAsn()->setInvoiceNumber($invoiceNumber);
+        }
+        return $this;
+    }
+
+    /**
      * @param $cartonsData
      */
     public function setCartonsData($cartonsData)

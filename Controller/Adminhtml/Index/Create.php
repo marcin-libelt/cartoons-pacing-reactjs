@@ -52,9 +52,12 @@ class Create extends \Magento\Backend\App\Action
         try {
             $asnCreator->setFactoryId($this->getRequest()->getParam('factory_id'));
             $asnCreator->setCartonsData($this->getRequest()->getParam('cartons'));
+            $asnCreator->setInvoiceAmount($this->getRequest()->getParam('invoice_amount'));
+            $asnCreator->setInvoiceNumber($this->getRequest()->getParam('invoice_number'));
             $asn = $asnCreator->create();
             $data = [
-                'message' => __('Asn %1 has been created.', $asn->getAsnNumber())
+                'message' => __('Asn %1 has been created.', $asn->getAsnNumber()),
+                'redirect_url' => $this->getUrl('itvoice_asn/asn/edit', ['id' => $asn->getId()]),
             ];
         } catch (\Exception $e) {
             $data = [
