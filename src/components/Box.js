@@ -67,19 +67,15 @@ export const Box = memo(function Box({ name, hidden, type, id, doorLabel, PO, do
     </div> : '';
 });
 
-export const BoxAfter = memo(function BoxAfter({ name, type, id, doorLabel, PO, cartonBox, sku, sizes, handleSetQty, handleRemoveItemFromDustbin }) {
+export const BoxAfter = memo(function BoxAfter({ name, type, id, doorLabel, cartonBox, sku, sizes, handleSetQty, handleRemoveItemFromDustbin }) {
     const backgroundColor = '#e9ecef';
     return (<div className={'card'} role="Box" style={{ ...style, backgroundColor, borderRadius: '10px', overflow: 'hidden' }}>
         <div className={'m-0 px-2 py-1'} style={{backgroundColor: '#c5c5c5'}}>
             <p className={'m-0 mb-2'}>
-                <strong>{name}</strong>
-                <span style={{float: 'right', fontSize: '12px',lineHeight: '2'}}>{PO}</span>
-            </p>
-            <p className={'m-0'}>
-                <span style={{}}><span>{sku}</span></span>
+                <strong>{name}</strong><span style={{fontSize: '13px', fontStyle: 'italic', marginLeft: '8px'}}>{sku}</span>
                 <button type={'button'} className={'btn btn-secondary btn-sm'}
                         style={{float: 'right',fontSize: '12px', paddingTop: '1px',
-                            paddingBottom: '1px'}}
+                            paddingBottom: '1px', marginTop: '2px'}}
                         onClick={(e) => { return  handleRemoveItemFromDustbin(id, cartonBox, e); }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor"
                          className="bi bi-x-lg" style={{ marginBottom: '-1px', marginRight: '5px'}} viewBox="0 0 16 16">

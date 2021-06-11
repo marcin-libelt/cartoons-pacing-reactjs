@@ -8,7 +8,6 @@
       }
     }
   }
-
 }
 
 #react-category-root {
@@ -17,16 +16,61 @@
     top: 20px;
   }
 
-  .new-carton {
-    position: sticky;
-    top: 33px;
-    width: 100%;
+  .footer {
+    padding: 10px;
+    border-radius: 10px;
+    background: #e9ecef;
+  }
 
-    button {
-      position: absolute;
-      right: -78px;
+  .top-panel {
+    margin-bottom: 10px;
+
+    .card {
+      padding: 10px;
+      border-radius: 10px;
+
+      h4 {
+        text-align: left;
+        margin-bottom: 8px;
+      }
+    }
+
+    .filters {
+      flex-grow: 5;
+      background: #e9ecef;
+    }
+
+    .totals {
+      flex-grow: 1;
+      margin-left: 10px;
+      background: #e9ecef;
+      text-align: center;
+
+      .label {
+        margin-right: 5px;
+        max-width: 100px;
+        display: inline;
+        text-align: right;
+      }
     }
   }
+
+  .new-carton2 {
+    position: sticky;
+    top: -20px;
+    z-index: 200;
+
+    button {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+
+      &:hover {
+        transform: translateY(20px);
+      }
+    }
+  }
+
 
   .container {
     width: 100%;
@@ -53,7 +97,8 @@
   }
 
   .col-5 {
-
+    flex: 0 0 auto;
+    width: 41.6666666667%;
   }
 
   .col-7 {

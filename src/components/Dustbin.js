@@ -13,6 +13,7 @@ export const Dustbin = memo(function Dustbin({
                                                  info,
                                                  toDoorLabel,
                                                  orderType,
+                                                 PO,
                                                  joorSONumber,
                                                  handleRemoveDustbin,
                                                  setCartonInfo,
@@ -52,8 +53,7 @@ export const Dustbin = memo(function Dustbin({
     const dustbinStyles = {
         borderRadius: '10px',
         overflow: 'hidden',
-        backgroundColor: backgroundColor,
-        top: 20 + (index * 39) + 'px'
+        backgroundColor: backgroundColor
     }
 
     return (<div className={'card sticky-card mb-2'} ref={drop} role="Dustbin" style={{...dustbinStyles}}>
@@ -61,6 +61,7 @@ export const Dustbin = memo(function Dustbin({
             <span className={'label'}>CartonBox</span>
 
             {toDoorLabel ? <>
+                <span title={'PO number'}>{PO}</span>&nbsp;/&nbsp;
                 <span title={'Door Label'}>{toDoorLabel}</span>&nbsp;/&nbsp;
                 <span title={'Order Type'}>{orderType}</span>&nbsp;/&nbsp;
                 <span title={'SO number'}>{joorSONumber}</span>
@@ -122,7 +123,6 @@ export const Dustbin = memo(function Dustbin({
                                       sku={sku}
                                       doorLabel={doorLabel}
                                       id={id}
-                                      PO={PO}
                                       cartonBox={cartonBox}
                                       sizes={sizes}
                                       boxAfter={true}

@@ -5,6 +5,7 @@ import { ItemTypes, FieldsMap } from '../ItemTypes';
 import uuid from 'react-uuid'
 import update from 'immutability-helper';
 import { qtyReducer, validateCartonInput } from '../helper';
+import swal from "sweetalert";
 
 export const Container = memo(function Container(props) {
 
@@ -19,8 +20,8 @@ export const Container = memo(function Container(props) {
     const [loadingMsg, setLoadingMsg] = useState("");
     const [afterSubmition, setAfterSubmition] = useState(false);
     const [cartonOptions, setCartonOptions] = useState([]);
-    const [invAmount, setInvAmount] = useState(0);
-    const [invNumber, setInvNumber] = useState(0)
+    const [invAmount, setInvAmount] = useState("");
+    const [invNumber, setInvNumber] = useState("")
 
     const [totals, setTotals] = useState({
         cartons: 0,
@@ -35,6 +36,7 @@ export const Container = memo(function Container(props) {
     }, []);
 
     useEffect(() => {
+        // TODO coś tu nie działa - nie zawsze aktualizuje przy usuwaniu kartonu
         const updatedState = update(totals, {
             ['cartons']: { $set: dustbins.length }
         })
@@ -42,12 +44,24 @@ export const Container = memo(function Container(props) {
     }, [dustbins])
 
     useEffect(() => {
-console.log('a');
-        const updatedState = update(totals, {
-            ['units']: { $set: 100 }
+
+        let qty = 0;
+        let value = 0;
+
+        pickedItems.forEach(item => {
+            const thisQty = parseInt(qtyReducer(item.sizes));
+            qty += thisQty;
+            value += thisQty * item.unit_selling_price;
         })
+
+        const updatedState = update(totals, {
+            ['units']: { $set: qty },
+            ['value']: { $set: parseFloat(value)}
+        })
+
         setTotals(updatedState);
     }, [pickedItems])
+
     /**
      *
      * @type {(function(*, *): void)|*}
@@ -56,8 +70,6 @@ console.log('a');
         const result = boxes.find(item => item.id === id);
         const index = boxes.indexOf(result);
         const totalQty = qtyReducer(result.sizes);
-
-        console.log(id, totalQty);
 
         // quit if no items to distribute left
         if(totalQty === 0) {
@@ -69,12 +81,14 @@ console.log('a');
         // -- doorCode,
         // -- joorSONumber,
         // -- orderType
+        // -- PO nummber
         //
         const targetDustbin = dustbins.find(bin => bin.uid === cartonBox);
         if(!validateCartonInput(targetDustbin, {
             doorCode: result.doorCode,
             orderType: result.orderType,
-            joorSONumber: result.joorSONumber
+            joorSONumber: result.joorSONumber,
+            PO: result.PO
         })) {
             return; // Abort!
         }
@@ -90,6 +104,7 @@ console.log('a');
                     orderType: {$set: result.orderType},
                     joorSONumber: {$set: result.joorSONumber},
                     doorCode: {$set: result.doorCode},
+                    PO: {$set: result.PO},
                     toDoorLabel: {$set: result.doorLabel}
                 }
             });
@@ -195,6 +210,7 @@ console.log('a');
             doorCode: null,  // unique for dustbin
             orderType: null, // unique for dustbin
             joorSONumber: null, // unique for dustbin
+            PO: null, // unique for dustbin
             toDoorLabel: null,
             gross_weight: '',
             net_weight: '',
@@ -234,7 +250,8 @@ console.log('a');
                     doorCode: { $set: null},
                     toDoorLabel: { $set: null},
                     orderType: { $set: null},
-                    joorSONumber: { $set: null}
+                    joorSONumber: { $set: null},
+                    PO: { $set: null}
                 }
             }))
         }
@@ -286,13 +303,17 @@ console.log('a');
             setPickedItems(prevState => {
                 return prevState.filter(item => item.cartonBox !== cartonBox);
             })
-
         }
 
+        const updatedDustbins = update(dustbins, {}).filter(bin => bin.uid !== cartonBox)
+
         // usuń --------------- karton
-        setDustbins(prevState => {
-            return prevState.filter(bin => bin.uid !== cartonBox);
+        setDustbins(updatedDustbins)
+
+        const updatedState = update(totals, {
+            ['cartons']: { $set: updatedDustbins.length }
         })
+        setTotals(updatedState);
     }
 
     /**
@@ -374,8 +395,22 @@ console.log('a');
     }
 
     function submitPacking() {
+
+        if(pickedItems.length === 0) {
+            swal('There\'s no cartons to submit new ASN.', {
+                icon: "warning"
+            })
+            return;
+        }
+
+        if(!invAmount || !invNumber) {
+            swal('\'Invoice Number\' and \'Invoice Amount\' fields can not be empty.', {
+                icon: "warning"
+            })
+            return;
+        }
+
         setLoadingMsg("trwa wysyłanie");
-        // pobierz listę kartonóœ
 
         let resultObject = {
             cartons: [],
@@ -385,7 +420,7 @@ console.log('a');
             form_key: data.form_key
         };
 
-        dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix, joorSONumber },index) => {
+        dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix, joorSONumber, PO },index) => {
 
             const allpackedItemInDustbin = pickedItems.filter(item => item.cartonBox === uid);
             if(allpackedItemInDustbin) {
@@ -406,21 +441,55 @@ console.log('a');
                     dimensions,
                     suffix,
                     joorSONumber,
+                    PO,
                     items: itemsCollection
                 }
                 resultObject.cartons.push(binData)
             }
         })
 
-        data.jquery.ajax({
-            type: "POST",
-            url: data.post_url,
-            data: resultObject,
-            dataType: 'json'
-        }).done(function (response) {
-            console.log(response)
-            setLoadingMsg("")
-        });
+
+        swal({
+            title: "Are you sure?",
+            text: "You are about to submit new ASN.\nDo you want to proceed?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((willProceed) => {
+                if (willProceed) {
+
+                    data.jquery.ajax({
+                        type: "POST",
+                        url: data.post_url,
+                        data: resultObject,
+                        dataType: 'json'
+                    })
+                        .done(function (response, status) {
+                            const finalMsg = response.message + '\n ';
+
+                            swal(response.message, {
+                                icon: status,
+                            });
+                            setTimeout(() => {
+                                window.location.reload(true);
+                            }, 1500);
+                        })
+                        .error(function(response, status){
+                            swal(response.responseJSON.message, {
+                                icon: status
+                            });
+                        })
+                        .always(function (){
+                            setLoadingMsg("")
+                        });
+
+                } else {
+                    setLoadingMsg("")
+                }
+            });
+
+
 
     }
 
@@ -444,42 +513,35 @@ console.log('a');
     }
 
     return <div className="container" style={{ position: 'relative', color: '#212529', fontSize: '15px'}}>
-        <div className={'new-carton'}>
-            <button type="button" onClick={handleNewDustbin} className="btn btn-primary btn-sm">
-                +&nbsp;&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                  className="bi bi-box-seam" viewBox="0 0 16 16">
-                <path
-                    d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
-            </svg></button>
-        </div>
         <div className={'row'}>
-            <div className={'col d-flex my-3 flex-column'}>
-                <h4>Filter by:</h4>
-                <form onSubmit={ev => { ev.preventDefault()}}>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text" id="inputGroup-sizing-default">PO number or SKU</span>
+            <div className={'col d-flex justify-content-between top-panel'}>
+                <div className="card filters">
+                    <h4>Filter by:</h4>
+                    <form onSubmit={ev => { ev.preventDefault()}}>
+                        <div className="input-group mb-3">
+                            <div className="input-group-prepend">
+                                <span className="input-group-text" id="inputGroup-sizing-default">PO number or SKU</span>
+                            </div>
+                            <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev)} value={filter}  aria-label="Sizing example input"
+                                   aria-describedby="inputGroup-sizing-default">
+                            </input>
                         </div>
-                        <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev)} value={filter}  aria-label="Sizing example input"
-                               aria-describedby="inputGroup-sizing-default">
-                        </input>
-                    </div>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text" id="inputGroup-sizing-default">SO number</span>
+                        <div className="input-group mb-3">
+                            <div className="input-group-prepend">
+                                <span className="input-group-text" id="inputGroup-sizing-default">SO number</span>
+                            </div>
+                            <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev, 'so')} value={filterSo}  aria-label="Sizing example input"
+                                   aria-describedby="inputGroup-sizing-default">
+                            </input>
                         </div>
-                        <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev, 'so')} value={filterSo}  aria-label="Sizing example input"
-                               aria-describedby="inputGroup-sizing-default">
-                        </input>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div className="card totals">
+                    <h4>Totals</h4>
+                    <span className='label'>cartons:</span>{totals.cartons}<br/>
+                    <span className='label'>units:</span>{totals.units} pcs<br/>
+                    <span className='label'>value:</span>{totals.value} &euro;<br/>
             </div>
-        </div>
-        <div className="row">
-            <div className="col">
-                total cartons #: {totals.cartons} <br/>
-                total units #: {0} <br/>
-                total value #: {0} <br/>
             </div>
         </div>
         <div className="row">
@@ -515,7 +577,6 @@ console.log('a');
                                  doorLabel={doorLabel}
                                  doorCode={doorCode}
                                  id={id}
-                                 PO={PO}
                                  sizes={sizes}
                                  clientName={clientName}
                                  joorSONumber={joorSONumber}
@@ -527,6 +588,14 @@ console.log('a');
                     </div>
                 </div>
                 <div className="col col-7">
+                    <div className={'new-carton2'}>
+                        <button type="button" onClick={handleNewDustbin} className="btn btn-primary btn-sm">
+                            +&nbsp;&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                              className="bi bi-box-seam" viewBox="0 0 16 16">
+                            <path
+                                d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
+                        </svg> add new carton</button>
+                    </div>
                     <div className={'mb-3'} style={{ height: '100%'}}>
                         {dustbins.map(({
                                            accepts,
@@ -534,6 +603,7 @@ console.log('a');
                                            toDoorLabel,
                                            orderType,
                                            joorSONumber,
+                                            PO,
                                            gross_weight,
                                             net_weight,
                                             dimensions,
@@ -553,6 +623,7 @@ console.log('a');
                                             uid={uid}
                                             toDoorLabel={toDoorLabel}
                                             orderType={orderType}
+                                            PO={PO}
                                             joorSONumber={joorSONumber}
                                             setCartonInfo={handleSetCartonInfo}
                                             readOnly={false}
@@ -566,11 +637,24 @@ console.log('a');
                 </div>
             </div>
         <div className={'row'}>
-            <div className={'col col-xs-12'}>
-                dwa pola
-            </div>
-            <div className={'col mb-4'}>
-                <button type="button" onClick={ submitPacking } className="btn primary btn-lg">Submit</button>
+            <div className="col footer">
+                <form onSubmit={ev => { ev.preventDefault()}}>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">Invoice Number</span>
+                        </div>
+                        <input type="text" className={'form-control'} onChange={ev => {setInvNumber(ev.target.value)}} value={invNumber}></input>
+                    </div>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">Invoice Amount</span>
+                        </div>
+                        <input type="text" className={'form-control'} onChange={ev => {setInvAmount(ev.target.value)}} value={invAmount}></input>
+                    </div>
+                </form>
+                <div style={{ textAlign: 'center'}}>
+                    <button type="button" style={{minWidth: '250px'}} onClick={ submitPacking } className="btn primary btn-lg">Create ASN</button>
+                </div>
             </div>
         </div>
         { loadingMsg ? <span className={'mask'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#fff', opacity: 0.4 }}>
