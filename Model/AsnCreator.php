@@ -155,7 +155,8 @@ class AsnCreator
                 $productId = $data['sku'];
                 $barcode = $sizeData['barcode'];
                 $qty = (int) $sizeData['qty'] ?? 0;
-                $poItem = $this->getPoItem($data['PO'], $barcode);
+                $po = $data['PO'];
+                $poItem = $this->getPoItem($po, $barcode);
 
                 $item = $carton->getItem($productId);
                 if (!$item) {
@@ -168,12 +169,23 @@ class AsnCreator
                         'division' => '', // @TODO for now its missing ?
                     ];
 
-                    $item = $carton->addItem($productId, $itemData);;
+                    $item = $carton->addItem($productId, $itemData);
+                    $item->setInitUniqueLineId(true);
                 }
 
                 $simpleItemData = [
                     'size' => $poItem->getSize()
                 ];
+
+                $poInternalUsedQty = $poItem->getInternalUsedQty();
+                $poInternalUsedQty += $qty;
+
+                if ($poInternalUsedQty <= $poItem->getBalanceQty()) {
+                    $poItem->setInternalUsedQty($poInternalUsedQty);
+                    $poItem->setIsInternalUsedQtyUpdated(true);
+                } else {
+                    throw new LocalizedException(__('Internal used qty is greater than balance qty for PO %1, item: %2', $po, $barcode));
+                }
 
                 $simpleItem = $item->addSimpleItem($barcode, $qty, $simpleItemData);
                 $simpleItem->setPoItem($poItem);
@@ -267,6 +279,15 @@ class AsnCreator
 
         $transaction = $this->transactionFactory->create();
         $transaction->addObject($this->getAsn());
+
+        foreach ($this->poItems as $poNomber => $poItems) {
+            foreach ($poItems as $barcode => $poItem) {
+                if ($poItem->getIsInternalUsedQtyUpdated()) {
+                    $transaction->addObject($poItem);
+                }
+            }
+        }
+
         $transaction->save();
 
         return $this->getAsn();
