@@ -158,6 +158,8 @@ class AsnCreator
             $cartonData['destination'] = $customerAddress->getShippingMethod();
 
             $carton = $this->getAsn()->addCarton($cartonNumber, $cartonData);
+            $carton->setInitUniqueCartonId(true);
+            $carton->setSuffix($data['suffix']);
             $carton->setAddress($customerAddress);
 
             $items = $data['items'] ?? [];
