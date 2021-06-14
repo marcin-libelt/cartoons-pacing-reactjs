@@ -36,7 +36,6 @@ export const Container = memo(function Container(props) {
     }, []);
 
     useEffect(() => {
-        // TODO coś tu nie działa - nie zawsze aktualizuje przy usuwaniu kartonu
         const updatedState = update(totals, {
             ['cartons']: { $set: dustbins.length }
         })
@@ -374,8 +373,8 @@ export const Container = memo(function Container(props) {
             return;
         }
 
-        const qty1 = itemSize.qty - (value - (rightSize.qty));
-        const qty2 = value;
+        const qty1 = parseInt(itemSize.qty - (value - (rightSize.qty)));
+        const qty2 = parseInt(value);
 
 
         // na palecie
