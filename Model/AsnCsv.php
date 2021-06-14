@@ -30,7 +30,7 @@ class AsnCsv
             'BillingDoorCode',
             'ShippingDoorCode',
             'FactoryName',
-            'FactoryPacklingListNumber',
+            'FactoryInvoiceNumber',
             'UCI',
             'Barcode',
             'Qty',
@@ -42,9 +42,7 @@ class AsnCsv
             'CartonGrossWeight',
             'CartonNetWeight',
             'operand',
-            'InvoiceNumber',
-            'InvoiceAmount',
-            'InvoiceDate',
+            'Ordertype',
         ];
 
         $csvContent[] = $this->getCsvLine($header, $delimiter, $enclosure);;
@@ -61,21 +59,19 @@ class AsnCsv
                             'billing_door_code' => $poItem->getBillingDoorCode(),
                             'shipping_door_code' => $poItem->getShippingDoorCode(),
                             'factory_name' => $asn->getFactory(),
-                            'factory_packing_list_number' => '', //@TODO how to get it ?
+                            'factory_invoice_number' => $asn->getInvoiceNumber(),
                             'uci' => $carton->getUniqueCartonId(),
                             'barcode' => $simpleItem->getBarcode(),
                             'qty' => $simpleItem->getQty(),
                             'supplier_unit_cost_price' => sprintf('%.2f', $poItem->getUnitSellingPrice()),
                             'joor_so_number' => $carton->getJoorSoNumber(),
-                            'so_number' => '', //@TODO how to get it ?
+                            'so_number' => $carton->getJoorSoNumber() . '-' . $poItem->getShippingDoorCode(),
                             'po_number' => $carton->getCustomerPo(),
                             'customer_po' => '', //@TODO how to get it , is it always empty ?
                             'carton_gross_weight' => (float)$carton->getGrossWeight(),
                             'carton_new_weight' => (float)$carton->getNetWeight(),
                             'operand' => 'I',
-                            'invoice_number' => $asn->getInvoiceNumber(),
-                            'invoice_amount' => sprintf('%.2f', $asn->getInvoiceAmount()),
-                            'invoice_date' => '', //@TODO how to get it ?
+                            'order_type' => 'NEW',
                         ];
 
                         $csvContent[] = $this->getCsvLine($row, $delimiter, $enclosure);
