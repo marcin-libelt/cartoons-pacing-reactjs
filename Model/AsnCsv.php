@@ -76,7 +76,7 @@ class AsnCsv
                         'invoice_date' => '', //@TODO how to get it ?
                     ];
 
-                    $csvContent[] = $this->getCsvLine($row, $delimiter, $enclosure);;
+                    $csvContent[] = $this->getCsvLine($row, $delimiter, $enclosure);
                 }
             }
         }
