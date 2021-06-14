@@ -111,9 +111,15 @@ class UpgradeData implements UpgradeDataInterface
             'release_asn',
             [
                 'name' => 'Release Asn',
-                'status' => Schedule::STATUS_ENABLED,
+                'status' => Schedule::STATUS_DISABLED,
                 'profile_class' => 'ITvoice\AsnCreator\Model\Profile\ReleaseAsnProfile',
                 'schedule' => '*/5 * * * *',
+                'parameters' => [
+                    'dir_path_1' => '/INT18/TWS/IMPORT/INBOUND',
+                    'dir_path_2' => '/INT18/ITVOICE/INBOUND_ORIGINAL',
+                    'delimiter' => '|',
+                    'enclosure' => '"',
+                ],
             ]
         );
     }
