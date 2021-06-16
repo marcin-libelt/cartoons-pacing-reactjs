@@ -577,6 +577,7 @@ export const Container = memo(function Container(props) {
                                  doorLabel={doorLabel}
                                  doorCode={doorCode}
                                  id={id}
+                                 PO={PO}
                                  sizes={sizes}
                                  clientName={clientName}
                                  joorSONumber={joorSONumber}
