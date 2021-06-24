@@ -54,7 +54,7 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
     {
         $collection = $this->asnFactory->create()->getCollection();
         $collection->addFieldToFilter('type', Asn::ASN_TYPE_INTERNAL);
-        $collection->addFieldToFilter('is_released', 0);
+        $collection->addFieldToFilter('release_status', Asn::RELEASED_STATUS_READY_TO_RELEASE);
         return $collection;
     }
 

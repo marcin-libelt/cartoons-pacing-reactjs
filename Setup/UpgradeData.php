@@ -6,6 +6,7 @@
 namespace ITvoice\AsnCreator\Setup;
 
 use Alekseon\Dataflows\Model\Schedule;
+use ITvoice\Asn\Model\Asn;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
@@ -65,12 +66,15 @@ class UpgradeData implements UpgradeDataInterface
             $this->sequenceCreator->create();
         }
 
-        if (version_compare($context->getVersion(), '1.0.2') < 0) {
-            $this->setIsReleasedForCurrentExistingAsns();
-        }
+        //if (version_compare($context->getVersion(), '1.0.2') < 0) {
+        //}
 
         if (version_compare($context->getVersion(), '1.0.3') < 0) {
             $this->createReleaseAsnProfile($setup);
+        }
+
+        if (version_compare($context->getVersion(), '1.0.4') < 0) {
+            $this->setReleaseStatusForCurrentExistingAsns();
         }
 
         $setup->endSetup();
@@ -79,7 +83,7 @@ class UpgradeData implements UpgradeDataInterface
     /**
      *
      */
-    protected function setIsReleasedForCurrentExistingAsns()
+    protected function setReleaseStatusForCurrentExistingAsns()
     {
         $currentAsnNumbers = [];
         $factoryItemCollection = $this->asnFactoryItemFactory->create()->getCollection();
@@ -93,7 +97,7 @@ class UpgradeData implements UpgradeDataInterface
         $asnResource->getConnection()->update(
             $asnResource->getMainTable(),
             [
-                'is_released' => 1
+                'release_status' => Asn::RELEASED_FLAG_RELEASED
             ],
             [
                 'asn_number in (?)' =>  $currentAsnNumbers

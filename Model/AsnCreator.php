@@ -50,6 +50,10 @@ class AsnCreator
      * @var
      */
     protected $poItems;
+    /**
+     * @var
+     */
+    protected $factory;
 
     /**
      * AsnCreator constructor.
@@ -94,9 +98,21 @@ class AsnCreator
         if (!$factory) {
             throw new LocalizedException(__('Incorrect factory ID.'));
         }
+        $this->factory = $factory;
         $this->getAsn()->setFactory($factory->getSupplier());
         $this->getAsn()->setFactoryCode($factory->getSageCode());
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFactory()
+    {
+        if (!$this->factory) {
+            throw new LocalizedException(__('Missing Factory'));
+        }
+        return $this->factory;
     }
 
     /**
@@ -159,11 +175,11 @@ class AsnCreator
 
             $carton = $this->getAsn()->addCarton($cartonNumber, $cartonData);
             $carton->setInitUniqueCartonId(true);
-            $carton->setSuffix($data['suffix']);
+            $carton->setSuffix($this->getFactory()->getUciCode() . '-' . $data['suffix']);
             $carton->setAddress($customerAddress);
 
             $items = $data['items'] ?? [];
-            $this->setItemsData($carton, $items);
+            $this->setItemsData($doorCode, $carton, $items);
         }
     }
 
@@ -171,7 +187,7 @@ class AsnCreator
      * @param $carton
      * @param $itemData
      */
-    protected function setItemsData($carton, $itemsData)
+    protected function setItemsData($doorCode, $carton, $itemsData)
     {
         foreach ($itemsData as $data) {
 
@@ -181,8 +197,13 @@ class AsnCreator
                 $productId = $data['sku'];
                 $barcode = $sizeData['barcode'];
                 $qty = (int) $sizeData['qty'] ?? 0;
+
+                if (!$qty) {
+                    continue;
+                }
+
                 $po = $data['PO'];
-                $poItem = $this->getPoItem($po, $barcode);
+                $poItem = $this->getPoItem($po, $doorCode, $barcode);
                 $carton->setCustomerPo($po);
 
                 $item = $carton->getItem($productId);
@@ -207,11 +228,11 @@ class AsnCreator
                 $poInternalUsedQty = $poItem->getInternalUsedQty();
                 $poInternalUsedQty += $qty;
 
-                if ($poInternalUsedQty <= $poItem->getBalanceQty()) {
+                if ($poInternalUsedQty <= $poItem->getAvailableQty()) {
                     $poItem->setInternalUsedQty($poInternalUsedQty);
                     $poItem->setIsInternalUsedQtyUpdated(true);
                 } else {
-                    throw new LocalizedException(__('Internal used qty is greater than balance qty for PO %1, item: %2', $po, $barcode));
+                    throw new LocalizedException(__('Internal used qty is greater than available qty for PO %1, item: %2', $po, $barcode));
                 }
 
                 $simpleItem = $item->addSimpleItem($barcode, $qty, $simpleItemData);
@@ -267,7 +288,7 @@ class AsnCreator
         foreach ($poCollection as $po) {
             $poItems = $po->getItems();
             foreach($poItems as $item) {
-                $this->poItems[$po->getDocumentNo()][$item->getBarcode()] = $item;
+                $this->poItems[$po->getDocumentNo()][$item->getShippingDoorCode()][$item->getBarcode()] = $item;
             }
         }
 
@@ -276,18 +297,19 @@ class AsnCreator
 
     /**
      * @param $poNumber
+     * @param $doorCode
      * @param $barcode
      * @return mixed
      * @throws LocalizedException
      */
-    protected function getPoItem($poNumber, $barcode)
+    protected function getPoItem($poNumber, $doorCode, $barcode)
     {
         if ($this->poItems === null) {
             $this->poItems = [];
         }
 
-        if (isset($this->poItems[$poNumber][$barcode])) {
-            return $this->poItems[$poNumber][$barcode];
+        if (isset($this->poItems[$poNumber][$doorCode][$barcode])) {
+            return $this->poItems[$poNumber][$doorCode][$barcode];
         } else {
             throw new LocalizedException(__('Incorrect PO Item.'));
         }
@@ -307,10 +329,12 @@ class AsnCreator
         $transaction = $this->transactionFactory->create();
         $transaction->addObject($this->getAsn());
 
-        foreach ($this->poItems as $poNomber => $poItems) {
-            foreach ($poItems as $barcode => $poItem) {
-                if ($poItem->getIsInternalUsedQtyUpdated()) {
-                    $transaction->addObject($poItem);
+        foreach ($this->poItems as $poNumber => $itemsByPoNumber) {
+            foreach ($itemsByPoNumber as $doorCode => $poItems) {
+                foreach ($poItems as $barcode => $poItem) {
+                    if ($poItem->getIsInternalUsedQtyUpdated()) {
+                        $transaction->addObject($poItem);
+                    }
                 }
             }
         }
