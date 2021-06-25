@@ -63,17 +63,18 @@ class GetItems extends \Magento\Backend\App\Action
 
         $jsonResponse = $this->jsonFactory->create();
 
-
         $purchaseOrders = $this->getPurchaseOrders();
         $purchaseOrderIds = array_keys($purchaseOrders);
         $poItems = $this->purchaseOrderItemFactory->create()->getCollection();
         $poItems->addFieldToFilter('purchase_order_id', ['in' => $purchaseOrderIds]);
+        $poItems->addFieldToFilter('balance_qty', ['gt' => 0]);
+        $poItems->getSelect()->where('balance_qty >= order_qty');
 
         $orders = [];
         $idMap = [];
         $limit = 0;
         foreach ($poItems as $poItem) {
-            $qty = (int) $poItem->getBalanceQty() - $poItem->getInternalUsedQty();
+            $qty = (int) $poItem->getQty() - $poItem->getInternalUsedQty();
             if ($qty <= 0) {
                 continue;
             }
@@ -82,7 +83,7 @@ class GetItems extends \Magento\Backend\App\Action
             $purchaseOrder = $purchaseOrders[$poItem->getPurchaseOrderId()];
             $productId = $poItem->getProductId();
 
-            $itemId = $shippingDoorCode . '-' . $productId . $purchaseOrder->getId();
+            $itemId = $shippingDoorCode . '-' . $productId . '_' . $purchaseOrder->getId();
 
             if (!isset($idMap[$itemId])) {
                 $shippingAddress =  $poItem->getShippingAddress();
