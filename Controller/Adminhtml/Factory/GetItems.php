@@ -144,6 +144,8 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
             $data['asn'] = $asnData;
         }
 
+        $this->sortSizes($orders);
+
         $data['cartons'] = $this->getFactoryCartons();
         $data['orders'] = array_values($orders);
 
@@ -311,8 +313,8 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                     if (!isset($existingBarcodes[$size['barcode']])) {
                         $orders[$rowId]['sizes'][] = [
                             'qty' => 0,
-                            'barcode' => $poItem->getBarcode(),
-                            'size' => $poItem->getSize(),
+                            'barcode' => $size['barcode'],
+                            'size' => $size['size'],
                         ];
 
                         $existingBarcodes[$size['barcode']] = $size['barcode'];
@@ -320,5 +322,26 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                 }
             }
         }
+    }
+
+    protected function sortSizes(&$orders)
+    {
+        foreach ($orders as $rowId => $data) {
+            $sizes = $data['sizes'];
+            usort($sizes, [$this, 'sizeSortCompare']);
+            $orders[$rowId]['sizes'] = $sizes;
+        }
+    }
+
+    /**
+     * @param $sizeA
+     * @param $sizeB
+     * @return bool
+     */
+    protected function sizeSortCompare($sizeA, $sizeB)
+    {
+        $sizeNumberA = (float) $sizeA['size'];
+        $sizeNumberB = (float) $sizeB['size'];
+        return $sizeNumberA > $sizeNumberB;
     }
 }
