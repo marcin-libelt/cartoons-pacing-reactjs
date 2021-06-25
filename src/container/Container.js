@@ -6,10 +6,189 @@ import uuid from 'react-uuid'
 import update from 'immutability-helper';
 import { qtyReducer, validateCartonInput } from '../helper';
 import swal from "sweetalert";
+import { DustbinModel } from '../model/Dustbin';
 
 export const Container = memo(function Container(props) {
 
-    const { data } = props;
+    const { cartons, orders /*, asn */} = props.data.data;
+    const { factory_id, form_key, jquery: $, post_url, asn_number } = props.data;
+
+    //todo remove mock data when provided by prop
+    const asn = {
+        "cartons": [
+            {
+                "cartonId": "ede562f-423-43f6-f8a2-b81c0ae476fb",
+                "doorCode": "109005",
+                "gross_weight": "2222",
+                "net_weight": "4444",
+                "dimensions": "",
+                "suffix": "6666",
+                "joorSONumber": "8805779",
+                "PO": "PO121-109-01-05510",
+                "items": [
+                    {
+                        "id": "199552",
+                        "PO": "PO121-109-01-05510",
+                        "sizes": [
+                            {
+                                "qty": 1,
+                                "size": "35",
+                                "barcode": "5059268422708"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "35.5",
+                                "barcode": "5059268422685"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "36",
+                                "barcode": "5059268422661"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "36.5",
+                                "barcode": "5059268422647"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "37",
+                                "barcode": "5059268422623"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "37.5",
+                                "barcode": "5059268422616"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "38",
+                                "barcode": "5059268423002"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "38.5",
+                                "barcode": "5059268422982"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "39",
+                                "barcode": "5059268422968"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "39.5",
+                                "barcode": "5059268422944"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "40",
+                                "barcode": "5059268422920"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "40.5",
+                                "barcode": "5059268422906"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "41",
+                                "barcode": "5059268422883"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "41.5",
+                                "barcode": "5059268422869"
+                            }
+                        ],
+                        "sku": "120-1249-0001"
+                    },
+                    {
+                        "id": "199566",
+                        "PO": "PO121-109-01-05510",
+                        "sizes": [
+                            {
+                                "qty": 1,
+                                "size": "35.5",
+                                "barcode": "5059268422692"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "36",
+                                "barcode": "5059268422678"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "36.5",
+                                "barcode": "5059268422654"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "37",
+                                "barcode": "5059268422630"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "37.5",
+                                "barcode": "5059268423026"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "38",
+                                "barcode": "5059268423019"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "38.5",
+                                "barcode": "5059268422999"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "39",
+                                "barcode": "5059268422975"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "39.5",
+                                "barcode": "5059268422951"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "40",
+                                "barcode": "5059268422937"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "40.5",
+                                "barcode": "5059268422913"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "41",
+                                "barcode": "5059268422890"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "41.5",
+                                "barcode": "5059268422876"
+                            },
+                            {
+                                "qty": 1,
+                                "size": "42",
+                                "barcode": "5059268422852"
+                            }
+                        ],
+                        "sku": "120-1249-0002"
+                    }
+                ]
+            }
+        ],
+        "invoice_amount": "2222222",
+        "invoice_number": "111111",
+        "factory_id": "4",
+        "form_key": "xsF97tVt9zqHhlxV"
+    };
+    const isEditMode = typeof asn_number !== "undefined";
 
     // for now only 1 Type ( style )
     const [dustbins, setDustbins] = useState([]);
@@ -29,9 +208,68 @@ export const Container = memo(function Container(props) {
         value: 0
     })
 
+    if(isEditMode) {
+        useEffect(function () {
+
+            setInvNumber(asn.invoice_number);
+            setInvAmount(asn.invoice_amount);
+
+            let restoredDustbins = [];
+            let restoredPickedItems = [];
+
+            asn.cartons.forEach(cartonItem => {
+                const newDustbin = new DustbinModel(cartonItem.cartonId, [ItemTypes.STYLE]);
+
+                newDustbin.doorCode = cartonItem.doorCode;
+                newDustbin.gross_weight = cartonItem.gross_weight;
+                newDustbin.net_weight = cartonItem.net_weight;
+                newDustbin.dimensions = cartonItem.dimensions; // TODO dodaj w BO dla tej fabryki i spradz czy sie dobrze zanzacza
+                newDustbin.suffix = cartonItem.suffix;
+                newDustbin.joorSONumber = cartonItem.joorSONumber;
+                newDustbin.PO = cartonItem.PO;
+
+                restoredDustbins.push(newDustbin);
+
+                // --------------------------------------
+
+                cartonItem.items.forEach(productItem => {
+
+                    // get data from Left item search by ID
+                    // get data from TrueSorce is better solution
+                    const leftItem = orders.find(item => item.id === productItem.id);
+
+                    const newProduct = {
+                        id: productItem.id,
+                        cartonBox: cartonItem.cartonId,
+                        joorSONumber: cartonItem.joorSONumber,
+                        sku: productItem.sku,
+                        PO: productItem.PO,
+                        sizes: productItem.sizes,
+                        name: leftItem.name,
+                        clientName: leftItem.clientName,
+                        orderType: leftItem.orderType,
+                        unit_selling_price: leftItem.unit_selling_price,
+                        warehouseLocation: leftItem.warehouseLocation
+                    }
+
+                    restoredPickedItems.push(newProduct);
+                })
+            })
+
+            setPickedItems(prevState => {
+                return [...prevState, ...restoredPickedItems];
+            })
+
+            setDustbins(prevState => {
+                return [...prevState, ...restoredDustbins];
+            })
+
+        }, []);
+    }
+
     useEffect(function () {
-        setBoxes(data.data.orders); // props.data
-        setCartonOptions(data.data.cartons);
+        setBoxes(orders); // props.data
+        setCartonOptions(cartons);
         handleNewDustbin();
     }, []);
 
@@ -203,20 +441,7 @@ export const Container = memo(function Container(props) {
     }, [boxes, pickedItems, dustbins]);
 
     function handleNewDustbin() {
-        const newDustbin = {
-            uid: uuid(),
-            accepts: [ItemTypes.STYLE],
-            doorCode: null,  // unique for dustbin
-            orderType: null, // unique for dustbin
-            joorSONumber: null, // unique for dustbin
-            PO: null, // unique for dustbin
-            toDoorLabel: null,
-            gross_weight: '',
-            net_weight: '',
-            dimensions: '',
-            suffix: '',
-            isEmpty: true
-        };
+        const newDustbin = new DustbinModel(uuid(), [ItemTypes.STYLE]);
         setDustbins(prevState => {
             return [...prevState, newDustbin];
         })
@@ -409,15 +634,19 @@ export const Container = memo(function Container(props) {
             return;
         }
 
-        setLoadingMsg("trwa wysyłanie");
+        setLoadingMsg("New ASN is now submiting");
 
         let resultObject = {
             cartons: [],
             invoice_amount: invAmount,
             invoice_number: invNumber,
-            factory_id: data.factory_id,
-            form_key: data.form_key
+            factory_id: factory_id,
+            form_key: form_key,
         };
+
+        if(isEditMode) {
+            resultObject.asn_number = asn_number
+        }
 
         dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix, joorSONumber, PO },index) => {
 
@@ -447,7 +676,6 @@ export const Container = memo(function Container(props) {
             }
         })
 
-
         swal({
             title: "Are you sure?",
             text: "You are about to submit new ASN.\nDo you want to proceed?",
@@ -458,9 +686,9 @@ export const Container = memo(function Container(props) {
             .then((willProceed) => {
                 if (willProceed) {
 
-                    data.jquery.ajax({
+                    $.ajax({
                         type: "POST",
-                        url: data.post_url,
+                        url: post_url,
                         data: resultObject,
                         dataType: 'json'
                     })
@@ -488,9 +716,6 @@ export const Container = memo(function Container(props) {
                     setLoadingMsg("")
                 }
             });
-
-
-
     }
 
     function handleSetCartonInfo(value, field, uid) {
