@@ -172,10 +172,17 @@ class AsnCreator
             $cartonData['customer'] = $customerName;
             $cartonData['customer_account_number'] = $customerAddress->getSageCode();
             $cartonData['destination'] = $customerAddress->getShippingMethod();
+            $cartonData['door_code'] = $doorCode;
 
             $carton = $this->getAsn()->addCarton($cartonNumber, $cartonData);
             $carton->setInitUniqueCartonId(true);
-            $carton->setSuffix($this->getFactory()->getUciCode() . '-' . $data['suffix']);
+
+            $sufix =  '-' . $this->getFactory()->getUciCode();
+            if ($data['suffix']) {
+                $sufix .= '-' . $data['suffix'];
+            }
+
+            $carton->setSuffix($sufix);
             $carton->setAddress($customerAddress);
 
             $items = $data['items'] ?? [];

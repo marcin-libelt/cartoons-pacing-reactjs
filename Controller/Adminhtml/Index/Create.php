@@ -57,7 +57,7 @@ class Create extends \Magento\Backend\App\Action
             $asn = $asnCreator->create();
             $data = [
                 'message' => __('Asn %1 has been created.', $asn->getAsnNumber()),
-                'redirect_url' => $this->getUrl('itvoice_asn/asn/edit', ['id' => $asn->getId()]),
+                'redirect_url' => $this->getUrl('itvoice_asn/asn/view', ['id' => $asn->getId()]),
             ];
         } catch (\Exception $e) {
             $data = [

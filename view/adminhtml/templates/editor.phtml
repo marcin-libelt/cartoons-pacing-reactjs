@@ -8,7 +8,7 @@
 <form class="new_asn_form">
     <fieldset class="fieldset">
         <div id="selected_factory">
-            <?= __('Not selected') ?>
+            <?= __('Loading ...') ?>
         </div>
     </fieldset>
 
@@ -27,7 +27,7 @@
             "url": "<?= $this->getUrl('itvoice_asn_creator/SelectFactory/Index') ?>",
             "modal_id": "select_factory_modal",
             "refresh_factory_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/factory') ?>",
-            "factory_get_items_url": "<?= $this->getUrl('itvoice_asn_creator/factory/getitems') ?>",
+            "factory_get_items_url": "<?= $this->getUrl('itvoice_asn_creator/factory/getitems', ['asn_id' => $block->getAsn()->getId()]) ?>",
             "factory_post_cartons_url": "<?= $this->getUrl('itvoice_asn_creator/index/create') ?>"
         }
     }
