@@ -177,7 +177,7 @@ class AsnCreator
             $carton = $this->getAsn()->addCarton($cartonNumber, $cartonData);
             $carton->setInitUniqueCartonId(true);
 
-            $sufix =  $cartonNumber;
+            $sufix =  '-' . $cartonNumber;
             if ($this->getFactory()->getUciCode()) {
                 $sufix .= '-' . $this->getFactory()->getUciCode();
             }
