@@ -56,7 +56,8 @@ define([
                                 factory_id: currentFactoryId,
                                 post_url: self.factoryPostCartonsUrl,
                                 form_key: FORM_KEY,
-                                jquery: $
+                                jquery: $,
+                               // asn_number: 1111 // todo add this property when EDIT mode
                             });
                         });
                         $('#select_factory_button').remove();
