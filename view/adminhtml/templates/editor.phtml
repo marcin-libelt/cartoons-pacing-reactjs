@@ -4,20 +4,12 @@
  * http://www.alekseon.com/
  */
 ?>
+<?php echo 'ASN ID: ' . $block->getAsn()->getId() ?>
+<br/>
+<?php echo 'FACTORY ID: ' . $block->getAsn()->getFactory(true)->getId() ?>
 <div id="select_factory_modal"></div>
 <form class="new_asn_form">
     <fieldset class="fieldset">
-        <legend class="legend">
-            <span><?= __('Factory') ?></span>
-            <button
-                class="primary"
-                style="float: right"
-                id="select_factory_button"
-                disabled="disabled"
-            >
-                <?= __('Select Factory') ?>
-            </button>
-        </legend>
         <div id="selected_factory">
             <?= __('Not selected') ?>
         </div>

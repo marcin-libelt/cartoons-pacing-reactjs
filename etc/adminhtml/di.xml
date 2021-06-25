@@ -9,4 +9,7 @@
     <type name="ITvoice\Asn\Block\Adminhtml\Asn">
         <plugin name="ITvoice_AsnCreator::AddCreateAsnButtonPlugin" type="ITvoice\AsnCreator\Plugin\AddCreateAsnButtonPlugin" sortOrder="20" />
     </type>
+    <type name="ITvoice\Asn\Block\Adminhtml\Asn\View">
+        <plugin name="ITvoice_AsnCreator::AddEditAsnButtonPlugin" type="ITvoice\AsnCreator\Plugin\AddEditAsnButtonPlugin" sortOrder="20" />
+    </type>
 </config>
