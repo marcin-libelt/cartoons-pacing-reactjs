@@ -4,9 +4,6 @@
  * http://www.alekseon.com/
  */
 ?>
-<?php echo 'ASN ID: ' . $block->getAsn()->getId() ?>
-<br/>
-<?php echo 'FACTORY ID: ' . $block->getAsn()->getFactory(true)->getId() ?>
 <div id="select_factory_modal"></div>
 <form class="new_asn_form">
     <fieldset class="fieldset">
@@ -21,10 +18,12 @@
 </form>
 <script type="text/x-magento-init">
 {
-    "#select_factory_button" : {
-        "asnCreator_selectFactoryButton": {
+    "*" : {
+        "asnEditor": {
             "selected_factory_box": "selected_factory",
             "cartons_box": "cartons",
+            "asn_id": "<?= $block->getAsn()->getId() ?>",
+            "factory_id": "<?= $block->getAsn()->getFactory(true)->getId() ?>",
             "url": "<?= $this->getUrl('itvoice_asn_creator/SelectFactory/Index') ?>",
             "modal_id": "select_factory_modal",
             "refresh_factory_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/factory') ?>",

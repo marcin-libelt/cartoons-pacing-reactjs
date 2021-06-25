@@ -11,7 +11,7 @@ import { DustbinModel } from '../model/Dustbin';
 export const Container = memo(function Container(props) {
 
     const { cartons, orders /*, asn */} = props.data.data;
-    const { factory_id, form_key, jquery: $, post_url, asn_number } = props.data;
+    const { factory_id, form_key, jquery: $, post_url, asn_id } = props.data;
 
     //todo remove mock data when provided by prop
     const asn = {
@@ -188,7 +188,7 @@ export const Container = memo(function Container(props) {
         "factory_id": "4",
         "form_key": "xsF97tVt9zqHhlxV"
     };
-    const isEditMode = typeof asn_number !== "undefined";
+    const isEditMode = typeof asn_id !== "undefined" && asn_id !== null;
 
     // for now only 1 Type ( style )
     const [dustbins, setDustbins] = useState([]);
@@ -645,7 +645,7 @@ export const Container = memo(function Container(props) {
         };
 
         if(isEditMode) {
-            resultObject.asn_number = asn_number
+            resultObject.asn_id = asn_id
         }
 
         dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix, joorSONumber, PO },index) => {

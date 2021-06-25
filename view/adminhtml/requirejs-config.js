@@ -5,6 +5,7 @@
 var config = {
     "map": {
         "*": {
+            "asnEditor": "ITvoice_AsnCreator/js/asn_editor",
             "asnCreator_factory": "ITvoice_AsnCreator/js/factory",
             "asnCreator_carton": "ITvoice_AsnCreator/js/carton",
             "asnCreator_selectFactoryButton": "ITvoice_AsnCreator/js/select_factory_button",

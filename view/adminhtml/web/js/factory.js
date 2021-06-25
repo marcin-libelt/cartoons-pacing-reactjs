@@ -17,10 +17,11 @@ define([
         refreshFactoryBoxUrl: null,
         cartonsBox: null,
 
-        refreshFactoryBox()
+        refreshFactoryBox(factory_id = null, asn_id = null)
         {
             var self = this;
-            var currentFactoryId = window.selectedFactoryId;
+            var currentFactoryId = factory_id || window.selectedFactoryId;
+            var asn_id = asn_id;
 
             var data = {
                 form_key: FORM_KEY,
@@ -57,7 +58,7 @@ define([
                                 post_url: self.factoryPostCartonsUrl,
                                 form_key: FORM_KEY,
                                 jquery: $,
-                               // asn_number: 1111 // todo add this property when EDIT mode
+                                asn_id: asn_id // todo add this property when EDIT mode
                             });
                         });
                         $('#select_factory_button').remove();
@@ -101,8 +102,18 @@ define([
     }
 
     return {
-        initSelectFactoryButton(config, button)
-        {
+        initAsnEditor(config) {
+
+            factory.selectedFactoryBox = $('#' + config.selected_factory_box);
+            factory.refreshFactoryBoxUrl = config.refresh_factory_box_url;
+            factory.factoryGetItemsUrl = config.factory_get_items_url;
+            factory.factoryPostCartonsUrl = config.factory_post_cartons_url;
+            factory.cartonsBox = $('#' + config.cartons_box);
+
+            factory.refreshFactoryBox(config.factory_id, config.asn_id);
+
+        },
+        initSelectFactoryButton(config, button) {
             var buttonElement = $(button);
 
             factory.selectedFactoryBox = $('#' + config.selected_factory_box);
