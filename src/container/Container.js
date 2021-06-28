@@ -27,7 +27,7 @@ export const Container = memo(function Container(props) {
     const [invNumber, setInvNumber] = useState("")
 
     const [totals, setTotals] = useState({
-        cartons: 0,
+        cartons: isEditMode ? asn.cartons.length : 0,
         units: 0,
         value: 0
     })
@@ -110,8 +110,6 @@ export const Container = memo(function Container(props) {
     }, []);
 
     useEffect(() => {
-        console.log(dustbins.length);
-
             const updatedState = update(totals, {
                 ['cartons']: { $set: dustbins.length }
             })
