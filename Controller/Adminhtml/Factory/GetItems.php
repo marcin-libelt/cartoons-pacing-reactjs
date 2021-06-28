@@ -87,7 +87,6 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
         $poItems->getSelect()->where('balance_qty >= order_qty');
 
         $orders = [];
-        $limit = 0;
         foreach ($poItems as $poItem) {
             $qty = (int) $poItem->getQty() - $poItem->getInternalUsedQty();
             if ($qty <= 0) {
@@ -130,11 +129,6 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                 'barcode' => $poItem->getBarcode(),
                 'size' => $poItem->getSize(),
             ];
-
-             $limit += 1;  // TODO remove this limitation for PRODUCTION env
-             if ($limit == 100) {
-                 break;
-             }
         }
 
         $data = [];
