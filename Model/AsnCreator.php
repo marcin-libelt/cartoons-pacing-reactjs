@@ -184,7 +184,7 @@ class AsnCreator
             if (!$items) {
                 throw new LocalizedException(__('One or more cartons have no items.'));
             }
-            
+
             $cartonCounter ++;
             $cartonNumber = sprintf("%02s", $cartonCounter);
 

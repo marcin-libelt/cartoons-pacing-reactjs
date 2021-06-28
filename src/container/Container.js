@@ -97,7 +97,7 @@ export const Container = memo(function Container(props) {
                 $push: restoredDustbins
             }));
 
-            
+
 
         }, []);
     }
@@ -718,7 +718,7 @@ export const Container = memo(function Container(props) {
                     </div>
                 </form>
                 <div style={{ textAlign: 'center'}}>
-                    <button type="button" style={{minWidth: '250px'}} onClick={ submitPacking } className="btn primary btn-lg">Create ASN</button>
+                    <button type="button" style={{minWidth: '250px'}} onClick={ submitPacking } className="btn primary btn-lg">{isEditMode?"Save ASN":"Create ASN"}</button>
                 </div>
             </div>
         </div>
