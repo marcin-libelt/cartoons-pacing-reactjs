@@ -11,6 +11,7 @@ export const Dustbin = memo(function Dustbin({
                                                  isMoreDustbins,
                                                  uid,
                                                  info,
+                                                 suffixDisabled,
                                                  toDoorLabel,
                                                  orderType,
                                                  PO,
@@ -18,6 +19,7 @@ export const Dustbin = memo(function Dustbin({
                                                  handleRemoveDustbin,
                                                  setCartonInfo,
                                                  index,
+                                                 isEmpty,
                                                  cartonOptions
                                              }) {
 
@@ -60,7 +62,7 @@ export const Dustbin = memo(function Dustbin({
         <p className={'m-0 cartonHead'}>
             <span className={'label'}>CartonBox</span>
 
-            {toDoorLabel ? <>
+            {!isEmpty ? <>
                 <span title={'PO number'}>{PO}</span>&nbsp;/&nbsp;
                 <span title={'Door Label'}>{toDoorLabel}</span>&nbsp;/&nbsp;
                 <span title={'Order Type'}>{orderType}</span>&nbsp;/&nbsp;
@@ -102,9 +104,11 @@ export const Dustbin = memo(function Dustbin({
                         </select>
                     </div>
                     <div className={'col col-xs-2 mb-1'} style={{ padding: '0 10px', flex: 'auto'}}>
+                        {!suffixDisabled && <div>
                         <label style={{fontSize: '13px', minWidth: '100px'}}>Suffix</label>
                         <input type="text" style={styles} value={info.suffix}
-                               onChange={(e) => setCartonInfo(e.target.value, 'suffix', uid)} placeholder={''}/><br/>
+                               onChange={(e) => setCartonInfo(e.target.value, 'suffix', uid)} placeholder={''}/>
+                        </div>}
                     </div>
                 </div>
                 <div>

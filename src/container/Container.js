@@ -51,17 +51,19 @@ export const Container = memo(function Container(props) {
                 newDustbin.suffix = cartonItem.suffix;
                 newDustbin.joorSONumber = cartonItem.joorSONumber;
                 newDustbin.PO = cartonItem.PO;
-
-                restoredDustbins.push(newDustbin);
+                newDustbin.suffixDisabled = true;
 
                 // --------------------------------------
 
+                let doorLabel; // dirty way, sorry - couldn't find better solution
                 cartonItem.items.forEach(productItem => {
 
                     // get data from Left item search by ID
                     // get data from TrueSorce is better solution
                     const leftItem = orders.find(item => item.id === productItem.id);
-
+                    if(!leftItem) {
+                        return;
+                    }
                     const newProduct = {
                         id: productItem.id,
                         cartonBox: cartonItem.cartonId,
@@ -76,17 +78,26 @@ export const Container = memo(function Container(props) {
                         warehouseLocation: leftItem.warehouseLocation
                     }
 
+                    doorLabel = leftItem.doorLabel // grap field to use outside - dirty way, but not harmful
                     restoredPickedItems.push(newProduct);
                 })
+
+                // add extra fields taken from first product / the same for all other products in carton
+                newDustbin.orderType = restoredPickedItems[0].orderType;
+                newDustbin.toDoorLabel = doorLabel;
+                newDustbin.isEmpty = false;
+                restoredDustbins.push(newDustbin);
             })
 
             setPickedItems(prevState => {
                 return [...prevState, ...restoredPickedItems];
             })
 
-            setDustbins(prevState => {
-                return [...prevState, ...restoredDustbins];
-            })
+            setDustbins(update(dustbins, {
+                $push: restoredDustbins
+            }));
+
+            
 
         }, []);
     }
@@ -94,14 +105,18 @@ export const Container = memo(function Container(props) {
     useEffect(function () {
         setBoxes(orders); // props.data
         setCartonOptions(cartons);
-        handleNewDustbin();
+
+        !isEditMode && handleNewDustbin();
     }, []);
 
     useEffect(() => {
-        const updatedState = update(totals, {
-            ['cartons']: { $set: dustbins.length }
-        })
-        setTotals(updatedState);
+        console.log(dustbins.length);
+
+            const updatedState = update(totals, {
+                ['cartons']: { $set: dustbins.length }
+            })
+          setTotals(updatedState);
+
     }, [dustbins])
 
     useEffect(() => {
@@ -154,10 +169,8 @@ export const Container = memo(function Container(props) {
             return; // Abort!
         }
 
-
-        // jeśli nie ma doorcode, oznacza ze karton jest pusty
         if(targetDustbin.isEmpty) {
-            // ustaw doorCode dla kartonu
+
             const index = dustbins.indexOf(targetDustbin);
             const updatedDustbin = update(dustbins, {
                 [index]: {
@@ -648,16 +661,18 @@ export const Container = memo(function Container(props) {
                     </div>
                     <div className={'mb-3'} style={{ height: '100%'}}>
                         {dustbins.map(({
-                                           accepts,
-                                           uid,
-                                           toDoorLabel,
-                                           orderType,
-                                           joorSONumber,
-                                            PO,
-                                           gross_weight,
-                                            net_weight,
-                                            dimensions,
-                                            suffix}, index) => {
+                                    accepts,
+                                    uid,
+                                    toDoorLabel,
+                                    orderType,
+                                    joorSONumber,
+                                    PO,
+                                    isEmpty,
+                                    gross_weight,
+                                    net_weight,
+                                    dimensions,
+                                    suffixDisabled,
+                                    suffix}, index) => {
                             const info = {
                                 gross_weight,
                                 net_weight,
@@ -674,10 +689,12 @@ export const Container = memo(function Container(props) {
                                             toDoorLabel={toDoorLabel}
                                             orderType={orderType}
                                             PO={PO}
+                                            isEmpty={isEmpty}
                                             joorSONumber={joorSONumber}
                                             setCartonInfo={handleSetCartonInfo}
                                             readOnly={false}
                                             info={info}
+                                            suffixDisabled={suffixDisabled}
                                             cartonOptions={cartonOptions}
                                             assignedItems={pickedItems && pickedItems.filter(item => item.cartonBox === uid)}
                                             index={index}

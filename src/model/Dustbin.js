@@ -13,6 +13,7 @@ function DustbinModel(uuid, accepts) {
     this.dimensions = '';
     this.suffix = '';
     this.isEmpty = true;
+    this.suffixDisabled = false;
 }
 
 
