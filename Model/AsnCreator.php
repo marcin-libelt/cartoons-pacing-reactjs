@@ -79,12 +79,23 @@ class AsnCreator
     }
 
     /**
+     * @param Asn $asn
+     * @return $this
+     */
+    public function setAsn(Asn $asn)
+    {
+        $this->asn = $asn;
+        return $this;
+    }
+
+    /**
      * @return \ITvoice\Asn\Model\Asn
      */
     public function getAsn()
     {
         if ($this->asn === null) {
-            $this->asn = $this->asnFactory->create();
+            $asn = $this->asnFactory->create();
+            $this->setAsn($asn);
         }
         return $this->asn;
     }
@@ -106,11 +117,16 @@ class AsnCreator
 
     /**
      * @return mixed
+     * @throws LocalizedException
      */
     public function getFactory()
     {
         if (!$this->factory) {
-            throw new LocalizedException(__('Missing Factory'));
+            if ($this->asn->getId()) {
+                $this->factory = $this->asn->getFactory(true);
+            } else {
+                throw new LocalizedException(__('Missing Factory'));
+            }
         }
         return $this->factory;
     }
@@ -151,10 +167,31 @@ class AsnCreator
             'net_weight' => 'net_weight',
         ];
 
+
+        $allCartons = $this->getAsn()->getAllCartons();
         $cartonCounter = 0;
+        foreach ($allCartons as $carton) {
+            $cartonNumber = (int) $carton->getCartonNumber();
+            if ($cartonNumber > $cartonCounter) {
+                $cartonCounter = $cartonNumber;
+            }
+            $carton->setDeleteThisCarton(true);
+        }
+
         foreach ($cartonsData as $data) {
+
+            $items = $data['items'] ?? false;
+            if (!$items) {
+                throw new LocalizedException(__('One or more cartons have no items.'));
+            }
+            
             $cartonCounter ++;
             $cartonNumber = sprintf("%02s", $cartonCounter);
+
+            $cartonId = $data['cartonId'];
+            if (!isset($allCartons[$cartonId])) {
+                $cartonId = $cartonNumber;
+            }
 
             $cartonData = [];
             foreach ($dataMap as $cartonDataCode => $inputCode) {
@@ -165,30 +202,30 @@ class AsnCreator
 
             $doorCode = $data['doorCode'] ?? '';
             $customerAddress = $this->addressRepository->getByCode($doorCode);
-            if (!$customerAddress->getId()) {
-                throw new LocalizedException(__('Address with code "%1" does not exists.', $doorCode));
-            }
             $customerName = $customerAddress->getClient()->getCustomerName();
             $cartonData['customer'] = $customerName;
             $cartonData['customer_account_number'] = $customerAddress->getSageCode();
             $cartonData['destination'] = $customerAddress->getShippingMethod();
             $cartonData['door_code'] = $doorCode;
 
-            $carton = $this->getAsn()->addCarton($cartonNumber, $cartonData);
-            $carton->setInitUniqueCartonId(true);
+            $carton = $this->getAsn()->addCarton($cartonId, $cartonData);
+            $carton->setDeleteThisCarton(false);
 
-            $sufix =  '-' . $cartonNumber;
-            if ($this->getFactory()->getUciCode()) {
-                $sufix .= '-' . $this->getFactory()->getUciCode();
-            }
-            if ($data['suffix']) {
-                $sufix .= '-' . $data['suffix'];
+            if (!$carton->getId()) {
+                $carton->setInitUniqueCartonId(true);
+
+                $sufix =  '-' . $cartonNumber;
+                if ($this->getFactory()->getUciCode()) {
+                    $sufix .= '-' . $this->getFactory()->getUciCode();
+                }
+                if ($data['suffix']) {
+                    $sufix .= '-' . $data['suffix'];
+                }
+
+                $carton->setSuffix($sufix);
             }
 
-            $carton->setSuffix($sufix);
             $carton->setAddress($customerAddress);
-
-            $items = $data['items'] ?? [];
             $this->setItemsData($doorCode, $carton, $items);
         }
     }
@@ -199,6 +236,15 @@ class AsnCreator
      */
     protected function setItemsData($doorCode, $carton, $itemsData)
     {
+        $cartonItems = $carton->getAllItems();
+        foreach ($cartonItems as $item) {
+            $item->setDeleteThisItem(true);
+            $simpleItems = $item->getAllSimpleItems();
+            foreach ($simpleItems as $simpleItem) {
+                $simpleItem->setDeleteThisSimpleItem(true);
+            }
+        }
+
         foreach ($itemsData as $data) {
 
             $sizes = $data['sizes'] ?? [];
@@ -229,6 +275,8 @@ class AsnCreator
 
                     $item = $carton->addItem($productId, $itemData);
                     $item->setInitUniqueLineId(true);
+                } else {
+                    $item->setDeleteThisItem(false);
                 }
 
                 $simpleItemData = [
@@ -246,6 +294,7 @@ class AsnCreator
                 }
 
                 $simpleItem = $item->addSimpleItem($barcode, $qty, $simpleItemData);
+                $simpleItem->setDeleteThisSimpleItem(false);
                 $simpleItem->setPoItem($poItem);
             }
         }
@@ -284,6 +333,7 @@ class AsnCreator
      */
     protected function initPoItems($cartonsData)
     {
+        $this->poItems = [];
         $selectedPoArray = [];
         foreach ($cartonsData as $cartonData) {
             $items = $cartonData['items'] ?? [];
@@ -293,12 +343,32 @@ class AsnCreator
             }
         }
 
+        if ($this->getAsn()->getId()) {
+            $cartons = $this->getAsn()->getAllCartons();
+            foreach ($cartons as $carton) {
+                $items = $carton->getAllItems();
+                foreach ($items as $item) {
+                    $simpleItems = $item->getAllSimpleItems();
+                    foreach ($simpleItems as $simpleItem) {
+                        $poItem = $simpleItem->getPoItem();
+                        $po = $poItem->getPurchaseOrder();
+                        $internalUsedQty = max($poItem->getInternalUsedQty() - $simpleItem->getQty(), 0);
+                        $poItem->setInternalUsedQty($internalUsedQty);
+                        $poItem->setIsInternalUsedQtyUpdated(true);
+                        $this->poItems[$po->getDocumentNo()][$poItem->getShippingDoorCode()][$poItem->getBarcode()] = $poItem;
+                    }
+                }
+            }
+        }
+
         $poCollection = $this->purchaseOrderFactory->create()->getCollection();
         $poCollection->addFieldToFilter('document_no', ['in' => $selectedPoArray]);
         foreach ($poCollection as $po) {
             $poItems = $po->getItems();
-            foreach($poItems as $item) {
-                $this->poItems[$po->getDocumentNo()][$item->getShippingDoorCode()][$item->getBarcode()] = $item;
+            foreach($poItems as $poItem) {
+                if (!isset($this->poItems[$po->getDocumentNo()][$poItem->getShippingDoorCode()][$poItem->getBarcode()])) {
+                    $this->poItems[$po->getDocumentNo()][$poItem->getShippingDoorCode()][$poItem->getBarcode()] = $poItem;
+                }
             }
         }
 
@@ -332,9 +402,12 @@ class AsnCreator
     {
         $this->validate();
         $this->getAsn()->setType(Asn::ASN_TYPE_INTERNAL);
-        $this->generateAsnNumber();
-        $date = $this->dateFactory->create()->gmtDate('d/m/Y');
-        $this->getAsn()->setAsnCreatedDate($date);
+
+        if (!$this->getAsn()->getId()) {
+            $this->generateAsnNumber();
+            $date = $this->dateFactory->create()->gmtDate('d/m/Y');
+            $this->getAsn()->setAsnCreatedDate($date);
+        }
 
         $transaction = $this->transactionFactory->create();
         $transaction->addObject($this->getAsn());
