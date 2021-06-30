@@ -133,7 +133,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
 
         $data = [];
         if ($asn) {
-            $asnData = $this->getAsnData($asn);
+            $asnData = $this->getAsnData($asn, $orders);
             $this->addAsnDataToOrders($asnData, $orders);
             $data['asn'] = $asnData;
         }
@@ -194,7 +194,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
      * @param $asn
      * @return array
      */
-    protected function getAsnData($asn)
+    protected function getAsnData($asn, $orders)
     {
         $cartons = [];
 
@@ -205,8 +205,12 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
 
                 $sizes = [];
                 $rowId = false;
+                $barcodesInItem = [];
 
                 foreach ($item->getAllSimpleItems() as $simpleItem) {
+
+                    $barcodesInItem[$simpleItem->getBarcode()] = $simpleItem->getBarcode();
+
                     $sizes[] = [
                         'qty' => $simpleItem->getQty(),
                         'size' => $simpleItem->getSize(),
@@ -226,6 +230,15 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                     }
                 }
 
+                if (isset($orders[$rowId]['sizes'])) {
+                    foreach ($orders[$rowId]['sizes'] as $size) {
+                        if (!isset( $barcodesInItem[$size['barcode']])) {
+                            $size['qty'] = 0;
+                            $sizes[] = $size;
+                        }
+                    }
+                }
+
                 $items[] = [
                     'id' => $rowId,
                     'PO' => $carton->getCustomerPo(),
@@ -233,6 +246,8 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                     'sizes' => $sizes,
                 ];
             }
+
+            $this->sortSizes($items);
 
             $carton = [
                 'cartonId' => $carton->getUniqueCartonId(),
