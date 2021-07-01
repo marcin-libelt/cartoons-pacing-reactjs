@@ -576,23 +576,30 @@ export const Container = memo(function Container(props) {
         <div className={'row'}>
             <div className={'col d-flex justify-content-between top-panel'}>
                 <div className="card filters">
-                    <h4>Filter by:</h4>
+
                     <form onSubmit={ev => { ev.preventDefault()}}>
-                        <div className="input-group mb-3">
-                            <div className="input-group-prepend">
-                                <span className="input-group-text" id="inputGroup-sizing-default">PO number or SKU</span>
+                        <h4>Filter by:</h4>
+                        <div className="row">
+                            <div className="col-5">
+                                <div className="input-group mb-3">
+                                    <div className="input-group-prepend">
+                                        <span className="input-group-text" id="inputGroup-sizing-default">PO number or SKU</span>
+                                    </div>
+                                    <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev)} value={filter}  aria-label="Sizing example input"
+                                           aria-describedby="inputGroup-sizing-default">
+                                    </input>
+                                </div>
                             </div>
-                            <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev)} value={filter}  aria-label="Sizing example input"
-                                   aria-describedby="inputGroup-sizing-default">
-                            </input>
-                        </div>
-                        <div className="input-group mb-3">
-                            <div className="input-group-prepend">
-                                <span className="input-group-text" id="inputGroup-sizing-default">SO number</span>
+                            <div className="col-7">
+                                <div className="input-group mb-3">
+                                    <div className="input-group-prepend">
+                                        <span className="input-group-text" id="inputGroup-sizing-default">SO number</span>
+                                    </div>
+                                    <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev, 'so')} value={filterSo}  aria-label="Sizing example input"
+                                           aria-describedby="inputGroup-sizing-default">
+                                    </input>
+                                </div>
                             </div>
-                            <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev, 'so')} value={filterSo}  aria-label="Sizing example input"
-                                   aria-describedby="inputGroup-sizing-default">
-                            </input>
                         </div>
                     </form>
                 </div>
@@ -657,47 +664,58 @@ export const Container = memo(function Container(props) {
                                 d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
                         </svg> add new carton</button>
                     </div>
-                    <div className={'mb-3'} style={{ height: '100%'}}>
-                        {dustbins.map(({
-                                    accepts,
-                                    uid,
-                                    toDoorLabel,
-                                    orderType,
-                                    joorSONumber,
-                                    PO,
-                                    isEmpty,
+                    <div style={{
+                        height: 'calc(100vh - 85px)',
+                        position: 'sticky',
+                        top: '50px',
+                        overflow: 'auto',
+                        marginBottom: '1rem',
+                        paddingRight: '1rem',
+                        paddingTop: '10px',
+                        paddingBottom: '10px'
+                    }}>
+                        <div className={'mb-3'} style={{ height: '100%'}}>
+                            {dustbins.map(({
+                                        accepts,
+                                        uid,
+                                        toDoorLabel,
+                                        orderType,
+                                        joorSONumber,
+                                        PO,
+                                        isEmpty,
+                                        gross_weight,
+                                        net_weight,
+                                        dimensions,
+                                        suffixDisabled,
+                                        suffix}, index) => {
+                                const info = {
                                     gross_weight,
                                     net_weight,
                                     dimensions,
-                                    suffixDisabled,
-                                    suffix}, index) => {
-                            const info = {
-                                gross_weight,
-                                net_weight,
-                                dimensions,
-                                suffix
-                            }
-                            return <Dustbin accept={accepts}
-                                            onDrop={(item) => handleDrop(uid, item)}
-                                            isMoreDustbins={dustbins.length > 1}
-                                            handleRemoveDustbin={handleRemoveDustbin}
-                                            handleRemoveItemFromDustbin={removeItemFromDustbin}
-                                            handleSetQty={handleSetQty}
-                                            uid={uid}
-                                            toDoorLabel={toDoorLabel}
-                                            orderType={orderType}
-                                            PO={PO}
-                                            isEmpty={isEmpty}
-                                            joorSONumber={joorSONumber}
-                                            setCartonInfo={handleSetCartonInfo}
-                                            readOnly={false}
-                                            info={info}
-                                            suffixDisabled={suffixDisabled}
-                                            cartonOptions={cartonOptions}
-                                            assignedItems={pickedItems && pickedItems.filter(item => item.cartonBox === uid)}
-                                            index={index}
-                                            key={index}/>
-                        })}
+                                    suffix
+                                }
+                                return <Dustbin accept={accepts}
+                                                onDrop={(item) => handleDrop(uid, item)}
+                                                isMoreDustbins={dustbins.length > 1}
+                                                handleRemoveDustbin={handleRemoveDustbin}
+                                                handleRemoveItemFromDustbin={removeItemFromDustbin}
+                                                handleSetQty={handleSetQty}
+                                                uid={uid}
+                                                toDoorLabel={toDoorLabel}
+                                                orderType={orderType}
+                                                PO={PO}
+                                                isEmpty={isEmpty}
+                                                joorSONumber={joorSONumber}
+                                                setCartonInfo={handleSetCartonInfo}
+                                                readOnly={false}
+                                                info={info}
+                                                suffixDisabled={suffixDisabled}
+                                                cartonOptions={cartonOptions}
+                                                assignedItems={pickedItems && pickedItems.filter(item => item.cartonBox === uid)}
+                                                index={index}
+                                                key={index}/>
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
