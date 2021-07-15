@@ -466,13 +466,6 @@ export const Container = memo(function Container(props) {
             return;
         }
 
-        if(!invAmount || !invNumber) {
-            swal('\'Invoice Number\' and \'Invoice Amount\' fields can not be empty.', {
-                icon: "warning"
-            })
-            return;
-        }
-
         setLoadingMsg("New ASN is now submiting");
 
         let resultObject = {
