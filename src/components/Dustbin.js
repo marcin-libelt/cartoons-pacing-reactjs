@@ -15,6 +15,7 @@ export const Dustbin = memo(function Dustbin({
                                                  toDoorLabel,
                                                  orderType,
                                                  PO,
+                                                 warehouseLocation,
                                                  joorSONumber,
                                                  handleRemoveDustbin,
                                                  setCartonInfo,
@@ -66,7 +67,8 @@ export const Dustbin = memo(function Dustbin({
                 <span title={'PO number'}>{PO}</span>&nbsp;/&nbsp;
                 <span title={'Door Label'}>{toDoorLabel}</span>&nbsp;/&nbsp;
                 <span title={'Order Type'}>{orderType}</span>&nbsp;/&nbsp;
-                <span title={'SO number'}>{joorSONumber}</span>
+                <span title={'SO number'}>{joorSONumber}</span>&nbsp;/&nbsp;
+                <span title={'warehouse location'}>{warehouseLocation}</span>
                 </> : <span style={{color: '#463f31', fontStyle: 'italic'}}>{'empty'}</span>}
 
             <span className={'dustbin-toggler'}>

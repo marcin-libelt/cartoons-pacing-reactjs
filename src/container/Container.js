@@ -156,13 +156,15 @@ export const Container = memo(function Container(props) {
         // -- joorSONumber,
         // -- orderType
         // -- PO nummber
+        // -- warehouseLocation VAT/NOVAT
         //
         const targetDustbin = dustbins.find(bin => bin.uid === cartonBox);
         if(!validateCartonInput(targetDustbin, {
             doorCode: result.doorCode,
             orderType: result.orderType,
             joorSONumber: result.joorSONumber,
-            PO: result.PO
+            PO: result.PO,
+            warehouseLocation: result.warehouseLocation
         })) {
             return; // Abort!
         }
@@ -177,7 +179,8 @@ export const Container = memo(function Container(props) {
                     joorSONumber: {$set: result.joorSONumber},
                     doorCode: {$set: result.doorCode},
                     PO: {$set: result.PO},
-                    toDoorLabel: {$set: result.doorLabel}
+                    toDoorLabel: {$set: result.doorLabel},
+                    warehouseLocation: {$set: result.warehouseLocation}
                 }
             });
             setDustbins(updatedDustbin)
@@ -310,7 +313,8 @@ export const Container = memo(function Container(props) {
                     toDoorLabel: { $set: null},
                     orderType: { $set: null},
                     joorSONumber: { $set: null},
-                    PO: { $set: null}
+                    PO: { $set: null},
+                    warehouseLocation: { $set: null}
                 }
             }))
         }
@@ -682,6 +686,7 @@ export const Container = memo(function Container(props) {
                                         orderType,
                                         joorSONumber,
                                         PO,
+                                        warehouseLocation,
                                         isEmpty,
                                         gross_weight,
                                         net_weight,
@@ -706,6 +711,7 @@ export const Container = memo(function Container(props) {
                                                 PO={PO}
                                                 isEmpty={isEmpty}
                                                 joorSONumber={joorSONumber}
+                                                warehouseLocation={warehouseLocation}
                                                 setCartonInfo={handleSetCartonInfo}
                                                 readOnly={false}
                                                 info={info}
