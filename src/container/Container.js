@@ -18,8 +18,12 @@ export const Container = memo(function Container(props) {
     const [dustbins, setDustbins] = useState([]);
     const [pickedItems, setPickedItems] = useState([]);
     const [boxes, setBoxes] = useState([]);
-    const [filter, setFilter] = useState("");
-    const [filterSo, setFilterSo] = useState("");
+    const [filter, setFilter] = useState({
+        sku: "",
+        PO: "",
+        joorSONumber: "",
+        doorCode: ""
+    });
     const [loadingMsg, setLoadingMsg] = useState("");
     const [afterSubmition, setAfterSubmition] = useState(false);
     const [cartonOptions, setCartonOptions] = useState([]);
@@ -562,11 +566,10 @@ export const Container = memo(function Container(props) {
     }
 
     function filterBy(ev, field = '') {
-        if(field === 'so') {
-            setFilterSo(ev.target.value);
-        } else {
-            setFilter(ev.target.value);
-        }
+        setFilter(prevState => ({
+            ...prevState,
+            [field]: ev.target.value
+        }));
     }
 
     return <div className="container" style={{ position: 'relative', color: '#212529', fontSize: '15px'}}>
@@ -577,24 +580,33 @@ export const Container = memo(function Container(props) {
                     <form onSubmit={ev => { ev.preventDefault()}}>
                         <h4>Filter by:</h4>
                         <div className="row">
-                            <div className="col-5">
-                                <div className="input-group mb-3">
-                                    <div className="input-group-prepend">
-                                        <span className="input-group-text" id="inputGroup-sizing-default">PO number or SKU</span>
+                            <div className="col-12">
+
+                                <div className="form-row row">
+                                    <div className="form-group">
+                                        <label htmlFor="inputSku">Sku</label>
+                                        <input type="text" id="inputSku" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'sku')} value={filter.sku}  aria-label="Sizing example input"
+                                               aria-describedby="inputGroup-sizing-default">
+                                        </input>
                                     </div>
-                                    <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev)} value={filter}  aria-label="Sizing example input"
-                                           aria-describedby="inputGroup-sizing-default">
-                                    </input>
-                                </div>
-                            </div>
-                            <div className="col-7">
-                                <div className="input-group mb-3">
-                                    <div className="input-group-prepend">
-                                        <span className="input-group-text" id="inputGroup-sizing-default">SO number</span>
+                                    <div className="form-group">
+                                        <label htmlFor="inputPo">Po</label>
+                                        <input type="text" id="inputPo" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'PO')} value={filter.PO}  aria-label="Sizing example input"
+                                               aria-describedby="inputGroup-sizing-default">
+                                        </input>
                                     </div>
-                                    <input type="text" className={'form-control'} onChange={(ev) => filterBy(ev, 'so')} value={filterSo}  aria-label="Sizing example input"
-                                           aria-describedby="inputGroup-sizing-default">
-                                    </input>
+                                    <div className="form-group">
+                                        <label htmlFor="inputSo">So number</label>
+                                        <input id="inputSo" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'joorSONumber')} value={filter.joorSONumber}  aria-label="Sizing example input"
+                                               aria-describedby="inputGroup-sizing-default">
+                                        </input>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="inputDoorcode">Door code</label>
+                                        <input id="inputDoorcode" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'doorCode')} value={filter.doorCode}  aria-label="Sizing example input"
+                                               aria-describedby="inputGroup-sizing-default">
+                                        </input>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -628,11 +640,10 @@ export const Container = memo(function Container(props) {
                                    unit_selling_price,
                                    warehouseLocation } = box;
 
-                            const isVisible = (
-                                    box.PO.includes(filter)
-                                    || box.sku.includes(filter)
-                                )
-                                && box.joorSONumber.includes(filterSo)
+                            const isVisible = PO.includes(filter.PO)
+                                    && sku.includes(filter.sku)
+                                    && joorSONumber.includes(filter.joorSONumber)
+                                    && doorCode.includes(filter.doorCode)
 
                             return (<Box name={name}
                                  hidden={!isVisible}
@@ -649,7 +660,7 @@ export const Container = memo(function Container(props) {
                                  unit_selling_price={unit_selling_price}
                                  warehouseLocation={warehouseLocation}
                                  boxAfter={false}
-                                 key={index}/>)}) : <p>There is no items left for search criteria: "{filter}".</p> }
+                                 key={index}/>)}) : <p>There is no items for search criteria".</p> }
                     </div>
                 </div>
                 <div className="col col-7">
