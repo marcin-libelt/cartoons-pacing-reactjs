@@ -47,6 +47,8 @@ export const Container = memo(function Container(props) {
 
             asn.cartons.forEach(cartonItem => {
                 const newDustbin = new DustbinModel(cartonItem.cartonId, [ItemTypes.STYLE]);
+                let doorLabel; // dirty way, sorry - couldn't find better solution
+                let warehouseLocation;
 
                 newDustbin.doorCode = cartonItem.doorCode;
                 newDustbin.gross_weight = cartonItem.gross_weight;
@@ -59,7 +61,6 @@ export const Container = memo(function Container(props) {
 
                 // --------------------------------------
 
-                let doorLabel; // dirty way, sorry - couldn't find better solution
                 cartonItem.items.forEach(productItem => {
 
                     // get data from Left item search by ID
@@ -83,12 +84,14 @@ export const Container = memo(function Container(props) {
                     }
 
                     doorLabel = leftItem.doorLabel // grap field to use outside - dirty way, but not harmful
+                    warehouseLocation = leftItem.warehouseLocation
                     restoredPickedItems.push(newProduct);
                 })
 
                 // add extra fields taken from first product / the same for all other products in carton
                 newDustbin.orderType = restoredPickedItems[0].orderType;
                 newDustbin.toDoorLabel = doorLabel;
+                newDustbin.warehouseLocation = warehouseLocation;
                 newDustbin.isEmpty = false;
                 restoredDustbins.push(newDustbin);
             })
