@@ -15,6 +15,7 @@ export const Dustbin = memo(function Dustbin({
                                                  toDoorLabel,
                                                  orderType,
                                                  PO,
+                                                 warehouseLocation,
                                                  joorSONumber,
                                                  handleRemoveDustbin,
                                                  setCartonInfo,
@@ -58,18 +59,19 @@ export const Dustbin = memo(function Dustbin({
         backgroundColor: backgroundColor
     }
 
-    return (<div className={'card sticky-card mb-2'} ref={drop} role="Dustbin" style={{...dustbinStyles}}>
-        <p className={'m-0 cartonHead'}>
+    return (<div className={'card mb-2'} ref={drop} role="Dustbin" style={{...dustbinStyles}}>
+        <p className={'m-0 cartonHead'} style={{ cursor: 'pointer'}} onClick={() => { setIsOpen2(!isOpen2) }}>
             <span className={'label'}>CartonBox</span>
 
             {!isEmpty ? <>
                 <span title={'PO number'}>{PO}</span>&nbsp;/&nbsp;
                 <span title={'Door Label'}>{toDoorLabel}</span>&nbsp;/&nbsp;
                 <span title={'Order Type'}>{orderType}</span>&nbsp;/&nbsp;
-                <span title={'SO number'}>{joorSONumber}</span>
+                <span title={'SO number'}>{joorSONumber}</span>&nbsp;/&nbsp;
+                <span title={'warehouse location'}>{warehouseLocation}</span>
                 </> : <span style={{color: '#463f31', fontStyle: 'italic'}}>{'empty'}</span>}
 
-            <span className={'dustbin-toggler'} onClick={() => { setIsOpen2(!isOpen2) }}>
+            <span className={'dustbin-toggler'}>
                 { isOpen2 ? <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                  className="bi bi-caret-down-fill" viewBox="0 0 16 16">
                     <path

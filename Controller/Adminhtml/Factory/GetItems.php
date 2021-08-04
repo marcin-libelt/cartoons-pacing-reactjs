@@ -213,7 +213,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                     $barcodesInItem[$simpleItem->getBarcode()] = $simpleItem->getBarcode();
 
                     $sizes[] = [
-                        'qty' => $simpleItem->getQty(),
+                        'qty' => (int)$simpleItem->getQty(),
                         'size' => $simpleItem->getSize(),
                         'barcode' => $simpleItem->getBarcode(),
                     ];

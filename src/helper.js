@@ -23,7 +23,7 @@ const validateCartonInput = (dustbin, result) => {
         }
     })
     if(errors.length > 0) {
-        swal("Ops...", "You can not add item with different " + errors.join(" and ") + ".", "error");
+        swal("Ops...", "You can not add item with different: \n - " + errors.join("\n - "), "error");
         return false;
     }
     return true;

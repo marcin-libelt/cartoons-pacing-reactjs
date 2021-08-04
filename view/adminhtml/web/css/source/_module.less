@@ -38,6 +38,11 @@
     .filters {
       flex-grow: 5;
       background: #e9ecef;
+
+      .form-group {
+        width: 24%;
+        margin-right: 1%;
+      }
     }
 
     .totals {
@@ -57,8 +62,10 @@
 
   .new-carton2 {
     position: sticky;
-    top: 10px;
+    top: 0px;
+    padding-top: 10px;
     z-index: 200;
+    background: #fff;
 
     button {
       width: 100%;
@@ -100,6 +107,16 @@
   .col-7 {
     margin-left: 20px;
     width: 60%;
+  }
+
+  .col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  .col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
   }
 
   .flex-column {
