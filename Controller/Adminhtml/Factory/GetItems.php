@@ -128,6 +128,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                 'qty' => $qty,
                 'barcode' => $poItem->getBarcode(),
                 'size' => $poItem->getSize(),
+                'comments' => $poItem->getComments(),
             ];
         }
 
