@@ -32,7 +32,7 @@ class Grid extends \ITvoice\Factory\Block\Adminhtml\Factory\Grid
     {
         parent::_prepareColumns();
 
-        $this->addColumn(
+        $this->addColumnAfter(
             'button',
             [
                 'header' => '',
@@ -40,8 +40,11 @@ class Grid extends \ITvoice\Factory\Block\Adminhtml\Factory\Grid
                 'renderer' => \ITvoice\AsnCreator\Block\Adminhtml\Creator\SelectFactory\Grid\Renderer\SelectButton::class,
                 'filter' => false,
                 'sortable' => false,
-            ]
+            ],
+            'supplier'
         );
+
+        $this->sortColumnsByOrder();
     }
 
     /**
