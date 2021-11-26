@@ -3,13 +3,14 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Controller\Adminhtml\Index;
+namespace ITvoice\AsnCreator\Controller\Adminhtml\Asn;
 
+use ITvoice\AsnCreator\Model\AsnCreator;
 use Magento\Backend\App\Action\Context;
 
 /**
  * Class Save
- * @package ITvoice\AsnCreator\Controller\Adminhtml\Index
+ * @package ITvoice\AsnCreator\Controller\Adminhtml\Asn
  */
 class Save extends \ITvoice\Asn\Controller\Adminhtml\Asn
 {
@@ -50,14 +51,15 @@ class Save extends \ITvoice\Asn\Controller\Adminhtml\Asn
 
 
         $jsonResponse = $this->jsonFactory->create();
+        /** @var AsnCreator $asnCreator */
         $asnCreator = $this->asnCreatorFactory->create();
 
         try {
             $asn = $this->initAsn('asn_id');
             $asnCreator->setAsn($asn);
             $asnCreator->setCartonsData($this->getRequest()->getParam('cartons'));
-            $asnCreator->setInvoiceAmount($this->getRequest()->getParam('invoice_amount'));
-            $asnCreator->setInvoiceNumber($this->getRequest()->getParam('invoice_number'));
+            $asnCreator->setPackingListDate($this->getRequest()->getParam('packing_list_date'));
+            $asnCreator->setPackingListNumber($this->getRequest()->getParam('packing_list_number'));
             $asn = $asnCreator->create();
             $data = [
                 'message' => __('Asn %1 has been saved.', $asn->getAsnNumber()),

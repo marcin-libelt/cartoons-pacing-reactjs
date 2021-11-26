@@ -12,7 +12,7 @@ export const Container = memo(function Container(props) {
 
     const { cartons, orders, asn } = props.data.data;
     const { factory_id, form_key, jquery: $, post_url, asn_id } = props.data;
-    const isEditMode = typeof asn_id !== "undefined" && asn_id !== null;
+    const isNewAsn = !(asn.cartons.length > 0);
 
     // for now only 1 Type ( style )
     const [dustbins, setDustbins] = useState([]);
@@ -27,20 +27,19 @@ export const Container = memo(function Container(props) {
     const [loadingMsg, setLoadingMsg] = useState("");
     const [afterSubmition, setAfterSubmition] = useState(false);
     const [cartonOptions, setCartonOptions] = useState([]);
-    const [invAmount, setInvAmount] = useState("");
-    const [invNumber, setInvNumber] = useState("")
+    const [packingListDate, setPackingListDate] = useState("");
+    const [packingListNumber, setPackingListNumber] = useState("")
 
     const [totals, setTotals] = useState({
-        cartons: isEditMode ? asn.cartons.length : 0,
+        cartons: !isNewAsn ? asn.cartons.length : 0,
         units: 0,
         value: 0
     })
 
-    if(isEditMode) {
+    if(!isNewAsn) {
         useEffect(function () {
-
-            setInvNumber(asn.invoice_number);
-            setInvAmount(asn.invoice_amount);
+            setPackingListDate(asn.packing_list_date);
+            setPackingListNumber(asn.packing_list_number);
 
             let restoredDustbins = [];
             let restoredPickedItems = [];
@@ -113,7 +112,7 @@ export const Container = memo(function Container(props) {
         setBoxes(orders); // props.data
         setCartonOptions(cartons);
 
-        !isEditMode && handleNewDustbin();
+        isNewAsn && handleNewDustbin();
     }, []);
 
     useEffect(() => {
@@ -477,13 +476,13 @@ export const Container = memo(function Container(props) {
 
         let resultObject = {
             cartons: [],
-            invoice_amount: invAmount,
-            invoice_number: invNumber,
+            packing_list_number: packingListNumber,
+            packing_list_date: packingListDate,
             factory_id: factory_id,
             form_key: form_key,
         };
 
-        if(isEditMode) {
+        if(!isNewAsn) {
             resultObject.asn_id = asn_id
         }
 
@@ -737,19 +736,19 @@ export const Container = memo(function Container(props) {
                 <form onSubmit={ev => { ev.preventDefault()}}>
                     <div className="input-group mb-3">
                         <div className="input-group-prepend">
-                            <span className="input-group-text">Invoice Number</span>
+                            <span className="input-group-text">Packing List Number</span>
                         </div>
-                        <input type="text" className={'form-control'} onChange={ev => {setInvNumber(ev.target.value)}} value={invNumber}></input>
+                        <input type="text" className={'form-control'} onChange={ev => {setPackingListNumber(ev.target.value)}} value={packingListNumber}></input>
                     </div>
                     <div className="input-group mb-3">
                         <div className="input-group-prepend">
-                            <span className="input-group-text">Invoice Amount</span>
+                            <span className="input-group-text">Packing List Date (YYYY-mm-dd)</span>
                         </div>
-                        <input type="text" className={'form-control'} onChange={ev => {setInvAmount(ev.target.value)}} value={invAmount}></input>
+                        <input type="text" className={'form-control'} onChange={ev => {setPackingListDate(ev.target.value)}} value={packingListDate}></input>
                     </div>
                 </form>
                 <div style={{ textAlign: 'center'}}>
-                    <button type="button" style={{minWidth: '250px'}} onClick={ submitPacking } className="btn primary btn-lg">{isEditMode?"Save ASN":"Create ASN"}</button>
+                    <button type="button" style={{minWidth: '250px'}} onClick={ submitPacking } className="btn primary btn-lg">Save ASN</button>
                 </div>
             </div>
         </div>

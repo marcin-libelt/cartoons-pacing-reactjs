@@ -9,7 +9,9 @@
     <update handle="formkey"/>
     <body>
         <referenceContainer name="content">
-            <block class="ITvoice\AsnCreator\Block\Adminhtml\Editor" template="ITvoice_AsnCreator::editor.phtml" name="itvoice.asn.editor"/>
+            <block class="ITvoice\AsnCreator\Block\Adminhtml\Editor" template="ITvoice_AsnCreator::editor.phtml" name="itvoice.asn.editor">
+                <block class="ITvoice\AsnCreator\Block\Adminhtml\Editor\Factory" template="ITvoice_AsnCreator::editor/factory.phtml" name="itvoice.asn.editor.factory"/>
+            </block>
         </referenceContainer>
     </body>
 </page>

@@ -3,11 +3,11 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Block\Adminhtml\Creator\SelectFactory;
+namespace ITvoice\AsnCreator\Block\Adminhtml\SelectFactory;
 
 /**
  * Class Grid
- * @package ITvoice\AsnCreator\Block\Adminhtml\Creator\SelectFactory
+ * @package ITvoice\AsnCreator\Block\Adminhtml\SelectFactory
  */
 class Grid extends \ITvoice\Factory\Block\Adminhtml\Factory\Grid
 {
@@ -37,7 +37,7 @@ class Grid extends \ITvoice\Factory\Block\Adminhtml\Factory\Grid
             [
                 'header' => '',
                 'index' => '',
-                'renderer' => \ITvoice\AsnCreator\Block\Adminhtml\Creator\SelectFactory\Grid\Renderer\SelectButton::class,
+                'renderer' => \ITvoice\AsnCreator\Block\Adminhtml\SelectFactory\Grid\Renderer\SelectButton::class,
                 'filter' => false,
                 'sortable' => false,
             ],

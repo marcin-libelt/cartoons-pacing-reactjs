@@ -132,23 +132,32 @@ class AsnCreator
     }
 
     /**
-     * @param $invoiceAmount
+     * @param $packingListDate
+     * @return $this
+     * @throws LocalizedException
      */
-    public function setInvoiceAmount($invoiceAmount)
+    public function setPackingListDate($packingListDate)
     {
-        if ($invoiceAmount) {
-            $this->getAsn()->setInvoiceAmount((float)$invoiceAmount);
+        if ($packingListDate) {
+            $packingListDate = \DateTime::createFromFormat("Y-m-d", $packingListDate);
+            if ($packingListDate !== false && !array_sum($packingListDate::getLastErrors())) {
+                $this->getAsn()->setPackingListDate($packingListDate);
+            } else {
+                throw new LocalizedException(__('Incorrect date format in Packing List Date input'));
+            }
+
         }
         return $this;
     }
 
     /**
-     * @param $invoiceAmount
+     * @param $packingListNumber
+     * @return $this
      */
-    public function setInvoiceNumber($invoiceNumber)
+    public function setPackingListNumber($packingListNumber)
     {
-        if ($invoiceNumber) {
-            $this->getAsn()->setInvoiceNumber($invoiceNumber);
+        if ($packingListNumber) {
+            $this->getAsn()->setPackingListNumber($packingListNumber);
         }
         return $this;
     }
@@ -409,14 +418,17 @@ class AsnCreator
             $this->getAsn()->setAsnCreatedDate($date);
         }
 
+        $this->getAsn()->setDataChanges(true);
         $transaction = $this->transactionFactory->create();
         $transaction->addObject($this->getAsn());
 
-        foreach ($this->poItems as $poNumber => $itemsByPoNumber) {
-            foreach ($itemsByPoNumber as $doorCode => $poItems) {
-                foreach ($poItems as $barcode => $poItem) {
-                    if ($poItem->getIsInternalUsedQtyUpdated()) {
-                        $transaction->addObject($poItem);
+        if (is_array($this->poItems)) {
+            foreach ($this->poItems as $poNumber => $itemsByPoNumber) {
+                foreach ($itemsByPoNumber as $doorCode => $poItems) {
+                    foreach ($poItems as $barcode => $poItem) {
+                        if ($poItem->getIsInternalUsedQtyUpdated()) {
+                            $transaction->addObject($poItem);
+                        }
                     }
                 }
             }

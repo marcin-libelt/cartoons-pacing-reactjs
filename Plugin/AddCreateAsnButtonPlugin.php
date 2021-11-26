@@ -16,7 +16,7 @@ class AddCreateAsnButtonPlugin
      */
     public function beforeSetLayout(\Magento\Backend\Block\Widget\Container $view)
     {
-        $url = $view->getUrl('itvoice_asn_creator/index/index');
+        $url = $view->getUrl('itvoice_asn_creator/asn/index');
         $view->addButton(
             'create_new_asn',
             [

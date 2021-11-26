@@ -3,7 +3,7 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Controller\Adminhtml\Index;
+namespace ITvoice\AsnCreator\Controller\Adminhtml\Asn;
 
 /**
  * Class Index

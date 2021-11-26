@@ -3,11 +3,11 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Block\Adminhtml\Creator\SelectFactory\Grid\Renderer;
+namespace ITvoice\AsnCreator\Block\Adminhtml\SelectFactory\Grid\Renderer;
 
 /**
  * Class SelectButton
- * @package ITvoice\AsnCreator\Block\Adminhtml\Creator\SelectFactory\Grid\Renderer
+ * @package ITvoice\AsnCreator\Block\Adminhtml\SelectFactory\Grid\Renderer
  */
 class SelectButton extends \Magento\Backend\Block\Widget\Grid\Column\Renderer\AbstractRenderer
 {
@@ -21,9 +21,7 @@ class SelectButton extends \Magento\Backend\Block\Widget\Grid\Column\Renderer\Ab
             \Magento\Backend\Block\Widget::class
         )->getButtonHtml(
             'Select',
-            'window.selectedFactoryId = "' . $row->getId() . '"; window.selectFactoryModal.modal(\'closeModal\')',
-            '',
-            ''
+            'setLocation(\'' . $this->getUrl('*/asn/create', ['factory_id' => $row->getId()]) . '\')',
         );
     }
 }

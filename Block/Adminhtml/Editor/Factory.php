@@ -3,14 +3,15 @@
  * Copyright © Alekseon sp. z o.o.
  * http://www.alekseon.com/
  */
-namespace ITvoice\AsnCreator\Block\Adminhtml\Creator;
+namespace ITvoice\AsnCreator\Block\Adminhtml\Editor;
 
+use ITvoice\Asn\Model\Asn;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 
 /**
- * Class SelectedFactory
- * @package ITvoice\AsnCreator\Block\Adminhtml\Creator
+ * Class Factory
+ * @package ITvoice\AsnCreator\Block\Adminhtml\Editor
  */
 class Factory extends \Magento\Backend\Block\Template
 {
@@ -35,10 +36,18 @@ class Factory extends \Magento\Backend\Block\Template
     }
 
     /**
-     *
+     * @return Asn
+     */
+    public function getAsn()
+    {
+        return $this->coreRegistry->registry('current_asn');
+    }
+
+    /**
+     * @return \ITvoice\Factory\Model\Factory|string
      */
     public function getFactory()
     {
-        return $this->coreRegistry->registry('selected_factory');
+        return $this->getAsn()->getFactory(true);
     }
 }

@@ -4,11 +4,13 @@
  * http://www.alekseon.com/
  */
 ?>
-<div id="select_factory_modal"></div>
+<?php
+/** @var \ITvoice\AsnCreator\Block\Adminhtml\Editor\Factory $block */
+?>
 <form class="new_asn_form">
     <fieldset class="fieldset">
         <div id="selected_factory">
-            <?= __('Loading ...') ?>
+            <?= $block->getChildHtml('itvoice.asn.editor.factory') ?>
         </div>
     </fieldset>
 
@@ -20,15 +22,10 @@
 {
     "*" : {
         "asnEditor": {
-            "selected_factory_box": "selected_factory",
-            "cartons_box": "cartons",
             "asn_id": "<?= $block->getAsn()->getId() ?>",
             "factory_id": "<?= $block->getAsn()->getFactory(true)->getId() ?>",
-            "url": "<?= $this->getUrl('itvoice_asn_creator/SelectFactory/Index') ?>",
-            "modal_id": "select_factory_modal",
-            "refresh_factory_box_url": "<?= $this->getUrl('itvoice_asn_creator/index/factory') ?>",
             "factory_get_items_url": "<?= $this->getUrl('itvoice_asn_creator/factory/getitems', ['asn_id' => $block->getAsn()->getId()]) ?>",
-            "factory_post_cartons_url": "<?= $this->getUrl('itvoice_asn_creator/index/save', ['asn_id' => $block->getAsn()->getId()]) ?>"
+            "factory_post_cartons_url": "<?= $this->getUrl('itvoice_asn_creator/asn/save', ['asn_id' => $block->getAsn()->getId()]) ?>"
         }
     }
 }
