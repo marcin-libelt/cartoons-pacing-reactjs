@@ -254,7 +254,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                 'cartonId' => $carton->getUniqueCartonId(),
                 'doorCode' => $carton->getDoorCode(),
                 'gross_weight' => $carton->getGrossWeight(),
-                'net_weight' => $carton->getNerWeight(),
+                'net_weight' => $carton->getNetWeight(),
                 'dimensions' => $carton->getCartonDimensions(),
                 'suffix' => '',
                 'joorSONumber' => $carton->getJoorSoNumber(),

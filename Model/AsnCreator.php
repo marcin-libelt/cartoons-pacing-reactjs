@@ -197,17 +197,16 @@ class AsnCreator
             $cartonCounter ++;
             $cartonNumber = sprintf("%02s", $cartonCounter);
 
+            $cartonData = [];
             $cartonId = $data['cartonId'];
             if (!isset($allCartons[$cartonId])) {
                 $cartonId = $cartonNumber;
+                $cartonData['carton_number'] = $cartonNumber;
             }
 
-            $cartonData = [];
             foreach ($dataMap as $cartonDataCode => $inputCode) {
                 $cartonData[$cartonDataCode] = $data[$inputCode] ?? '';
             }
-
-            $cartonData['carton_number'] = $cartonNumber;
 
             $doorCode = $data['doorCode'] ?? '';
             $customerAddress = $this->addressRepository->getByCode($doorCode);
@@ -217,7 +216,10 @@ class AsnCreator
             $cartonData['destination'] = $customerAddress->getShippingMethod();
             $cartonData['door_code'] = $doorCode;
 
+            /** @var Asn\Carton $carton */
             $carton = $this->getAsn()->addCarton($cartonId, $cartonData);
+            $carton->setWarehouseLocation($customerAddress->getWarehouseLocation());
+
             $carton->setDeleteThisCarton(false);
 
             if (!$carton->getId()) {
@@ -268,14 +270,16 @@ class AsnCreator
                 }
 
                 $po = $data['PO'];
+                /** @var \ITvoice\PurchaseOrder\Model\PurchaseOrderItem $poItem */
                 $poItem = $this->getPoItem($po, $doorCode, $barcode);
                 $carton->setCustomerPo($po);
+                $carton->setDoorName($poItem->getDoor());
+                $carton->setOrderType($poItem->getOrderType());
 
                 $item = $carton->getItem($productId);
                 if (!$item) {
                     $itemData = [
                         'product_id' => $productId,
-                        'warehouse_location' => $carton->getAddress()->getWarehouseLocation(),
                         'season' => $poItem->getSeason(),
                         'style_name' => $poItem->getStyleName(),
                         'colourway' => $poItem->getColourway(),
