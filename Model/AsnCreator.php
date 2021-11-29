@@ -242,7 +242,7 @@ class AsnCreator
     }
 
     /**
-     * @param $carton
+     * @param Asn\Carton $carton
      * @param $itemData
      */
     protected function setItemsData($doorCode, $carton, $itemsData)
@@ -276,6 +276,7 @@ class AsnCreator
                 $carton->setDoorName($poItem->getDoor());
                 $carton->setOrderType($poItem->getOrderType());
 
+                /** @var Asn\Item $item */
                 $item = $carton->getItem($productId);
                 if (!$item) {
                     $itemData = [
@@ -284,6 +285,7 @@ class AsnCreator
                         'style_name' => $poItem->getStyleName(),
                         'colourway' => $poItem->getColourway(),
                         'division' => '', // @TODO for now its missing ?
+                        'warehouse_location' => $carton->getWarehouseLocation()
                     ];
 
                     $item = $carton->addItem($productId, $itemData);
