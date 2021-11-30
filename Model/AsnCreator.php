@@ -272,7 +272,8 @@ class AsnCreator
                 $po = $data['PO'];
                 /** @var \ITvoice\PurchaseOrder\Model\PurchaseOrderItem $poItem */
                 $poItem = $this->getPoItem($po, $doorCode, $barcode);
-                $carton->setCustomerPo($po);
+                //$carton->setCustomerPo($po);
+                $carton->setMbpo($po);
                 $carton->setDoorName($poItem->getDoor());
                 $carton->setOrderType($poItem->getOrderType());
 
