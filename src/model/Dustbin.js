@@ -15,6 +15,7 @@ function DustbinModel(uuid, accepts) {
     this.isEmpty = true;
     this.suffixDisabled = false;
     this.warehouseLocation = null;
+    this.qty = 0;
 }
 
 export { DustbinModel };

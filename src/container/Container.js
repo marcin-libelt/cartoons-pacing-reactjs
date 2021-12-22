@@ -11,7 +11,7 @@ import { DustbinModel } from '../model/Dustbin';
 export const Container = memo(function Container(props) {
 
     const { cartons, orders, asn } = props.data.data;
-    const { factory_id, form_key, jquery: $, post_url, asn_id } = props.data;
+    const { factory_id, form_key, jquery: $, post_url, autosave_url, asn_id } = props.data;
     const isNewAsn = !(asn.cartons.length > 0);
 
     // for now only 1 Type ( style )
@@ -25,16 +25,17 @@ export const Container = memo(function Container(props) {
         doorCode: ""
     });
     const [loadingMsg, setLoadingMsg] = useState("");
-    const [afterSubmition, setAfterSubmition] = useState(false);
+    const [userChangesQueue, setUserChangesQueue] = useState(0);
     const [cartonOptions, setCartonOptions] = useState([]);
     const [packingListDate, setPackingListDate] = useState("");
     const [packingListNumber, setPackingListNumber] = useState("")
-
     const [totals, setTotals] = useState({
         cartons: !isNewAsn ? asn.cartons.length : 0,
         units: 0,
         value: 0
     })
+    const [to, setTo] = useState(0);
+    let pending = false;
 
     if(!isNewAsn) {
         useEffect(function () {
@@ -48,6 +49,7 @@ export const Container = memo(function Container(props) {
                 const newDustbin = new DustbinModel(cartonItem.cartonId, [ItemTypes.STYLE]);
                 let doorLabel; // dirty way, sorry - couldn't find better solution
                 let warehouseLocation;
+                let itemsInCartonCount = 0;
 
                 newDustbin.doorCode = cartonItem.doorCode;
                 newDustbin.gross_weight = cartonItem.gross_weight;
@@ -85,6 +87,8 @@ export const Container = memo(function Container(props) {
                     doorLabel = leftItem.doorLabel // grap field to use outside - dirty way, but not harmful
                     warehouseLocation = leftItem.warehouseLocation
                     restoredPickedItems.push(newProduct);
+
+                    itemsInCartonCount += qtyReducer(productItem.sizes);
                 })
 
                 // add extra fields taken from first product / the same for all other products in carton
@@ -92,6 +96,7 @@ export const Container = memo(function Container(props) {
                 newDustbin.toDoorLabel = doorLabel;
                 newDustbin.warehouseLocation = warehouseLocation;
                 newDustbin.isEmpty = false;
+                newDustbin.qty = itemsInCartonCount; // TODO - add qty here
                 restoredDustbins.push(newDustbin);
             })
 
@@ -116,6 +121,38 @@ export const Container = memo(function Container(props) {
     }, []);
 
     useEffect(() => {
+        clearTimeout(to)
+        if(!pending) {
+            setTo(setTimeout(() => {
+                pending = true;
+                let resultObject = {
+                    cartons: prepareCartonsForSaveAction(),
+                    packing_list_number: packingListNumber,
+                    packing_list_date: packingListDate,
+                    factory_id: factory_id,
+                    form_key: form_key,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: autosave_url,
+                    data: resultObject,
+                    dataType: 'json'
+                })
+                .done(function (response, status) {
+
+                })
+                .error(function (response, status) {
+
+                })
+                .always(function () {
+                    pending = false
+                });
+            }, 5000))
+        }
+    }, [dustbins])
+
+    useEffect(() => {
             const updatedState = update(totals, {
                 ['cartons']: { $set: dustbins.length }
             })
@@ -127,11 +164,29 @@ export const Container = memo(function Container(props) {
 
         let qty = 0;
         let value = 0;
+        let dustbinsToUpdateTheirQuantity = {};
 
         pickedItems.forEach(item => {
             const thisQty = parseInt(qtyReducer(item.sizes));
             qty += thisQty;
             value += thisQty * item.unit_selling_price;
+
+            if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(item.cartonBox)) {
+                dustbinsToUpdateTheirQuantity[item.cartonBox] = thisQty;
+            } else {
+                dustbinsToUpdateTheirQuantity[item.cartonBox] += thisQty;
+            }
+        })
+
+        dustbins.forEach((dustbin, index) => {
+            if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(dustbin.uid)) {
+                return;
+            }
+            setDustbins(update(dustbins, {
+                [index]: {
+                    qty: {$set: dustbinsToUpdateTheirQuantity[dustbin.uid]}
+                }}
+            ))
         })
 
         const updatedState = update(totals, {
@@ -166,10 +221,10 @@ export const Container = memo(function Container(props) {
         //
         const targetDustbin = dustbins.find(bin => bin.uid === cartonBox);
         if(!validateCartonInput(targetDustbin, {
-            doorCode: result.doorCode,
+            /*doorCode: result.doorCode,
             orderType: result.orderType,
             joorSONumber: result.joorSONumber,
-            PO: result.PO,
+            PO: result.PO,*/
             warehouseLocation: result.warehouseLocation
         })) {
             return; // Abort!
@@ -262,6 +317,7 @@ export const Container = memo(function Container(props) {
                 barcode: result.sizes[i].barcode
             };
         })
+
         const updateSource = {
             id: result.id,
             name: result.name,
@@ -320,7 +376,8 @@ export const Container = memo(function Container(props) {
                     orderType: { $set: null},
                     joorSONumber: { $set: null},
                     PO: { $set: null},
-                    warehouseLocation: { $set: null}
+                    warehouseLocation: { $set: null},
+                    qty: { $set: 0 }
                 }
             }))
         }
@@ -475,7 +532,7 @@ export const Container = memo(function Container(props) {
         setLoadingMsg("New ASN is now submiting");
 
         let resultObject = {
-            cartons: [],
+            cartons: prepareCartonsForSaveAction(),
             packing_list_number: packingListNumber,
             packing_list_date: packingListDate,
             factory_id: factory_id,
@@ -486,8 +543,51 @@ export const Container = memo(function Container(props) {
             resultObject.asn_id = asn_id
         }
 
-        dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix, joorSONumber, PO },index) => {
+        swal({
+            title: "Are you sure?",
+            text: "You are about to submit new ASN.\nDo you want to proceed?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((willProceed) => {
+                if (willProceed) {
 
+                        $.ajax({
+                            type: "POST",
+                            url: post_url,
+                            data: resultObject,
+                            dataType: 'json'
+                        })
+                        .done(function (response, status) {
+                            const finalMsg = response.message + '\n ';
+                            var redirectUrl = response.redirect_url;
+
+                            swal(response.message, {
+                                icon: status,
+                            });
+                            setTimeout(() => {
+                                window.location.href = redirectUrl;
+                            }, 1500);
+                        })
+                        .error(function (response, status) {
+                            swal(response.responseJSON.message, {
+                                icon: status
+                            });
+                        })
+                        .always(function () {
+                            setLoadingMsg("")
+                        });
+
+                } else {
+                    setLoadingMsg("")
+                }
+            });
+    }
+
+    function prepareCartonsForSaveAction() {
+        const data = [];
+        dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix, joorSONumber, PO },index) => {
             const allpackedItemInDustbin = pickedItems.filter(item => item.cartonBox === uid);
             if(allpackedItemInDustbin) {
                 const itemsCollection = [];
@@ -510,50 +610,10 @@ export const Container = memo(function Container(props) {
                     PO,
                     items: itemsCollection
                 }
-                resultObject.cartons.push(binData)
+                data.push(binData)
             }
         })
-
-        swal({
-            title: "Are you sure?",
-            text: "You are about to submit new ASN.\nDo you want to proceed?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        })
-            .then((willProceed) => {
-                if (willProceed) {
-
-                    $.ajax({
-                        type: "POST",
-                        url: post_url,
-                        data: resultObject,
-                        dataType: 'json'
-                    })
-                        .done(function (response, status) {
-                            const finalMsg = response.message + '\n ';
-                            var redirectUrl = response.redirect_url;
-
-                            swal(response.message, {
-                                icon: status,
-                            });
-                            setTimeout(() => {
-                                window.location.href = redirectUrl;
-                            }, 1500);
-                        })
-                        .error(function(response, status){
-                            swal(response.responseJSON.message, {
-                                icon: status
-                            });
-                        })
-                        .always(function (){
-                            setLoadingMsg("")
-                        });
-
-                } else {
-                    setLoadingMsg("")
-                }
-            });
+        return data;
     }
 
     function handleSetCartonInfo(value, field, uid) {
@@ -575,51 +635,76 @@ export const Container = memo(function Container(props) {
     }
 
     return <div className="container" style={{ position: 'relative', color: '#212529', fontSize: '15px'}}>
-        <div className={'row'}>
-            <div className={'col d-flex justify-content-between top-panel'}>
-                <div className="card filters">
-
+        <div className={'row d-flex justify-content-between top-panel'}>
+            <div className="col col-5 card filters">
                     <form onSubmit={ev => { ev.preventDefault()}}>
                         <h4>Filter by:</h4>
                         <div className="row">
-                            <div className="col-12">
-
-                                <div className="form-row row">
-                                    <div className="form-group">
-                                        <label htmlFor="inputSku">Sku</label>
-                                        <input type="text" id="inputSku" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'sku')} value={filter.sku}  aria-label="Sizing example input"
-                                               aria-describedby="inputGroup-sizing-default">
-                                        </input>
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="inputPo">Po</label>
-                                        <input type="text" id="inputPo" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'PO')} value={filter.PO}  aria-label="Sizing example input"
-                                               aria-describedby="inputGroup-sizing-default">
-                                        </input>
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="inputSo">So number</label>
-                                        <input id="inputSo" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'joorSONumber')} value={filter.joorSONumber}  aria-label="Sizing example input"
-                                               aria-describedby="inputGroup-sizing-default">
-                                        </input>
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="inputDoorcode">Door code</label>
-                                        <input id="inputDoorcode" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'doorCode')} value={filter.doorCode}  aria-label="Sizing example input"
-                                               aria-describedby="inputGroup-sizing-default">
-                                        </input>
-                                    </div>
+                            <div className="col-6 input-group mb-3">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text">Sku</span>
                                 </div>
+                                <input type="text" id="inputSku" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'sku')} value={filter.sku}  aria-label="Sizing example input"
+                                       aria-describedby="inputGroup-sizing-default">
+                                </input>
+                            </div>
+                            <div className="col-6 input-group mb-3">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text">Po</span>
+                                </div>
+                                <input type="text" id="inputPo" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'PO')} value={filter.PO}  aria-label="Sizing example input"
+                                       aria-describedby="inputGroup-sizing-default">
+                                </input>
+                            </div>
+                        </div>
+                        <div className='row'>
+                            <div className="col-6 input-group mb-3">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text">So number</span>
+                                </div>
+                                <input id="inputSo" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'joorSONumber')} value={filter.joorSONumber}  aria-label="Sizing example input"
+                                       aria-describedby="inputGroup-sizing-default">
+                                </input>
+                            </div>
+                            <div className="col-6 input-group mb-3">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text">Door code</span>
+                                </div>
+                                <input id="inputDoorcode" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'doorCode')} value={filter.doorCode}  aria-label="Sizing example input"
+                                       aria-describedby="inputGroup-sizing-default">
+                                </input>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div className="card totals">
-                    <h4>Totals</h4>
-                    <span className='label'>cartons:</span>{totals.cartons}<br/>
-                    <span className='label'>units:</span>{totals.units} pcs<br/>
-                    <span className='label'>value:</span>{totals.value} &euro;<br/>
-            </div>
+            <div className="col col-7">
+                <div className="row">
+                    <div className="col card totals">
+                        <h4>Totals</h4>
+                        <span className='label'>cartons:</span>{totals.cartons}<br/>
+                        <span className='label'>units:</span>{totals.units} pcs<br/>
+                        <span className='label'>value:</span>{totals.value} &euro;<br/>
+                    </div>
+                    <div className="col card footer">
+                        <form onSubmit={ev => { ev.preventDefault()}}>
+                            <div className="input-group mb-3">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text">Packing List Number</span>
+                                </div>
+                                <input type="text" className={'form-control'} onChange={ev => {setPackingListNumber(ev.target.value)}} value={packingListNumber}></input>
+                            </div>
+                            <div className="input-group mb-3">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text">Packing List Date (YYYY-mm-dd)</span>
+                                </div>
+                                <input type="text" className={'form-control'} onChange={ev => {setPackingListDate(ev.target.value)}} value={packingListDate}></input>
+                            </div>
+                        </form>
+                        <div style={{ textAlign: 'center'}}>
+                            <button type="button" style={{minWidth: '250px'}} onClick={ () => submitPacking(true) } className="btn primary btn-lg">Save ASN</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div className="row">
@@ -698,6 +783,7 @@ export const Container = memo(function Container(props) {
                                         net_weight,
                                         dimensions,
                                         suffixDisabled,
+                                        qty,
                                         suffix}, index) => {
                                 const info = {
                                     gross_weight,
@@ -725,33 +811,13 @@ export const Container = memo(function Container(props) {
                                                 cartonOptions={cartonOptions}
                                                 assignedItems={pickedItems && pickedItems.filter(item => item.cartonBox === uid)}
                                                 index={index}
+                                                qty={qty}
                                                 key={index}/>
                             })}
                         </div>
                     </div>
                 </div>
             </div>
-        <div className={'row'}>
-            <div className="col footer">
-                <form onSubmit={ev => { ev.preventDefault()}}>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">Packing List Number</span>
-                        </div>
-                        <input type="text" className={'form-control'} onChange={ev => {setPackingListNumber(ev.target.value)}} value={packingListNumber}></input>
-                    </div>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">Packing List Date (YYYY-mm-dd)</span>
-                        </div>
-                        <input type="text" className={'form-control'} onChange={ev => {setPackingListDate(ev.target.value)}} value={packingListDate}></input>
-                    </div>
-                </form>
-                <div style={{ textAlign: 'center'}}>
-                    <button type="button" style={{minWidth: '250px'}} onClick={ submitPacking } className="btn primary btn-lg">Save ASN</button>
-                </div>
-            </div>
-        </div>
         { loadingMsg ? <span className={'mask'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#fff', opacity: 0.4 }}>
             <span>{loadingMsg}</span>
         </span> : ''}

@@ -20,6 +20,7 @@ export const Dustbin = memo(function Dustbin({
                                                  handleRemoveDustbin,
                                                  setCartonInfo,
                                                  index,
+                                                 qty,
                                                  isEmpty,
                                                  cartonOptions
                                              }) {
@@ -106,10 +107,16 @@ export const Dustbin = memo(function Dustbin({
                         </select>
                     </div>
                     <div className={'col col-xs-2 mb-1'} style={{ padding: '0 10px', flex: 'auto'}}>
-                        {!suffixDisabled && <div>
-                        <label style={{fontSize: '13px', minWidth: '100px'}}>Suffix</label>
-                        <input type="text" style={styles} value={info.suffix}
+                        <div>
+                            <label style={{fontSize: '13px', minWidth: '100px'}}>Suffix</label>
+                            <input type="text" style={styles} value={info.suffix}
                                onChange={(e) => setCartonInfo(e.target.value, 'suffix', uid)} placeholder={''}/>
+                        </div>
+                    </div>
+                    <div className={'col col-xs-2 mb-1'} style={{ padding: '0 10px', flex: 'auto'}}>
+                        {<div>
+                            <label style={{fontSize: '13px'}}>Qty</label>
+                            <input type="text" style={styles} value={qty} readOnly={true} placeholder={'0'}/>
                         </div>}
                     </div>
                 </div>

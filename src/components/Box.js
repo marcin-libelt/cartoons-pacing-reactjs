@@ -108,6 +108,7 @@ export const BoxAfter = memo(function BoxAfter({ name, type, id, doorLabel, cart
                         </div>
                         <input type="number"
                                    value={qty}
+                                    onClick={e => { e.target.select() }}
                                    onChange={(e) => handleSetQty(e, id, cartonBox, barcode)}
                                    className=""/>
                     </div>)}

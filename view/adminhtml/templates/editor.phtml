@@ -25,7 +25,8 @@
             "asn_id": "<?= $block->getAsn()->getId() ?>",
             "factory_id": "<?= $block->getAsn()->getFactory(true)->getId() ?>",
             "factory_get_items_url": "<?= $this->getUrl('itvoice_asn_creator/factory/getitems', ['asn_id' => $block->getAsn()->getId()]) ?>",
-            "factory_post_cartons_url": "<?= $this->getUrl('itvoice_asn_creator/asn/save', ['asn_id' => $block->getAsn()->getId()]) ?>"
+            "factory_post_cartons_url": "<?= $this->getUrl('itvoice_asn_creator/asn/save', ['asn_id' => $block->getAsn()->getId()]) ?>",
+            "factory_post_cartons_autosave_url": "<?= $this->getUrl('itvoice_asn_creator/asn/autosave', ['asn_id' => $block->getAsn()->getId()]) ?>"
         }
     }
 }

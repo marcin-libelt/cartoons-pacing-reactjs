@@ -28,6 +28,7 @@
     .card {
       padding: 10px;
       border-radius: 10px;
+      box-sizing: border-box;
 
       h4 {
         text-align: left;
@@ -36,7 +37,6 @@
     }
 
     .filters {
-      flex-grow: 5;
       background: #e9ecef;
 
       .form-group {
@@ -45,9 +45,13 @@
       }
     }
 
+    .footer {
+      margin-left: 10px;
+      flex-grow: 3;
+    }
+
     .totals {
       flex-grow: 1;
-      margin-left: 10px;
       background: #e9ecef;
       text-align: center;
 
@@ -58,6 +62,10 @@
         text-align: right;
       }
     }
+  }
+
+  .carton-no {
+    float: right;
   }
 
   .new-carton2 {
@@ -235,7 +243,7 @@
     display: block;
     width: 100%;
     padding: 0.375rem 0.75rem;
-    font-size: 1rem;
+    font-size: 1.3rem;
     font-weight: 400;
     line-height: 1.5;
     color: #212529;
@@ -254,13 +262,17 @@
   }
 
   .cartonHead {
-    font-size: 10px;
+    font-size: 12px;
     text-align: right;
     background: #d0bf9f;
     line-height: 2;
     padding: 0px 10px;
     border-radius: 7px;
     border-bottom: 1px solid #b9a57e;
+
+    span {
+      white-space: nowrap;
+    }
   }
 
   .cartonHead .label {
