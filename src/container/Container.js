@@ -11,7 +11,7 @@ import { DustbinModel } from '../model/Dustbin';
 export const Container = memo(function Container(props) {
 
     const { cartons, orders, asn } = props.data.data;
-    const { factory_id, form_key, jquery: $, post_url, autosave_url, asn_id } = props.data;
+    const { factory_id, form_key, jquery: $, post_url, asn_id } = props.data;
     const isNewAsn = !(asn.cartons.length > 0);
 
     // for now only 1 Type ( style )
@@ -25,7 +25,7 @@ export const Container = memo(function Container(props) {
         doorCode: ""
     });
     const [loadingMsg, setLoadingMsg] = useState("");
-    const [userChangesQueue, setUserChangesQueue] = useState(0);
+    const [autosaveStatus, setAutosaveStatus] = useState({message: "Asn is loading...", status: 2});
     const [cartonOptions, setCartonOptions] = useState([]);
     const [packingListDate, setPackingListDate] = useState("");
     const [packingListNumber, setPackingListNumber] = useState("")
@@ -121,10 +121,12 @@ export const Container = memo(function Container(props) {
     }, []);
 
     useEffect(() => {
+        setAutosaveStatus({message: 'Asn is about to save...', status: 2});
         clearTimeout(to)
         if(!pending) {
             setTo(setTimeout(() => {
                 pending = true;
+                setAutosaveStatus({message: 'Asn is now saving...', status: 2});
                 let resultObject = {
                     cartons: prepareCartonsForSaveAction(),
                     packing_list_number: packingListNumber,
@@ -135,29 +137,28 @@ export const Container = memo(function Container(props) {
 
                 $.ajax({
                     type: "POST",
-                    url: autosave_url,
+                    url: post_url,
                     data: resultObject,
                     dataType: 'json'
                 })
                 .done(function (response, status) {
-
+                    setAutosaveStatus(response)
                 })
                 .error(function (response, status) {
-
+                    setAutosaveStatus(response.responseJSON)
                 })
                 .always(function () {
                     pending = false
                 });
             }, 5000))
         }
-    }, [dustbins])
+    }, [dustbins, packingListDate, packingListNumber])
 
     useEffect(() => {
-            const updatedState = update(totals, {
+        const updatedState = update(totals, {
                 ['cartons']: { $set: dustbins.length }
             })
-          setTotals(updatedState);
-
+        setTotals(updatedState);
     }, [dustbins])
 
     useEffect(() => {
@@ -221,10 +222,10 @@ export const Container = memo(function Container(props) {
         //
         const targetDustbin = dustbins.find(bin => bin.uid === cartonBox);
         if(!validateCartonInput(targetDustbin, {
-            /*doorCode: result.doorCode,
+            doorCode: result.doorCode,
             orderType: result.orderType,
             joorSONumber: result.joorSONumber,
-            PO: result.PO,*/
+            PO: result.PO,
             warehouseLocation: result.warehouseLocation
         })) {
             return; // Abort!
@@ -520,71 +521,6 @@ export const Container = memo(function Container(props) {
         return cummulativeArray
     }
 
-    function submitPacking() {
-
-        if(pickedItems.length === 0) {
-            swal('There\'s no cartons to submit new ASN.', {
-                icon: "warning"
-            })
-            return;
-        }
-
-        setLoadingMsg("New ASN is now submiting");
-
-        let resultObject = {
-            cartons: prepareCartonsForSaveAction(),
-            packing_list_number: packingListNumber,
-            packing_list_date: packingListDate,
-            factory_id: factory_id,
-            form_key: form_key,
-        };
-
-        if(!isNewAsn) {
-            resultObject.asn_id = asn_id
-        }
-
-        swal({
-            title: "Are you sure?",
-            text: "You are about to submit new ASN.\nDo you want to proceed?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        })
-            .then((willProceed) => {
-                if (willProceed) {
-
-                        $.ajax({
-                            type: "POST",
-                            url: post_url,
-                            data: resultObject,
-                            dataType: 'json'
-                        })
-                        .done(function (response, status) {
-                            const finalMsg = response.message + '\n ';
-                            var redirectUrl = response.redirect_url;
-
-                            swal(response.message, {
-                                icon: status,
-                            });
-                            setTimeout(() => {
-                                window.location.href = redirectUrl;
-                            }, 1500);
-                        })
-                        .error(function (response, status) {
-                            swal(response.responseJSON.message, {
-                                icon: status
-                            });
-                        })
-                        .always(function () {
-                            setLoadingMsg("")
-                        });
-
-                } else {
-                    setLoadingMsg("")
-                }
-            });
-    }
-
     function prepareCartonsForSaveAction() {
         const data = [];
         dustbins.forEach( ({ uid, doorCode, gross_weight, net_weight, dimensions, suffix, joorSONumber, PO },index) => {
@@ -634,6 +570,45 @@ export const Container = memo(function Container(props) {
         }));
     }
 
+    const DocumentStatus = (props) => {
+        const { message, status } = props.status;
+        let icon
+        let color = 'inherit'
+
+        switch (status) {
+            case 1:
+                icon = <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            className="bi bi-check-lg" viewBox="0 0 16 16">
+                    <path
+                        d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+                </svg>
+                break;
+            case 2:
+                icon = <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            className="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path
+                        d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                break;
+            case 9:
+                color = 'red'
+                icon = <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            className="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                    <path
+                        d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                    <path
+                        d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                </svg>
+                break;
+            default:
+        }
+
+        return (
+            <div className={'document-status'} style={{color}}>{message} {icon}</div>
+        )
+    }
+
     return <div className="container" style={{ position: 'relative', color: '#212529', fontSize: '15px'}}>
         <div className={'row d-flex justify-content-between top-panel'}>
             <div className="col col-5 card filters">
@@ -649,7 +624,7 @@ export const Container = memo(function Container(props) {
                                 </input>
                             </div>
                             <div className="col-6 input-group mb-3">
-                                <div className="input-group-prepend">
+                                <div className="input-group-prepend" style={{marginLeft: '8px'}}>
                                     <span className="input-group-text">Po</span>
                                 </div>
                                 <input type="text" id="inputPo" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'PO')} value={filter.PO}  aria-label="Sizing example input"
@@ -667,7 +642,7 @@ export const Container = memo(function Container(props) {
                                 </input>
                             </div>
                             <div className="col-6 input-group mb-3">
-                                <div className="input-group-prepend">
+                                <div className="input-group-prepend" style={{marginLeft: '8px'}}>
                                     <span className="input-group-text">Door code</span>
                                 </div>
                                 <input id="inputDoorcode" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'doorCode')} value={filter.doorCode}  aria-label="Sizing example input"
@@ -700,9 +675,7 @@ export const Container = memo(function Container(props) {
                                 <input type="text" className={'form-control'} onChange={ev => {setPackingListDate(ev.target.value)}} value={packingListDate}></input>
                             </div>
                         </form>
-                        <div style={{ textAlign: 'center'}}>
-                            <button type="button" style={{minWidth: '250px'}} onClick={ () => submitPacking(true) } className="btn primary btn-lg">Save ASN</button>
-                        </div>
+                        <DocumentStatus status={autosaveStatus} />
                     </div>
                 </div>
             </div>

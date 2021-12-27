@@ -63,11 +63,12 @@ class Save extends \ITvoice\Asn\Controller\Adminhtml\Asn
             $asn = $asnCreator->create();
             $data = [
                 'message' => __('Asn %1 has been saved.', $asn->getAsnNumber()),
-                'redirect_url' => $this->getUrl('itvoice_asn/asn/view', ['id' => $asn->getId()]),
+                'status' => 1
             ];
         } catch (\Exception $e) {
             $data = [
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'status' => 9
             ];
             $jsonResponse->setStatusHeader(500, null, $e->getMessage());
         }

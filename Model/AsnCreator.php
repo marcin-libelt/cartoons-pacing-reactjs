@@ -191,7 +191,7 @@ class AsnCreator
 
             $items = $data['items'] ?? false;
             if (!$items) {
-                throw new LocalizedException(__('One or more cartons have no items.'));
+                continue; // TODO - we're not sure if w should save empty carton or not ?
             }
 
             $cartonCounter ++;
@@ -272,7 +272,7 @@ class AsnCreator
                 $po = $data['PO'];
                 /** @var \ITvoice\PurchaseOrder\Model\PurchaseOrderItem $poItem */
                 $poItem = $this->getPoItem($po, $doorCode, $barcode);
-                //$carton->setCustomerPo($po);
+                $carton->setCustomerPo($po); // TODO we're not sure if this field should exist or not
                 $carton->setMbpo($po);
                 $carton->setDoorName($poItem->getDoor());
                 $carton->setOrderType($poItem->getOrderType());

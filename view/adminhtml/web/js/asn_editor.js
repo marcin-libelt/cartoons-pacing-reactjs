@@ -26,7 +26,6 @@ define([
                         data: response,
                         factory_id: config.factory_id,
                         post_url: config.factory_post_cartons_url,
-                        autosave_url: config.factory_post_cartons_autosave_url,
                         form_key: FORM_KEY,
                         jquery: $,
                         asn_id: config.asn_id
