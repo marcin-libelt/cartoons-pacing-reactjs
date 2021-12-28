@@ -242,7 +242,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
 
                 $items[] = [
                     'id' => $rowId,
-                    'PO' => $carton->getCustomerPo(),
+                    'PO' => $carton->getMbpo(),
                     'sku' => $item->getProductId(),
                     'sizes' => $sizes,
                 ];

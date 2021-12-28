@@ -167,6 +167,10 @@ class AsnCreator
      */
     public function setCartonsData($cartonsData)
     {
+        if (!is_array($cartonsData)) {
+            throw new LocalizedException(__('Cannot save ASN without cartons. Please add carton.'));
+        }
+
         $this->initPoItems($cartonsData);
 
         $dataMap = [
@@ -191,6 +195,7 @@ class AsnCreator
 
             $items = $data['items'] ?? false;
             if (!$items) {
+                throw new LocalizedException(__('Cannot save empty carton. Please add item to carton %1 or remove it.', $data['cartonId']));
                 continue; // TODO - we're not sure if w should save empty carton or not ?
             }
 
@@ -272,7 +277,7 @@ class AsnCreator
                 $po = $data['PO'];
                 /** @var \ITvoice\PurchaseOrder\Model\PurchaseOrderItem $poItem */
                 $poItem = $this->getPoItem($po, $doorCode, $barcode);
-                $carton->setCustomerPo($po); // TODO we're not sure if this field should exist or not
+                //$carton->setCustomerPo($po);
                 $carton->setMbpo($po);
                 $carton->setDoorName($poItem->getDoor());
                 $carton->setOrderType($poItem->getOrderType());
@@ -351,6 +356,7 @@ class AsnCreator
     {
         $this->poItems = [];
         $selectedPoArray = [];
+
         foreach ($cartonsData as $cartonData) {
             $items = $cartonData['items'] ?? [];
             foreach ($items as $itemData) {
