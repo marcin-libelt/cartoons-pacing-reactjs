@@ -88,10 +88,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
 
         $orders = [];
         foreach ($poItems as $poItem) {
-            $qty = (int) $poItem->getQty() - $poItem->getInternalUsedQty();
-            if ($qty <= 0) {
-                continue;
-            }
+            $qty = (int) max(0, $poItem->getQty() - $poItem->getInternalUsedQty());
 
             $shippingDoorCode = $poItem->getShippingDoorCode();
             $purchaseOrder = $purchaseOrders[$poItem->getPurchaseOrderId()];

@@ -264,6 +264,7 @@ class AsnCreator
         foreach ($itemsData as $data) {
 
             $sizes = $data['sizes'] ?? [];
+            $totalItemQty = 0;
 
             foreach ($sizes as $sizeData) {
                 $productId = $data['sku'];
@@ -273,6 +274,8 @@ class AsnCreator
                 if (!$qty) {
                     continue;
                 }
+
+                $totalItemQty += $qty;
 
                 $po = $data['PO'];
                 /** @var \ITvoice\PurchaseOrder\Model\PurchaseOrderItem $poItem */
@@ -317,6 +320,10 @@ class AsnCreator
                 $simpleItem = $item->addSimpleItem($barcode, $qty, $simpleItemData);
                 $simpleItem->setDeleteThisSimpleItem(false);
                 $simpleItem->setPoItem($poItem);
+            }
+
+            if (!$totalItemQty) {
+                throw new LocalizedException(__('Cannot save product without sizes. Please add size to product %1 in carton %2 or remove it.', $data['sku'],  $carton->getUniqueCartonId()));
             }
         }
     }
