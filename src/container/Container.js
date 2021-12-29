@@ -8,6 +8,8 @@ import { qtyReducer, validateCartonInput } from '../helper';
 import swal from "sweetalert";
 import { DustbinModel } from '../model/Dustbin';
 
+const autosaveThreshold = 1500;
+
 export const Container = memo(function Container(props) {
 
     const { cartons, orders, asn } = props.data.data;
@@ -39,8 +41,8 @@ export const Container = memo(function Container(props) {
 
     if(!isNewAsn) {
         useEffect(function () {
-            setPackingListDate(asn.packing_list_date);
-            setPackingListNumber(asn.packing_list_number);
+            setPackingListDate(asn.packing_list_date || "");
+            setPackingListNumber(asn.packing_list_number || "");
 
             let restoredDustbins = [];
             let restoredPickedItems = [];
@@ -121,6 +123,7 @@ export const Container = memo(function Container(props) {
     }, []);
 
     useEffect(() => {
+        console.log('autosave')
         setAutosaveStatus({message: 'Asn is about to save...', status: 2});
         clearTimeout(to)
         if(!pending) {
@@ -150,9 +153,9 @@ export const Container = memo(function Container(props) {
                 .always(function () {
                     pending = false
                 });
-            }, 5000))
+            }, autosaveThreshold))
         }
-    }, [dustbins, packingListDate, packingListNumber])
+    }, [dustbins, pickedItems, packingListDate, packingListNumber])
 
     useEffect(() => {
         const updatedState = update(totals, {
@@ -162,32 +165,41 @@ export const Container = memo(function Container(props) {
     }, [dustbins])
 
     useEffect(() => {
+        let dustbinsToUpdateTheirQuantity = {}
+        pickedItems.forEach(item => {
+             const thisQty = parseInt(qtyReducer(item.sizes));
+             if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(item.cartonBox)) {
+                 dustbinsToUpdateTheirQuantity[item.cartonBox] = thisQty;
+             } else {
+                 dustbinsToUpdateTheirQuantity[item.cartonBox] += thisQty;
+             }
+        })
+        dustbins.forEach((dustbin) => {
+                if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(dustbin.uid)) {
+                    return;
+                }
 
+                const index = dustbins.indexOf(dustbin);
+
+                setDustbins(update(dustbins, {
+                    [0]: {
+                        qty: {$set: dustbinsToUpdateTheirQuantity[dustbin.uid]}
+                    },
+                    [1]: {
+                        qty: {$set: dustbinsToUpdateTheirQuantity[dustbin.uid]}
+                    }}
+                ))
+            })
+    },[totals])
+
+    useEffect(() => {
         let qty = 0;
         let value = 0;
-        let dustbinsToUpdateTheirQuantity = {};
 
         pickedItems.forEach(item => {
             const thisQty = parseInt(qtyReducer(item.sizes));
             qty += thisQty;
             value += thisQty * item.unit_selling_price;
-
-            if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(item.cartonBox)) {
-                dustbinsToUpdateTheirQuantity[item.cartonBox] = thisQty;
-            } else {
-                dustbinsToUpdateTheirQuantity[item.cartonBox] += thisQty;
-            }
-        })
-
-        dustbins.forEach((dustbin, index) => {
-            if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(dustbin.uid)) {
-                return;
-            }
-            setDustbins(update(dustbins, {
-                [index]: {
-                    qty: {$set: dustbinsToUpdateTheirQuantity[dustbin.uid]}
-                }}
-            ))
         })
 
         const updatedState = update(totals, {
@@ -383,7 +395,7 @@ export const Container = memo(function Container(props) {
             }))
         }
 
-        const item = pickedItems.find(item => item.id === id);
+        const item = pickedItems.find(item => item.id === id && item.cartonBox === cartonBox);
         const index = pickedItems.indexOf(item);
         const newPickedItems = update(pickedItems, {
             $splice: [[index, 1]]
@@ -401,6 +413,7 @@ export const Container = memo(function Container(props) {
         }
 
         const item = pickedItems.find(item => item.id === id && item.cartonBox === cartonBox);
+        console.log(item);
         const positiveSizes = item.sizes.filter(size => size.qty > 0);
 
        // let data = {}
@@ -586,7 +599,7 @@ export const Container = memo(function Container(props) {
             case 2:
                 icon = <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             className="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                     <path
                         d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
                 </svg>
@@ -783,9 +796,8 @@ export const Container = memo(function Container(props) {
                                                 suffixDisabled={suffixDisabled}
                                                 cartonOptions={cartonOptions}
                                                 assignedItems={pickedItems && pickedItems.filter(item => item.cartonBox === uid)}
-                                                index={index}
                                                 qty={qty}
-                                                key={index}/>
+                                                key={uid}/>
                             })}
                         </div>
                     </div>

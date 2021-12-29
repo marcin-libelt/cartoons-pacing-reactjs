@@ -19,7 +19,6 @@ export const Dustbin = memo(function Dustbin({
                                                  joorSONumber,
                                                  handleRemoveDustbin,
                                                  setCartonInfo,
-                                                 index,
                                                  qty,
                                                  isEmpty,
                                                  cartonOptions
