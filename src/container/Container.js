@@ -5,10 +5,9 @@ import { ItemTypes, FieldsMap } from '../ItemTypes';
 import uuid from 'react-uuid'
 import update from 'immutability-helper';
 import { qtyReducer, validateCartonInput } from '../helper';
-import swal from "sweetalert";
 import { DustbinModel } from '../model/Dustbin';
 
-const autosaveThreshold = 1500;
+const autosaveThreshold = 5 * 1000;
 
 export const Container = memo(function Container(props) {
 
@@ -109,9 +108,6 @@ export const Container = memo(function Container(props) {
             setDustbins(update(dustbins, {
                 $push: restoredDustbins
             }));
-
-
-
         }, []);
     }
 
@@ -165,9 +161,30 @@ export const Container = memo(function Container(props) {
     }, [dustbins])
 
     useEffect(() => {
+        let dustbinsToUpdateTheirQuantity = {}
+        const spec = {};
 
-
-    },[totals])
+        if(pickedItems.length > 0) {
+            pickedItems.forEach(item => {
+                 const thisQty = parseInt(qtyReducer(item.sizes));
+                 if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(item.cartonBox)) {
+                     dustbinsToUpdateTheirQuantity[item.cartonBox] = thisQty;
+                 } else {
+                     dustbinsToUpdateTheirQuantity[item.cartonBox] += thisQty;
+                 }
+            })
+            dustbins.forEach((dustbin) => {
+                if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(dustbin.uid)) {
+                    return;
+                }
+                const index = dustbins.indexOf(dustbin);
+                spec[index] = {
+                    qty: {$set: dustbinsToUpdateTheirQuantity[dustbin.uid]}
+                }
+            })
+            setDustbins(update(dustbins, spec));
+        }
+    },[pickedItems])
 
     useEffect(() => {
         let qty = 0;
