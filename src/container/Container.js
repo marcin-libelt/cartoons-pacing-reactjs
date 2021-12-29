@@ -165,31 +165,8 @@ export const Container = memo(function Container(props) {
     }, [dustbins])
 
     useEffect(() => {
-        let dustbinsToUpdateTheirQuantity = {}
-        pickedItems.forEach(item => {
-             const thisQty = parseInt(qtyReducer(item.sizes));
-             if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(item.cartonBox)) {
-                 dustbinsToUpdateTheirQuantity[item.cartonBox] = thisQty;
-             } else {
-                 dustbinsToUpdateTheirQuantity[item.cartonBox] += thisQty;
-             }
-        })
-        dustbins.forEach((dustbin) => {
-                if(!dustbinsToUpdateTheirQuantity.hasOwnProperty(dustbin.uid)) {
-                    return;
-                }
 
-                const index = dustbins.indexOf(dustbin);
 
-                setDustbins(update(dustbins, {
-                    [0]: {
-                        qty: {$set: dustbinsToUpdateTheirQuantity[dustbin.uid]}
-                    },
-                    [1]: {
-                        qty: {$set: dustbinsToUpdateTheirQuantity[dustbin.uid]}
-                    }}
-                ))
-            })
     },[totals])
 
     useEffect(() => {
