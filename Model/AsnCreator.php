@@ -229,19 +229,20 @@ class AsnCreator
 
             if (!$carton->getId()) {
                 $carton->setInitUniqueCartonId(true);
-
-                $sufix =  '-' . $cartonNumber;
-                if ($this->getFactory()->getUciCode()) {
-                    $sufix .= '-' . $this->getFactory()->getUciCode();
-                }
-                if ($data['suffix']) {
-                    $sufix .= '-' . $data['suffix'];
-                }
-
-                $carton->setSuffix($sufix);
             }
 
+            $uniqueCartonId = $carton->getAsnId() . '-' . $cartonNumber;
+            if ($this->getFactory()->getUciCode()) {
+                $uniqueCartonId .= '-' . $this->getFactory()->getUciCode();
+            }
+            if ($data['suffix']) {
+                $uniqueCartonId .= '-' . $data['suffix'];
+            }
+
+            $carton->setSuffix($data['suffix'] ?? null);
+            $carton->setUniqueCartonId($uniqueCartonId);
             $carton->setAddress($customerAddress);
+
             $this->setItemsData($doorCode, $carton, $items);
         }
     }
