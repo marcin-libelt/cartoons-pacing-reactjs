@@ -53,6 +53,10 @@ class AsnCreator
     /**
      * @var
      */
+    protected $purchaseOrders;
+    /**
+     * @var
+     */
     protected $factory;
 
     /**
@@ -180,7 +184,6 @@ class AsnCreator
             'net_weight' => 'net_weight',
         ];
 
-
         $allCartons = $this->getAsn()->getAllCartons();
         $cartonCounter = 0;
         foreach ($allCartons as $carton) {
@@ -213,6 +216,7 @@ class AsnCreator
                 $cartonData[$cartonDataCode] = $data[$inputCode] ?? '';
             }
 
+            $po = $this->purchaseOrders[$data['items'][0]['PO']];
             $doorCode = $data['doorCode'] ?? '';
             $customerAddress = $this->addressRepository->getByCode($doorCode);
             $customerName = $customerAddress->getClient()->getCustomerName();
@@ -220,6 +224,8 @@ class AsnCreator
             $cartonData['customer_account_number'] = $customerAddress->getSageCode();
             $cartonData['destination'] = $customerAddress->getShippingMethod();
             $cartonData['door_code'] = $doorCode;
+            $cartonData['store_code'] = $po->getStoreCode();
+            $cartonData['customer_po'] = $po->getCustomerPo();
 
             /** @var Asn\Carton $carton */
             $carton = $this->getAsn()->addCarton($cartonId, $cartonData);
@@ -361,6 +367,7 @@ class AsnCreator
      */
     protected function initPoItems($cartonsData)
     {
+        $this->purchaseOrders = [];
         $this->poItems = [];
         $selectedPoArray = [];
 
@@ -393,6 +400,7 @@ class AsnCreator
         $poCollection = $this->purchaseOrderFactory->create()->getCollection();
         $poCollection->addFieldToFilter('document_no', ['in' => $selectedPoArray]);
         foreach ($poCollection as $po) {
+            $this->purchaseOrders[$po->getDocumentNo()] = $po;
             $poItems = $po->getItems();
             foreach($poItems as $poItem) {
                 if (!isset($this->poItems[$po->getDocumentNo()][$poItem->getShippingDoorCode()][$poItem->getBarcode()])) {
