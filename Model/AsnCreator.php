@@ -226,23 +226,32 @@ class AsnCreator
             $carton->setWarehouseLocation($customerAddress->getWarehouseLocation());
 
             $carton->setDeleteThisCarton(false);
+            $changeSuffix = false;
 
             if (!$carton->getId()) {
                 $carton->setInitUniqueCartonId(true);
+                $cartonRealNumber = $cartonNumber;
+                $changeSuffix = true;
+            } else if ($data['suffix']) {
+                $cartonRealNumber=  $carton->getCartonNumber();
+                $changeSuffix = true;
             }
 
-            $uniqueCartonId = $carton->getAsnId() . '-' . $cartonNumber;
-            if ($this->getFactory()->getUciCode()) {
-                $uniqueCartonId .= '-' . $this->getFactory()->getUciCode();
-            }
-            if ($data['suffix']) {
-                $uniqueCartonId .= '-' . $data['suffix'];
+            if($changeSuffix) {
+                $uniqueCartonId = $carton->getAsnId() . '-' . $cartonRealNumber;
+
+                if ($this->getFactory()->getUciCode()) {
+                    $uniqueCartonId .= '-' . $this->getFactory()->getUciCode();
+                }
+                if ($data['suffix']) {
+                    $uniqueCartonId .= '-' . $data['suffix'];
+                }
+
+                $carton->setUniqueCartonId($uniqueCartonId);
             }
 
             $carton->setSuffix($data['suffix'] ?? null);
-            $carton->setUniqueCartonId($uniqueCartonId);
             $carton->setAddress($customerAddress);
-
             $this->setItemsData($doorCode, $carton, $items);
         }
     }
