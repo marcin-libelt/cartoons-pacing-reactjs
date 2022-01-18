@@ -229,13 +229,7 @@ class AsnCreator
 
             if (!$carton->getId()) {
                 $carton->setInitUniqueCartonId(true);
-                $cartonRealNumber = $cartonNumber;
-            } else if ($data['suffix']) {
-                $cartonRealNumber=  $carton->getCartonNumber();
-            }
-
-            if(isset($cartonRealNumber)) {
-                $uniqueCartonId = $carton->getAsnId() . '-' . $cartonRealNumber;
+                $uniqueCartonId = $carton->getAsnId() . '-' . $cartonNumber;
 
                 if ($this->getFactory()->getUciCode()) {
                     $uniqueCartonId .= '-' . $this->getFactory()->getUciCode();
