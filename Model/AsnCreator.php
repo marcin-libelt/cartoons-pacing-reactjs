@@ -226,28 +226,22 @@ class AsnCreator
             $carton->setWarehouseLocation($customerAddress->getWarehouseLocation());
 
             $carton->setDeleteThisCarton(false);
-            $changeSuffix = false;
 
             if (!$carton->getId()) {
                 $carton->setInitUniqueCartonId(true);
                 $cartonRealNumber = $cartonNumber;
-                $changeSuffix = true;
             } else if ($data['suffix']) {
                 $cartonRealNumber=  $carton->getCartonNumber();
-                $changeSuffix = true;
             }
 
-            if($changeSuffix) {
+            if(isset($cartonRealNumber)) {
                 $uniqueCartonId = $carton->getAsnId() . '-' . $cartonRealNumber;
 
                 if ($this->getFactory()->getUciCode()) {
                     $uniqueCartonId .= '-' . $this->getFactory()->getUciCode();
                 }
-                if ($data['suffix']) {
-                    $uniqueCartonId .= '-' . $data['suffix'];
-                }
 
-                $carton->setUniqueCartonId($uniqueCartonId);
+                $carton->setTemporaryUniqueCartonId($uniqueCartonId);
             }
 
             $carton->setSuffix($data['suffix'] ?? null);
@@ -333,7 +327,7 @@ class AsnCreator
             }
 
             if (!$totalItemQty) {
-                throw new LocalizedException(__('Cannot save product without sizes. Please add size to product %1 in carton %2 or remove it.', $data['sku'],  $carton->getUniqueCartonId()));
+                throw new LocalizedException(__('Cannot save product without sizes. Please add size to product %1 in carton %2 or remove it.', $data['sku'],  $carton->getUniqueCartonId(true)));
             }
         }
     }

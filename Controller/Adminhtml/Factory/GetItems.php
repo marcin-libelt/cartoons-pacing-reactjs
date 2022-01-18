@@ -248,7 +248,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
             $this->sortSizes($items);
 
             $carton = [
-                'cartonId' => $carton->getUniqueCartonId(),
+                'cartonId' => $carton->getUniqueCartonId(false),
                 'doorCode' => $carton->getDoorCode(),
                 'gross_weight' => $carton->getGrossWeight(),
                 'net_weight' => $carton->getNetWeight(),
