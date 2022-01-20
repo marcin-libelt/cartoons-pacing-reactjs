@@ -115,7 +115,9 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                     'clientName' => $client->getCustomerName(),
                     'warehouseLocation' => $shippingAddress->getWarehouseLocation(),
                     'sizes' => [],
-                    'type' => 'style'
+                    'type' => 'style',
+                    'store_code' => $purchaseOrder->getStoreCode(),
+                    'customer_po' => $purchaseOrder->getCustomerPo(),
                 ];
             } else {
                 $rowId = $this->itemIdMap[$itemId];
