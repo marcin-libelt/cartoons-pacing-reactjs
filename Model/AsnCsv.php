@@ -60,7 +60,7 @@ class AsnCsv
                             'shipping_door_code' => $poItem->getShippingDoorCode(),
                             'factory_name' => $asn->getFactory(),
                             'factory_invoice_number' => $asn->getInvoiceNumber(),
-                            'uci' => $carton->getUniqueCartonId(),
+                            'uci' => $carton->getUniqueCartonId(true),
                             'barcode' => $simpleItem->getBarcode(),
                             'qty' => $simpleItem->getQty(),
                             'supplier_unit_cost_price' => sprintf('%.2f', $poItem->getUnitSellingPrice()),
