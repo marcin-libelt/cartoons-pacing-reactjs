@@ -61,9 +61,21 @@ class Save extends \ITvoice\Asn\Controller\Adminhtml\Asn
             $asnCreator->setPackingListDate($this->getRequest()->getParam('packing_list_date'));
             $asnCreator->setPackingListNumber($this->getRequest()->getParam('packing_list_number'));
             $asn = $asnCreator->create();
+
+            $cartons = $asn->getAllCartons();
+            $cartonData = [];
+            foreach ($cartons as $carton) {
+                if ($carton->getInitCartonId()) {
+                    $cartonData[$carton->getInitCartonId()] = [
+                        'unique_carton_id' => $carton->getUniqueCartonId()
+                    ];
+                }
+            }
+
             $data = [
                 'message' => __('Asn %1 has been saved.', $asn->getAsnNumber()),
-                'status' => 1
+                'status' => 1,
+                'cartonsData' => $cartonData,
             ];
         } catch (\Exception $e) {
             $data = [
