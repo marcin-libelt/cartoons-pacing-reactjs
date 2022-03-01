@@ -54,7 +54,7 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
     {
         $collection = $this->asnFactory->create()->getCollection();
         $collection->addFieldToFilter('type', Asn::ASN_TYPE_INTERNAL);
-        $collection->addFieldToFilter('release_status', Asn::RELEASED_STATUS_READY_TO_RELEASE);
+        $collection->addFieldToFilter('release_status', Asn::RELEASE_STATUS_READY_TO_RELEASE);
         return $collection;
     }
 
@@ -112,7 +112,7 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
 
         foreach ($asnCollection as $asn) {
             $this->asnReleasedCounter++;
-            $asn->setIsReleased(1);
+            $asn->setIsReleased();
             $asn->save();
             $this->addInfoLog('ASN ' . $asn->getAsnNumber() . ' has been released.');
         }

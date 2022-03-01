@@ -97,7 +97,7 @@ class UpgradeData implements UpgradeDataInterface
         $asnResource->getConnection()->update(
             $asnResource->getMainTable(),
             [
-                'release_status' => Asn::RELEASED_FLAG_RELEASED
+                'release_status' => Asn::RELEASE_STATUS_RELEASED
             ],
             [
                 'asn_number in (?)' =>  $currentAsnNumbers
