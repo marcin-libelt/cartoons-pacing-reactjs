@@ -290,7 +290,7 @@ class AsnCreator
                 $carton->setOrderType($poItem->getOrderType());
 
                 /** @var Asn\Item $item */
-                $item = $carton->getItem($productId);
+                $item = $carton->getItemByProductId($productId);
                 if (!$item) {
                     $itemData = [
                         'product_id' => $productId,
