@@ -202,15 +202,10 @@ class AsnCreator
                 continue; // TODO - we're not sure if w should save empty carton or not ?
             }
 
-            $cartonCounter ++;
-            $cartonNumber = sprintf("%02s", $cartonCounter);
+
 
             $cartonData = [];
             $cartonId = $data['cartonId'];
-            if (!isset($allCartons[$cartonId])) {
-                $cartonId = $cartonNumber;
-                $cartonData['carton_number'] = $cartonNumber;
-            }
 
             foreach ($dataMap as $cartonDataCode => $inputCode) {
                 $cartonData[$cartonDataCode] = $data[$inputCode] ?? '';
@@ -229,11 +224,17 @@ class AsnCreator
 
             /** @var Asn\Carton $carton */
             $carton = $this->getAsn()->addCarton($cartonId, $cartonData);
+            $carton->setInitCartonId($data['cartonId']);
             $carton->setWarehouseLocation($customerAddress->getWarehouseLocation());
 
             $carton->setDeleteThisCarton(false);
 
             if (!$carton->getId()) {
+
+                $cartonCounter ++;
+                $cartonNumber = sprintf("%02s", $cartonCounter);
+                $carton->setCartonNumber($cartonNumber);
+
                 $carton->setInitUniqueCartonId(true);
                 $uniqueCartonId = $carton->getAsnId() . '-' . $cartonNumber;
 

@@ -21,7 +21,8 @@ export const Dustbin = memo(function Dustbin({
                                                  setCartonInfo,
                                                  qty,
                                                  isEmpty,
-                                                 cartonOptions
+                                                 cartonOptions,
+                                                 uidsToRename
                                              }) {
 
     const [{isOver, canDrop,}, drop] = useDrop({
@@ -57,6 +58,15 @@ export const Dustbin = memo(function Dustbin({
         borderRadius: '10px',
         overflow: 'hidden',
         backgroundColor: backgroundColor
+    }
+
+    const suffixRenderer = () => {
+        let cuid = uid;
+        const matched = uidsToRename.find(i => i[0] === uid);
+        if(matched) {
+            cuid = matched[1]['unique_carton_id'];
+        }
+        return <span>{cuid}{info.suffix ? '-' + info.suffix : ''}</span>
     }
 
     return (<div className={'card mb-2'} ref={drop} role="Dustbin" style={{...dustbinStyles}}>
@@ -145,7 +155,7 @@ export const Dustbin = memo(function Dustbin({
                                style={{border: '1px dashed', borderRadius: '5px', textAlign: 'center', padding: '5px'}}>
                             This is an empty carton box<br/>Drag Items and Drop it here</div>}
                 </div>
-                <p style={{fontSize: '10px', float: 'right', color: '#826d46', lineHeight: 3.4 }} className={'m-0'}>{uid}</p>
+                <p style={{fontSize: '10px', float: 'right', color: '#826d46', lineHeight: 3.4 }} className={'m-0'}>{suffixRenderer()}</p>
                 <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveDustbin(uid)}>
                     &nbsp;
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
