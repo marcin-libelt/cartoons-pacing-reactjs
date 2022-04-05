@@ -24,7 +24,8 @@ export const Container = memo(function Container(props) {
         sku: "",
         PO: "",
         joorSONumber: "",
-        doorCode: ""
+        doorCode: "",
+        warehouseLocation: null
     });
     const [loadingMsg, setLoadingMsg] = useState("");
     const [autosaveStatus, setAutosaveStatus] = useState({message: "Asn is loading...", status: 2});
@@ -166,6 +167,11 @@ export const Container = memo(function Container(props) {
         let dustbinsToUpdateTheirQuantity = {}
         const spec = {};
 
+        if(pickedItems.length === 1) {
+            // lock warehouseLocation
+            filterBy(pickedItems[0].warehouseLocation, 'warehouseLocation')
+        }
+
         if(pickedItems.length > 0) {
             pickedItems.forEach(item => {
                  const thisQty = parseInt(qtyReducer(item.sizes));
@@ -202,6 +208,10 @@ export const Container = memo(function Container(props) {
             ['units']: { $set: qty },
             ['value']: { $set: parseFloat(value)}
         })
+
+        if(qty === 0) {
+            filterBy(null, 'warehouseLocation')
+        }
 
         setTotals(updatedState);
     }, [pickedItems])
@@ -409,7 +419,6 @@ export const Container = memo(function Container(props) {
         }
 
         const item = pickedItems.find(item => item.id === id && item.cartonBox === cartonBox);
-        console.log(item);
         const positiveSizes = item.sizes.filter(size => size.qty > 0);
 
        // let data = {}
@@ -572,10 +581,10 @@ export const Container = memo(function Container(props) {
         setDustbins(newState)
     }
 
-    function filterBy(ev, field = '') {
+    function filterBy(value, field = '') {
         setFilter(prevState => ({
             ...prevState,
-            [field]: ev.target.value
+            [field]: value
         }));
     }
 
@@ -589,7 +598,7 @@ export const Container = memo(function Container(props) {
                                 <div className="input-group-prepend">
                                     <span className="input-group-text">Sku</span>
                                 </div>
-                                <input type="text" id="inputSku" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'sku')} value={filter.sku}  aria-label="Sizing example input"
+                                <input type="text" id="inputSku" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev.target.value, 'sku')} value={filter.sku}  aria-label="Sizing example input"
                                        aria-describedby="inputGroup-sizing-default">
                                 </input>
                             </div>
@@ -597,27 +606,40 @@ export const Container = memo(function Container(props) {
                                 <div className="input-group-prepend" style={{marginLeft: '8px'}}>
                                     <span className="input-group-text">Po</span>
                                 </div>
-                                <input type="text" id="inputPo" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'PO')} value={filter.PO}  aria-label="Sizing example input"
+                                <input type="text" id="inputPo" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev.target.value, 'PO')} value={filter.PO}  aria-label="Sizing example input"
                                        aria-describedby="inputGroup-sizing-default">
                                 </input>
                             </div>
                         </div>
                         <div className='row'>
-                            <div className="col-6 input-group mb-3">
+                            <div className="col-6 input-group mb-1">
                                 <div className="input-group-prepend">
                                     <span className="input-group-text">So number</span>
                                 </div>
-                                <input id="inputSo" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'joorSONumber')} value={filter.joorSONumber}  aria-label="Sizing example input"
+                                <input id="inputSo" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev.target.value, 'joorSONumber')} value={filter.joorSONumber}  aria-label="Sizing example input"
                                        aria-describedby="inputGroup-sizing-default">
                                 </input>
                             </div>
-                            <div className="col-6 input-group mb-3">
+                            <div className="col-6 input-group mb-1">
                                 <div className="input-group-prepend" style={{marginLeft: '8px'}}>
                                     <span className="input-group-text">Door code</span>
                                 </div>
-                                <input id="inputDoorcode" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev, 'doorCode')} value={filter.doorCode}  aria-label="Sizing example input"
+                                <input id="inputDoorcode" type="text" className={'form-control form-control-sm'} onChange={(ev) => filterBy(ev.target.value, 'doorCode')} value={filter.doorCode}  aria-label="Sizing example input"
                                        aria-describedby="inputGroup-sizing-default">
                                 </input>
+                            </div>
+                        </div>
+                        <div className='row'>
+                            <div className="col-12">
+                                <h4 style={{ marginBottom: '0', marginTop: '5px'}}>{
+                                    filter.warehouseLocation !== null && (() => {
+                                        if (filter.warehouseLocation === "") {
+                                            return `warehouseLocation: \<empty value\>`
+                                        } else {
+                                            return `warehouseLocation: ${filter.warehouseLocation}`
+                                        }
+                                    })()
+                                }</h4>
                             </div>
                         </div>
                     </form>
@@ -674,6 +696,7 @@ export const Container = memo(function Container(props) {
                                     && sku.includes(filter.sku)
                                     && joorSONumber.includes(filter.joorSONumber)
                                     && doorCode.includes(filter.doorCode)
+                                    && (warehouseLocation === filter.warehouseLocation || filter.warehouseLocation === null )
 
                             return (<Box name={name}
                                  hidden={!isVisible}
