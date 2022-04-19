@@ -32,18 +32,21 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
     protected $asnReleasedCounter = 0;
 
     /**
-     * ReleaseAnsProfile constructor.
+     * ReleaseAsnProfile constructor.
      * @param \Alekseon\Dataflows\Model\Profile\DataReaderFactory $dataReaderFactory
+     * @param \ITvoice\Asn\Model\AsnFactory $asnFactory
+     * @param \ITvoice\AsnCreator\Model\AsnCsv $asnCsv
+     * @param \ITvoice\Ftp\Model\ConnectionFactory $ftpConnectionFactory
      */
     public function __construct(
         \Alekseon\Dataflows\Model\Profile\DataReaderFactory $dataReaderFactory,
         \ITvoice\Asn\Model\AsnFactory $asnFactory,
         \ITvoice\AsnCreator\Model\AsnCsv $asnCsv,
-        \ITvoice\Ftp\Model\Connection $ftpConnection
+        \ITvoice\Ftp\Model\ConnectionFactory $ftpConnectionFactory
     ) {
         $this->asnFactory = $asnFactory;
         $this->asnCsv = $asnCsv;
-        $this->ftpConnection = $ftpConnection;
+        $this->ftpConnection = $ftpConnectionFactory->create();
         parent::__construct($dataReaderFactory);
     }
 
