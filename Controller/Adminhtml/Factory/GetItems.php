@@ -118,6 +118,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                     'type' => 'style',
                     'store_code' => $purchaseOrder->getStoreCode(),
                     'customer_po' => $purchaseOrder->getCustomerPo(),
+                    'colourway' => $poItem->getColourway(),
                 ];
             } else {
                 $rowId = $this->itemIdMap[$itemId];

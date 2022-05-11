@@ -684,6 +684,7 @@ export const Container = memo(function Container(props) {
                                    PO,
                                    doorCode,
                                    doorLabel,
+                                   colourway,
                                    id,
                                    sizes,
                                    clientName,
@@ -704,6 +705,7 @@ export const Container = memo(function Container(props) {
                                  sku={sku}
                                  doorLabel={doorLabel}
                                  doorCode={doorCode}
+                                 colourway={colourway}
                                  id={id}
                                  PO={PO}
                                  sizes={sizes}
