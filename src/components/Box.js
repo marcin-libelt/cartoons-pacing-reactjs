@@ -16,7 +16,17 @@ const labelStyle = {
     color: '#757575'
 }
 
-export const Box = memo(function Box({ name, hidden, type, id, doorLabel, PO, doorCode, sku, sizes, clientName,
+export const Box = memo(function Box({ name,
+                                         hidden,
+                                         type,
+                                         id,
+                                         doorLabel,
+                                         colourway,
+                                         PO,
+                                         doorCode,
+                                         sku,
+                                         sizes,
+                                         clientName,
                                          joorSONumber,
                                          orderType,
                                          unit_selling_price,
@@ -44,6 +54,7 @@ export const Box = memo(function Box({ name, hidden, type, id, doorLabel, PO, do
                     <strong style={{lineHeight: '2'}}>{name}</strong><span style={{fontSize: '13px', fontStyle: 'italic', marginLeft: '8px'}}>{sku}</span><br/>
                     <span className={'label'} style={labelStyle}>PO number:</span>{PO}<br/>
                     <span className={'label'} style={labelStyle}>SO number:</span>{joorSONumber}<br/>
+                    <span className={'label'} style={labelStyle}>Colourway:</span>{colourway}<br/>
                 </p>
                 <p style={{ width: '60%', lineHeight: '1.5', position: 'relative'}} className={'m-0'}>
                     <span className={'label'} style={labelStyle}>door label:</span>{doorLabel}<br/>
