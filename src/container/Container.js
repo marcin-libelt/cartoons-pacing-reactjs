@@ -22,19 +22,19 @@ export const Container = memo(function Container(props) {
     const [pickedItems, setPickedItems] = useState([]);
     const [boxes, setBoxes] = useState([]);
 
-    const back = {
+    const [filter, setFilter] = useState({
         sku: "",
         PO: "",
         joorSONumber: "",
         doorCode: "",
         warehouseLocation: null,
-        clientName: "",
+        clientName: "", // Buyer
         doorLabel: "",
         colourway: "",
-        name: ""
-    };
-    const [filter, setFilter] = useState(back);
+        name: "" // Style name
+    });
 
+    /** toDO - zrobić mapowanie i w pętle */
     const nowy = {
         sku: {label: 'Sku', value: ""},
         PO: {label: 'Po', value: ""},
@@ -702,7 +702,7 @@ export const Container = memo(function Container(props) {
                                     && doorLabel.includes(filter.doorLabel.toUpperCase())
                                     && name.includes(filter.name.toUpperCase())
                                     && (colourway && colourway.includes(filter.colourway.toUpperCase()))
-                                    && clientName.includes(filter.doorCode)
+                                    && clientName.includes(filter.clientName.toUpperCase())
                                     && (warehouseLocation === filter.warehouseLocation || filter.warehouseLocation === null )
 
                             return (<Box name={name}
