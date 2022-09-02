@@ -119,6 +119,8 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                     'store_code' => $purchaseOrder->getStoreCode(),
                     'customer_po' => $purchaseOrder->getCustomerPo(),
                     'colourway' => $poItem->getColourway(),
+                    'cites' => $poItem->getCites(),
+                    'fish_wildlife' => $poItem->getFishWildlife(),
                 ];
             } else {
                 $rowId = $this->itemIdMap[$itemId];

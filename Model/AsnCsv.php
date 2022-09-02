@@ -43,6 +43,8 @@ class AsnCsv
             'CartonNetWeight',
             'operand',
             'Ordertype',
+            'Cites',
+            'FishWildlife'
         ];
 
         $csvContent[] = $this->getCsvLine($header, $delimiter, $enclosure);;
@@ -72,6 +74,8 @@ class AsnCsv
                             'carton_new_weight' => (float)$carton->getNetWeight(),
                             'operand' => 'I',
                             'order_type' => 'NEW',
+                            'cites' => $carton->getCites(),
+                            'fish_wild_life' => $carton->getFishWildLife(),
                         ];
 
                         $csvContent[] = $this->getCsvLine($row, $delimiter, $enclosure);

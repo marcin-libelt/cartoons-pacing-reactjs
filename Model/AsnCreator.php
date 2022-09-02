@@ -289,6 +289,8 @@ class AsnCreator
                 $carton->setMbpo($po);
                 $carton->setDoorName($poItem->getDoor());
                 $carton->setOrderType($poItem->getOrderType());
+                $carton->setCites($poItem->getCites());
+                $carton->setFishWildLife($poItem->getFishWildlife());
 
                 /** @var Asn\Item $item */
                 $item = $carton->getItemByProductId($productId);

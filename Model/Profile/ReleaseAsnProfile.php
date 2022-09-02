@@ -95,7 +95,9 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
      */
     protected function exportAsn($asnCollection)
     {
-        $csvContent = $this->asnCsv->getCsv($asnCollection);
+        $delimiter = $this->getParam('delimiter');
+        $enclosure = $this->getParam('enclosure');
+        $csvContent = $this->asnCsv->getCsv($asnCollection, $delimiter, $enclosure);
 
         $dirPaths = [
             $this->getParam('dir_path_1'),
