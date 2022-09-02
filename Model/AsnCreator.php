@@ -167,6 +167,16 @@ class AsnCreator
     }
 
     /**
+     * @param $isFirstCost
+     * @return $this
+     */
+    public function setIsFirstCost($isFirstCost)
+    {
+        $this->getAsn()->setIsFirstCost((bool) $isFirstCost);
+        return $this;
+    }
+
+    /**
      * @param $cartonsData
      */
     public function setCartonsData($cartonsData)

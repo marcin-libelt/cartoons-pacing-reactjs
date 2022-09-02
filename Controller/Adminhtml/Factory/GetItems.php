@@ -269,6 +269,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
             'cartons' => $cartons,
             'packing_list_number' => $asn->getPackingListNumber(),
             'packing_list_date' => $asn->getPackingListDate(),
+            'is_first_cost' => $asn->getIsFirstCost(),
             'factory_id' => $asn->getFactory(true)->getId(),
         ];
         return $asnData;
