@@ -54,6 +54,7 @@ export const Container = memo(function Container(props) {
     const [uidsToRename, setUidsToRename] = useState([]);
     const [packingListDate, setPackingListDate] = useState("");
     const [packingListNumber, setPackingListNumber] = useState("")
+    const [isFirstCost, setIsFirstCost] = useState("0")
     const [totals, setTotals] = useState({
         cartons: !isNewAsn ? asn.cartons.length : 0,
         units: 0,
@@ -66,6 +67,7 @@ export const Container = memo(function Container(props) {
         useEffect(function () {
             setPackingListDate(asn.packing_list_date || "");
             setPackingListNumber(asn.packing_list_number || "");
+            setIsFirstCost(asn.is_first_cost || "0");
 
             let restoredDustbins = [];
             let restoredPickedItems = [];
@@ -153,6 +155,7 @@ export const Container = memo(function Container(props) {
                     cartons: prepareCartonsForSaveAction(),
                     packing_list_number: packingListNumber,
                     packing_list_date: packingListDate,
+                    is_first_cost: isFirstCost,
                     factory_id: factory_id,
                     form_key: form_key,
                 };
@@ -175,7 +178,7 @@ export const Container = memo(function Container(props) {
                 });
             }, autosaveThreshold))
         }
-    }, [dustbins, pickedItems, packingListDate, packingListNumber])
+    }, [dustbins, pickedItems, packingListDate, packingListNumber, isFirstCost])
 
     useEffect(() => {
         const updatedState = update(totals, {
@@ -663,9 +666,18 @@ export const Container = memo(function Container(props) {
                             </div>
                             <div className="input-group mb-3">
                                 <div className="input-group-prepend">
-                                    <span className="input-group-text">Packing List Date (YYYY-mm-dd)</span>
+                                    <span className="input-group-text">Packing List Date</span>
                                 </div>
-                                <input type="text" className={'form-control'} onChange={ev => {setPackingListDate(ev.target.value)}} value={packingListDate}></input>
+                                <input type="date" className={'form-control'} onChange={ev => {setPackingListDate(ev.target.value)}} value={packingListDate}></input>
+                            </div>
+                            <div className="input-group mb-3">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text">Is First Cost</span>
+                                </div>
+                                <select className={'form-control'} onChange={ev => {setIsFirstCost(ev.target.value)}} value={isFirstCost}>
+                                    <option key={"0"} value={"0"}>No</option>
+                                    <option key={"1"} value={"1"}>Yes</option>
+                                </select>
                             </div>
                         </form>
                         <DocumentStatus status={autosaveStatus} />
