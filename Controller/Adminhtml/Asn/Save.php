@@ -60,6 +60,7 @@ class Save extends \ITvoice\Asn\Controller\Adminhtml\Asn
             $asnCreator->setCartonsData($this->getRequest()->getParam('cartons'));
             $asnCreator->setPackingListDate($this->getRequest()->getParam('packing_list_date'));
             $asnCreator->setPackingListNumber($this->getRequest()->getParam('packing_list_number'));
+            $asnCreator->setIsFirstCost($this->getRequest()->getParam('is_first_cost'));
             $asn = $asnCreator->create();
 
             $cartons = $asn->getAllCartons();

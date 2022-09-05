@@ -43,6 +43,7 @@ class AsnCsv
             'CartonNetWeight',
             'operand',
             'Ordertype',
+            'isFirstCost',
         ];
 
         $csvContent[] = $this->getCsvLine($header, $delimiter, $enclosure);;
@@ -72,6 +73,7 @@ class AsnCsv
                             'carton_new_weight' => (float)$carton->getNetWeight(),
                             'operand' => 'I',
                             'order_type' => 'NEW',
+                            'is_first_cost' => $asn->getIsFirstCost() ? 'true' : 'false',
                         ];
 
                         $csvContent[] = $this->getCsvLine($row, $delimiter, $enclosure);
