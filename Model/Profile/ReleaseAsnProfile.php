@@ -23,9 +23,9 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
      */
     protected $asnCsv;
     /**
-     * @var \ITvoice\Ftp\Model\Connection
+     * @var \ITvoice\Ftp\Model\ConnectionFactory
      */
-    protected $ftpConnection;
+    protected $ftpConnectionFactory;
     /**
      * @var
      */
@@ -46,7 +46,7 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
     ) {
         $this->asnFactory = $asnFactory;
         $this->asnCsv = $asnCsv;
-        $this->ftpConnection = $ftpConnectionFactory->create();
+        $this->ftpConnectionFactory = $ftpConnectionFactory;
         parent::__construct($dataReaderFactory);
     }
 
@@ -104,13 +104,36 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
             $this->getParam('dir_path_2'),
         ];
 
+        $ftpConnection = $this->ftpConnectionFactory->create();
+        $date = date("dmy_His");
+
         foreach ($dirPaths as $dirPath) {
-            $filePath = $dirPath . DIRECTORY_SEPARATOR . 'TWSIN' . '.' . date("dmy_His").".csv";
-            if ($this->ftpConnection->uploadFile($filePath, $csvContent)) {
+            if (!$dirPath) {
+                continue;
+            }
+
+            $filePath = $dirPath . DIRECTORY_SEPARATOR . 'TWSIN' . '.' . $date .".csv";
+            if ($ftpConnection->uploadFile($filePath, $csvContent)) {
                 $this->addInfoLog('File Uploaded: ' . $filePath);
             } else {
                 throw new LocalizedException(
-                    __('Unable to upload file: %1, %2', $filePath, $this->ftpConnection->getLastError())
+                    __('Unable to upload file: %1, %2', $filePath, $ftpConnection->getLastError())
+                );
+            }
+        }
+
+        /**
+         * CENTRIC EXPORT
+         */
+        $centricFtpConnection = $this->getCentricFtpConnection();
+        $dirPath = $this->getParam('centric_dir_path');
+        if ($dirPath) {
+            $filePath = $dirPath . DIRECTORY_SEPARATOR . 'TWSIN' . '.' . $date . ".csv";
+            if ($centricFtpConnection->uploadFile($filePath, $csvContent)) {
+                $this->addInfoLog('File Uploaded to Centric: ' . $filePath);
+            } else {
+                throw new LocalizedException(
+                    __('Unable to upload file to Centric: %1, %2', $filePath, $centricFtpConnection->getLastError())
                 );
             }
         }
@@ -124,6 +147,25 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
     }
 
     /**
+     * @return \ITvoice\Ftp\Model\Connection
+     */
+    protected function getCentricFtpConnection()
+    {
+        $connection = $this->ftpConnectionFactory->create();
+        $host = $this->getParam('centric_ftp_host');
+        $port = $this->getParam('centric_ftp_port');
+        if ($port) {
+            $host .= ':' . $port;
+        }
+        $user = $this->getParam('centric_ftp_user');
+        $password = $this->getParam('centric_ftp_password');
+        $connection->setHost($host);
+        $connection->setUsername($user);
+        $connection->setPassword($password);
+        return $connection;
+    }
+
+    /**
      * @return \string[][]
      */
     public function getParametersFormConfig()
@@ -133,15 +175,44 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
                 'type' => 'fieldset',
                 'legend' => 'Ftp Connection',
             ],
+            'centric_connection' => [
+                'type' => 'fieldset',
+                'legend' => 'Centric FTP Connection',
+            ],
             'dir_path_1' => [
                 'type' => 'text',
-                'label' => 'Directory Path to upload CSV File',
+                'label' => 'Directory Path 1 to upload CSV File',
                 'fieldset' => 'ftp_connection',
             ],
             'dir_path_2' => [
                 'type' => 'text',
-                'label' => 'Directory Path to upload CSV File',
+                'label' => 'Directory Path 2 to upload CSV File',
                 'fieldset' => 'ftp_connection',
+            ],
+            'centric_ftp_host' => [
+                'type' => 'text',
+                'label' => 'Host',
+                'fieldset' => 'centric_connection',
+            ],
+            'centric_ftp_port' => [
+                'type' => 'text',
+                'label' => 'Port',
+                'fieldset' => 'centric_connection',
+            ],
+            'centric_ftp_user' => [
+                'type' => 'text',
+                'label' => 'User',
+                'fieldset' => 'centric_connection',
+            ],
+            'centric_ftp_password' => [
+                'type' => 'password',
+                'label' => 'Password',
+                'fieldset' => 'centric_connection',
+            ],
+            'centric_dir_path' => [
+                'type' => 'text',
+                'label' => 'Directory Path to upload CSV File For Centric',
+                'fieldset' => 'centric_connection',
             ],
             'csv_options' => [
                 'type' => 'fieldset',
