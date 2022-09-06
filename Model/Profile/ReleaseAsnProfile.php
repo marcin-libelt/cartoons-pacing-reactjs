@@ -51,12 +51,39 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
     }
 
     /**
+     * @return array[]
+     */
+    protected function getExportsConfiguration()
+    {
+        return [
+            [
+                'name' => 'Path1',
+                'connection' => $this->ftpConnectionFactory->create(),
+                'dir_path' => $this->getParam('dir_path_1'),
+            ],
+            [
+                'name' => 'Path2',
+                'connection' => $this->ftpConnectionFactory->create(),
+                'dir_path' => $this->getParam('dir_path_1'),
+            ],
+            [
+                'name' => 'Centric',
+                'connection' => $this->getCentricFtpConnection(),
+                'dir_path' => $this->getParam('centric_dir_path'),
+            ],
+        ];
+    }
+
+    /**
      *
      */
-    protected function getAsnCollectionToRelease()
+    protected function getAsnCollectionToRelease($exportNumber = null)
     {
         $collection = $this->asnFactory->create()->getCollection();
         $collection->addFieldToFilter('type', Asn::ASN_TYPE_INTERNAL);
+        if ($exportNumber !== null) {
+            $collection->addFieldToFilter('update_export_state', $exportNumber);
+        }
         $collection->addFieldToFilter('release_status', Asn::RELEASE_STATUS_READY_TO_RELEASE);
         return $collection;
     }
@@ -66,11 +93,12 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
      */
     public function canBeExecuted()
     {
-        $collectionToRelease = $this->getAsnCollectionToRelease();
-        if (!$collectionToRelease->getSize()) {
-            return false;
+        $newAsnToRelease = $this->getAsnCollectionToRelease();
+        if ($newAsnToRelease->getSize()) {
+            return true;
         }
-        return true;
+
+        return false;
     }
 
     /**
@@ -78,71 +106,114 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
      */
     public function execute()
     {
-        $asnCollection = $this->getAsnCollectionToRelease();
-        if ($asnCollection->count() > 0) {
+        $exportedAsns = [];
+        $exportsConfiguration = $this->getExportsConfiguration();
+        foreach ($exportsConfiguration as $exportNumber => $exportConfig) {
+            $asnCollectionToRelease = $this->getAsnCollectionToRelease($exportNumber);
+
             try {
-                $this->exportAsn($asnCollection);
-                $this->setResult($this->asnReleasedCounter . ' of ASNs has been released.');
+                $this->exportAsn($asnCollectionToRelease, $exportNumber);
             } catch (\Exception $e) {
-                $this->addWarningLog($e->getMessage());
-                $this->setResult($e->getMessage());
+                $this->addCriticalLog($e->getMessage());
+                return;
+            }
+
+            $nextExportNumber = $exportNumber + 1;
+
+            /** @var Asn $asn */
+            foreach ($asnCollectionToRelease as $asn) {
+                $exportedAsns[] = $asn;
+                $save = false;
+                if ($asn->getExportState() < $nextExportNumber) {
+                    $asn->setExportState($nextExportNumber);
+                    $save = true;
+                }
+                if ($asn->getUpdateExportState() < $nextExportNumber) {
+                    $asn->setUpdateExportState($nextExportNumber);
+                    $save = true;
+                }
+                if ($save) {
+                    $asn->save();
+                }
             }
         }
+
+        /** @var Asn $asn */
+        foreach ($exportedAsns as $asn) {
+            $this->asnReleasedCounter++;
+            $asn->setIsReleased();
+            $asn->save();
+            $this->addInfoLog('ASN ' . $asn->getAsnNumber() . ' has been released.');
+        }
+
+        $this->setResult($this->asnReleasedCounter . ' of ASNs has been released.');
     }
 
     /**
      * @param $asn
      */
-    protected function exportAsn($asnCollection)
+    protected function exportAsn($asnCollection, $exportNumber)
     {
+        $exportsConfiguration = $this->getExportsConfiguration();
+        $exportConfig = $exportsConfiguration[$exportNumber];
+
         $delimiter = $this->getParam('delimiter');
         $enclosure = $this->getParam('enclosure');
-        $csvContent = $this->asnCsv->getCsv($asnCollection, $delimiter, $enclosure);
 
-        $dirPaths = [
-            $this->getParam('dir_path_1'),
-            $this->getParam('dir_path_2'),
-        ];
-
-        $ftpConnection = $this->ftpConnectionFactory->create();
+        $dirPath = $exportConfig['dir_path'];
+        $ftpConnection = $exportConfig['connection'];
+        $name = $exportConfig['name'];
         $date = date("dmy_His");
 
-        foreach ($dirPaths as $dirPath) {
-            if (!$dirPath) {
+        if (!$dirPath) {
+            return;
+        }
+
+        $asnGroups = [
+            'new' => [
+                'asns' => [],
+                'suffix' => '',
+            ],
+            'updated' => [
+                'asns' => [],
+                'suffix' => '_U',
+            ],
+        ];
+
+        foreach ($asnCollection as $asn) {
+            if ($asn->getExportState() > $exportNumber) {
+                $asn->setOperand('U');
+                $asnGroups['updated']['asns'][] = $asn;
+            } else {
+                $asnGroups['new']['asns'][] = $asn;
+            }
+        }
+
+        foreach ($asnGroups as $asnGroup) {
+            $suffix = $asnGroup['suffix'];
+            $asns = $asnGroup['asns'];
+            if (empty($asns)) {
                 continue;
             }
 
-            $filePath = $dirPath . DIRECTORY_SEPARATOR . 'TWSIN' . '.' . $date .".csv";
-            if ($ftpConnection->uploadFile($filePath, $csvContent)) {
-                $this->addInfoLog('File Uploaded: ' . $filePath);
-            } else {
+            $csvContent = $this->asnCsv->getCsv($asns, $delimiter, $enclosure);
+            $filePath = $dirPath . DIRECTORY_SEPARATOR . 'TWSIN' . $suffix . '.' . $date . ".csv";
+
+            try {
+                $uploadResult = $ftpConnection->uploadFile($filePath, $csvContent);
+            } catch (\Exception $e) {
                 throw new LocalizedException(
-                    __('Unable to upload file: %1, %2', $filePath, $ftpConnection->getLastError())
+                    __('Unable to upload file to %1, %2: %3', $name, $filePath, $e->getMessage())
                 );
             }
-        }
 
-        /**
-         * CENTRIC EXPORT
-         */
-        $centricFtpConnection = $this->getCentricFtpConnection();
-        $dirPath = $this->getParam('centric_dir_path');
-        if ($dirPath) {
-            $filePath = $dirPath . DIRECTORY_SEPARATOR . 'TWSIN' . '.' . $date . ".csv";
-            if ($centricFtpConnection->uploadFile($filePath, $csvContent)) {
-                $this->addInfoLog('File Uploaded to Centric: ' . $filePath);
+            if ($uploadResult) {
+                $this->addInfoLog('File Uploaded to ' . $name . ', ' . $filePath);
             } else {
                 throw new LocalizedException(
-                    __('Unable to upload file to Centric: %1, %2', $filePath, $centricFtpConnection->getLastError())
+                    __('Unable to upload file to %1, %2: %3', $name, $filePath, $ftpConnection->getLastError())
                 );
             }
-        }
-
-        foreach ($asnCollection as $asn) {
-            $this->asnReleasedCounter++;
-            $asn->setIsReleased();
-            $asn->save();
-            $this->addInfoLog('ASN ' . $asn->getAsnNumber() . ' has been released.');
         }
     }
 

@@ -20,7 +20,7 @@ class AsnCsv
      * @param string $enclosure
      * @return string
      */
-    public function getCsv(Collection $asnCollection, $delimiter = ",", $enclosure = '"')
+    public function getCsv(array $asns, $delimiter = ",", $enclosure = '"')
     {
         $csvContent = [];
 
@@ -49,7 +49,9 @@ class AsnCsv
 
         $csvContent[] = $this->getCsvLine($header, $delimiter, $enclosure);;
 
-        foreach ($asnCollection as $asn) {
+        foreach ($asns as $asn) {
+            $operand = $asn->getOperand() ? $asn->getOperand() : 'I';
+
             foreach ($asn->getAllCartons() as $carton) {
                 foreach ($carton->getAllItems() as $item) {
                     foreach ($item->getAllSimpleItems() as $simpleItem) {
@@ -72,7 +74,7 @@ class AsnCsv
                             'customer_po' => '', //@TODO how to get it , is it always empty ?
                             'carton_gross_weight' => (float)$carton->getGrossWeight(),
                             'carton_new_weight' => (float)$carton->getNetWeight(),
-                            'operand' => 'I',
+                            'operand' => $operand,
                             'order_type' => 'NEW',
                             'cites' => $carton->getCites(),
                             'fish_wild_life' => $carton->getFishWildLife(),
