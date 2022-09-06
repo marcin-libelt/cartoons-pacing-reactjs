@@ -259,7 +259,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                 'dimensions' => $carton->getCartonDimensions(),
                 'suffix' => $carton->getSuffix(),
                 'joorSONumber' => $carton->getJoorSoNumber(),
-                //'PO' => $carton->getCustomerPo(),
+                'PO' => $carton->getCustomerPo(),
                 'items' => $items
             ];
 
