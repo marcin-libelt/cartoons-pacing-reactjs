@@ -83,8 +83,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
         $purchaseOrderIds = array_keys($purchaseOrders);
         $poItems = $this->purchaseOrderItemFactory->create()->getCollection();
         $poItems->addFieldToFilter('purchase_order_id', ['in' => $purchaseOrderIds]);
-        $poItems->addFieldToFilter('balance_qty', ['gt' => 0]);
-        $poItems->getSelect()->where('balance_qty >= order_qty');
+        $poItems->getSelect()->where('(balance_qty >= order_qty and balance_qty > 0) or (internal_used_qty < qty && internal_used_qty > 0)');
 
         $orders = [];
         foreach ($poItems as $poItem) {
@@ -119,6 +118,8 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                     'store_code' => $purchaseOrder->getStoreCode(),
                     'customer_po' => $purchaseOrder->getCustomerPo(),
                     'colourway' => $poItem->getColourway(),
+                    'cites' => $poItem->getCites(),
+                    'fish_wildlife' => $poItem->getFishWildlife(),
                 ];
             } else {
                 $rowId = $this->itemIdMap[$itemId];
@@ -317,7 +318,12 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
                             'clientName' => $client->getCustomerName(),
                             'warehouseLocation' => $shippingAddress->getWarehouseLocation(),
                             'sizes' => [],
-                            'type' => 'style'
+                            'type' => 'style',
+                            'store_code' => $purchaseOrder->getStoreCode(),
+                            'customer_po' => $purchaseOrder->getCustomerPo(),
+                            'colourway' => $poItem->getColourway(),
+                            'cites' => $poItem->getCites(),
+                            'fish_wildlife' => $poItem->getFishWildlife(),
                         ];
                     }
 

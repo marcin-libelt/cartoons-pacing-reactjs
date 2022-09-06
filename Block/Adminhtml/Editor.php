@@ -23,14 +23,35 @@ class Editor extends \Magento\Backend\Block\Template
      * Editor constructor.
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Registry $registry
+     * @param array $data
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
-        \Magento\Framework\Registry $registry
+        \Magento\Framework\Registry $registry,
+        array $data = []
     )
     {
         $this->registry = $registry;
-        parent::__construct($context);
+        parent::__construct($context, $data);
+    }
+
+    /**
+     * @return mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getCloseButton()
+    {
+        $url = $this->getUrl('itvoice_asn/asn/view', ['id' => $this->getAsn()->getId()]);
+        $button = $this->getLayout()->createBlock(
+            \Magento\Backend\Block\Widget\Button::class
+        )->setData(
+            [
+                'label' => __('Close Edit View'),
+                'class' => 'action-save action-secondary',
+                'onclick' => "setLocation('{$url}')",
+            ]
+        );
+        return $button->toHtml();
     }
 
     /**
