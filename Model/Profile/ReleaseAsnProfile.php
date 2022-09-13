@@ -64,7 +64,7 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
             [
                 'name' => 'Path2',
                 'connection' => $this->ftpConnectionFactory->create(),
-                'dir_path' => $this->getParam('dir_path_1'),
+                'dir_path' => $this->getParam('dir_path_2'),
             ],
             [
                 'name' => 'Centric',
