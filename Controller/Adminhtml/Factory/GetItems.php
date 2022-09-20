@@ -271,6 +271,7 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
             'packing_list_number' => $asn->getPackingListNumber(),
             'packing_list_date' => $asn->getPackingListDate(),
             'factory_id' => $asn->getFactory(true)->getId(),
+            'animal_type' => '',
         ];
         return $asnData;
     }

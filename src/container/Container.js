@@ -1,4 +1,4 @@
-import React, {useState, useCallback, memo, useEffect} from 'react';
+import React, {useState, useCallback, memo, useEffect, useRef} from 'react';
 import { Dustbin } from '../components/Dustbin';
 import { Box } from '../components/Box';
 import FilterField from '../components/FilterField';
@@ -14,6 +14,11 @@ const autosaveThreshold = 5 * 1000;
 export const Container = memo(function Container(props) {
 
     const { cartons, orders, asn } = props.data.data;
+
+    const currentAnimalType = asn.animal_type;
+
+    console.log(currentAnimalType);
+
     const { factory_id, form_key, jquery: $, post_url, asn_id } = props.data;
     const isNewAsn = !(asn.cartons.length > 0);
 
@@ -21,6 +26,8 @@ export const Container = memo(function Container(props) {
     const [dustbins, setDustbins] = useState([]);
     const [pickedItems, setPickedItems] = useState([]);
     const [boxes, setBoxes] = useState([]);
+    const [animalType, setAnimalType] = useState(currentAnimalType);
+
 
     const [filter, setFilter] = useState({
         sku: "",
@@ -31,7 +38,8 @@ export const Container = memo(function Container(props) {
         clientName: "", // Buyer
         doorLabel: "",
         colourway: "",
-        name: "" // Style name
+        name: "", // Style name
+        animalType: ""
     });
 
     /** toDO - zrobić mapowanie i w pętle */
@@ -184,6 +192,19 @@ export const Container = memo(function Container(props) {
         setTotals(updatedState);
     }, [dustbins])
 
+    const isMounted = useRef(false);
+
+    useEffect(() => {
+        console.log(pickedItems);
+        if (isMounted.current) {
+            if(pickedItems.length === 0){
+                setAnimalType('');
+            }
+        } else {
+            isMounted.current = true;
+        }
+    }, [pickedItems])
+
     useEffect(() => {
         let dustbinsToUpdateTheirQuantity = {}
         const spec = {};
@@ -245,6 +266,9 @@ export const Container = memo(function Container(props) {
         const result = boxes.find(item => item.id === id);
         const index = boxes.indexOf(result);
         const totalQty = qtyReducer(result.sizes);
+        const currentAnimalType = `${result.cites}${result.fish_wildlife}`;
+
+        setAnimalType(currentAnimalType);
 
         // quit if no items to distribute left
         if(totalQty === 0) {
@@ -314,7 +338,9 @@ export const Container = memo(function Container(props) {
                 joorSONumber: result.joorSONumber,
                 orderType: result.orderType,
                 unit_selling_price: result.unit_selling_price,
-                warehouseLocation: result.warehouseLocation
+                warehouseLocation: result.warehouseLocation,
+                cites: result.cites,
+                fish_wildlife: result.fish_wildlife
             }
             setPickedItems(prevState => [...prevState, newTarget])
 
@@ -407,7 +433,6 @@ export const Container = memo(function Container(props) {
         if(countBefore === 1) {
             const dustbin = dustbins.find(bin => bin.uid === cartonBox);
             const index = dustbins.indexOf(dustbin);
-
             setDustbins(update(dustbins, {
                 [index]: {
                     isEmpty: { $set: true},
@@ -693,7 +718,11 @@ export const Container = memo(function Container(props) {
                                    joorSONumber,
                                    orderType,
                                    unit_selling_price,
+                                    cites,
+                                    fish_wildlife,
                                    warehouseLocation } = box;
+
+                            const thisItemAnimalType = `${cites}${fish_wildlife}`;
 
                             const isVisible = PO.includes(filter.PO)
                                     && sku.includes(filter.sku)
@@ -704,6 +733,7 @@ export const Container = memo(function Container(props) {
                                     && (colourway && colourway.includes(filter.colourway.toUpperCase()))
                                     && clientName.includes(filter.clientName.toUpperCase())
                                     && (warehouseLocation === filter.warehouseLocation || filter.warehouseLocation === null )
+                                    && animalType === thisItemAnimalType || animalType === ''
 
                             return (<Box name={name}
                                  hidden={!isVisible}
