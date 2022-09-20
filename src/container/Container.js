@@ -17,8 +17,6 @@ export const Container = memo(function Container(props) {
 
     const currentAnimalType = asn.animal_type;
 
-    console.log(currentAnimalType);
-
     const { factory_id, form_key, jquery: $, post_url, asn_id } = props.data;
     const isNewAsn = !(asn.cartons.length > 0);
 
@@ -195,7 +193,6 @@ export const Container = memo(function Container(props) {
     const isMounted = useRef(false);
 
     useEffect(() => {
-        console.log(pickedItems);
         if (isMounted.current) {
             if(pickedItems.length === 0){
                 setAnimalType('');
