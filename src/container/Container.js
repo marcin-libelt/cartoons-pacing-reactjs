@@ -6,12 +6,19 @@ import DocumentStatus from "../components/DocumentStatus";
 import { ItemTypes, FieldsMap } from '../ItemTypes';
 import uuid from 'react-uuid'
 import update from 'immutability-helper';
-import { qtyReducer, validateCartonInput } from '../helper';
+import { qtyReducer, validateCartonInput, validateAddress } from '../helper';
 import { DustbinModel } from '../model/Dustbin';
 
 const autosaveThreshold = 5 * 1000;
 
 export const Container = memo(function Container(props) {
+
+    if(props.data.data.error){
+        useEffect(function () {
+                validateAddress(props.data.data.message);
+        }, []);
+        return null;
+    } else {
 
     const { cartons, orders, asn } = props.data.data;
     const { factory_id, form_key, jquery: $, post_url, asn_id } = props.data;
@@ -796,5 +803,6 @@ export const Container = memo(function Container(props) {
             <span>{loadingMsg}</span>
         </span> : ''}
         </div>
-});
+    }
+    });
 
