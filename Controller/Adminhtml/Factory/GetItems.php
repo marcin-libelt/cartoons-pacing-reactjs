@@ -199,8 +199,18 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
     protected function getAsnData($asn, $orders)
     {
         $cartons = [];
+        $isFishWildLifeAsn = false;
+        $isCitesAsn = false;
 
         foreach ($asn->getAllCartons() as $carton) {
+
+            if (!$isFishWildLifeAsn && $carton->getFishWildLife()) {
+                $isFishWildLifeAsn = true;
+            }
+
+            if (!$isCitesAsn && $carton->getCites()) {
+                $isCitesAsn = true;
+            }
 
             $items = [];
             foreach ($carton->getAllItems() as $item) {
@@ -266,12 +276,20 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
             $cartons[] = $carton;
         }
 
+        if (empty($cartons)) {
+            $animalType = '';
+        } else {
+            $animalType = $isCitesAsn ? '1' : '0';
+            $animalType .= $isFishWildLifeAsn ? '1' : '0';
+        }
+
         $asnData = [
             'cartons' => $cartons,
             'packing_list_number' => $asn->getPackingListNumber(),
             'packing_list_date' => $asn->getPackingListDate(),
             'is_first_cost' => $asn->getIsFirstCost(),
             'factory_id' => $asn->getFactory(true)->getId(),
+            'animal_type' => $animalType,
         ];
         return $asnData;
     }
