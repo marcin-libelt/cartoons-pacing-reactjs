@@ -141,7 +141,11 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
         /** @var Asn $asn */
         foreach ($exportedAsns as $asn) {
             $this->asnReleasedCounter++;
-            $asn->setIsReleased();
+            if ($asn->getStatus() == ASN::STATUS_CANCELED) {
+                $asn->setReleaseStatus(Asn::STATUS_CANCELED);
+            } else {
+                $asn->setIsReleased();
+            }
             $asn->save();
             $this->addInfoLog('ASN ' . $asn->getAsnNumber() . ' has been released.');
         }
@@ -185,7 +189,9 @@ class ReleaseAsnProfile extends \Alekseon\Dataflows\Model\Profile implements \Al
                 $asn->setOperand('U');
                 $asnGroups['updated']['asns'][] = $asn;
             } else {
-                $asnGroups['new']['asns'][] = $asn;
+                if ($asn->getStatus() !== ASN::STATUS_CANCELED) {
+                    $asnGroups['new']['asns'][] = $asn;
+                }
             }
         }
 

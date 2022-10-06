@@ -58,6 +58,12 @@ class AsnCsv
                     foreach ($item->getAllSimpleItems() as $simpleItem) {
                         $poItem = $simpleItem->getPoItem();
 
+                        if ($asn->getStatus() == ASN::STATUS_CANCELED) {
+                            $qty = 0;
+                        } else {
+                            $qty = $simpleItem->getQty();
+                        }
+
                         $row = [
                             'asn_number' => $asn->getAsnNumber(),
                             'warehouse_location' => $item->getWarehouseLocation(),
@@ -67,7 +73,7 @@ class AsnCsv
                             'factory_invoice_number' => $asn->getPackingListNumber(),
                             'uci' => $carton->getUniqueCartonId(true),
                             'barcode' => $simpleItem->getBarcode(),
-                            'qty' => $simpleItem->getQty(),
+                            'qty' => $qty,
                             'supplier_unit_cost_price' => sprintf('%.2f', $poItem->getUnitSellingPrice()),
                             'joor_so_number' => $carton->getJoorSoNumber(),
                             'so_number' => $carton->getJoorSoNumber() . '-' . $poItem->getShippingDoorCode(),
