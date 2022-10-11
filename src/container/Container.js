@@ -338,6 +338,7 @@ export const Container = memo(function Container(props) {
                 joorSONumber: result.joorSONumber,
                 orderType: result.orderType,
                 unit_selling_price: result.unit_selling_price,
+                colourway: result.colourway,
                 warehouseLocation: result.warehouseLocation,
                 cites: result.cites,
                 fish_wildlife: result.fish_wildlife
@@ -397,7 +398,10 @@ export const Container = memo(function Container(props) {
             joorSONumber: result.joorSONumber,
             orderType: result.orderType,
             unit_selling_price: result.unit_selling_price,
-            warehouseLocation: result.warehouseLocation
+            warehouseLocation: result.warehouseLocation,
+            colourway: result.colourway,
+            cites: result.cites,
+            fish_wildlife: result.fish_wildlife
         }
         setBoxes(prevState => {
             prevState[index] = updateSource;
