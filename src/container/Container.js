@@ -717,7 +717,6 @@ export const Container = memo(function Container(props) {
 
                         { boxes.length > 0 ? boxes.map((box, index) => {
 
-
                             const { name,
                                    type,
                                    sku,
@@ -746,7 +745,7 @@ export const Container = memo(function Container(props) {
                                     && (colourway && colourway.includes(filter.colourway.toUpperCase()))
                                     && clientName.includes(filter.clientName.toUpperCase())
                                     && (warehouseLocation === filter.warehouseLocation || filter.warehouseLocation === null )
-                                    && animalType === thisItemAnimalType || animalType === ''
+                                    && (animalType === thisItemAnimalType || animalType === '')
 
                             return (<Box name={name}
                                  hidden={!isVisible}
