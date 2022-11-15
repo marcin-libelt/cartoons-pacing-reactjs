@@ -79,72 +79,78 @@ class GetItems extends \ITvoice\Asn\Controller\Adminhtml\Asn
 
         $jsonResponse = $this->jsonFactory->create();
 
-        $purchaseOrders = $this->getPurchaseOrders();
-        $purchaseOrderIds = array_keys($purchaseOrders);
-        $poItems = $this->purchaseOrderItemFactory->create()->getCollection();
-        $poItems->addFieldToFilter('purchase_order_id', ['in' => $purchaseOrderIds]);
-        $poItems->getSelect()->where('(balance_qty >= order_qty and balance_qty > 0) or (internal_used_qty < qty && internal_used_qty > 0)');
+        try {
+            $purchaseOrders = $this->getPurchaseOrders();
+            $purchaseOrderIds = array_keys($purchaseOrders);
+            $poItems = $this->purchaseOrderItemFactory->create()->getCollection();
+            $poItems->addFieldToFilter('purchase_order_id', ['in' => $purchaseOrderIds]);
+            $poItems->addFieldToFilter('balance_qty', ['gt' => 0]);
+            $poItems->getSelect()->where('balance_qty >= order_qty');
 
-        $orders = [];
-        foreach ($poItems as $poItem) {
-            $qty = (int) max(0, $poItem->getQty() - $poItem->getInternalUsedQty());
+            $orders = [];
+            foreach ($poItems as $poItem) {
+                $qty = (int)max(0, $poItem->getQty() - $poItem->getInternalUsedQty());
 
-            $shippingDoorCode = $poItem->getShippingDoorCode();
-            $purchaseOrder = $purchaseOrders[$poItem->getPurchaseOrderId()];
-            $productId = $poItem->getProductId();
+                $shippingDoorCode = $poItem->getShippingDoorCode();
+                $purchaseOrder = $purchaseOrders[$poItem->getPurchaseOrderId()];
+                $productId = $poItem->getProductId();
 
-            $itemId = $shippingDoorCode . '-' . $productId . '_' . $purchaseOrder->getId();
+                $itemId = $shippingDoorCode . '-' . $productId . '_' . $purchaseOrder->getId();
 
-            if (!isset($this->itemIdMap[$itemId])) {
-                $shippingAddress =  $poItem->getShippingAddress();
-                $client = $shippingAddress->getClient();
+                if (!isset($this->itemIdMap[$itemId])) {
+                    $shippingAddress = $poItem->getShippingAddress();
+                    $client = $shippingAddress->getClient();
 
-                $rowId = $this->itemIdMap[$itemId] = $poItem->getId();
-                $this->poItemsByRowId[$rowId] = $poItem;
-                $orders[$rowId] = [
-                    'id' => $rowId,
-                    'doorLabel' => $poItem->getDoor(),
-                    'doorCode' => $shippingDoorCode,
-                    'PO' => $purchaseOrder->getDocumentNo(),
-                    'name' => $poItem->getStyleName(),
-                    'sku' => $productId,
-                    'joorSONumber' => $purchaseOrder->getJoorSoNumber(),
-                    'orderType' => $poItem->getOrderType(),
-                    'unit_selling_price' => $poItem->getUnitSellingPrice(),
-                    'clientName' => $client->getCustomerName(),
-                    'warehouseLocation' => $shippingAddress->getWarehouseLocation(),
-                    'sizes' => [],
-                    'type' => 'style',
-                    'store_code' => $purchaseOrder->getStoreCode(),
-                    'customer_po' => $purchaseOrder->getCustomerPo(),
-                    'colourway' => $poItem->getColourway(),
-                    'cites' => $poItem->getCites(),
-                    'fish_wildlife' => $poItem->getFishWildlife(),
+                    $rowId = $this->itemIdMap[$itemId] = $poItem->getId();
+                    $this->poItemsByRowId[$rowId] = $poItem;
+                    $orders[$rowId] = [
+                        'id' => $rowId,
+                        'doorLabel' => $poItem->getDoor(),
+                        'doorCode' => $shippingDoorCode,
+                        'PO' => $purchaseOrder->getDocumentNo(),
+                        'name' => $poItem->getStyleName(),
+                        'sku' => $productId,
+                        'joorSONumber' => $purchaseOrder->getJoorSoNumber(),
+                        'orderType' => $poItem->getOrderType(),
+                        'unit_selling_price' => $poItem->getUnitSellingPrice(),
+                        'clientName' => $client->getCustomerName(),
+                        'warehouseLocation' => $shippingAddress->getWarehouseLocation(),
+                        'sizes' => [],
+                        'type' => 'style',
+                        'store_code' => $purchaseOrder->getStoreCode(),
+                        'customer_po' => $purchaseOrder->getCustomerPo(),
+                        'colourway' => $poItem->getColourway(),
+                    ];
+                } else {
+                    $rowId = $this->itemIdMap[$itemId];
+                }
+
+                $orders[$rowId]['sizes'][] = [
+                    'qty' => $qty,
+                    'barcode' => $poItem->getBarcode(),
+                    'size' => $poItem->getSize(),
+                    'comments' => $poItem->getComments(),
                 ];
-            } else {
-                $rowId = $this->itemIdMap[$itemId];
             }
 
-            $orders[$rowId]['sizes'][] = [
-                'qty' => $qty,
-                'barcode' => $poItem->getBarcode(),
-                'size' => $poItem->getSize(),
-                'comments' => $poItem->getComments(),
+            $data = [];
+            if ($asn) {
+                $asnData = $this->getAsnData($asn, $orders);
+                $this->addAsnDataToOrders($asnData, $orders);
+                $data['asn'] = $asnData;
+            }
+
+            $this->sortSizes($orders);
+
+            $data['cartons'] = $this->getFactoryCartons();
+            $data['orders'] = array_values($orders);
+            $data['error'] = false;
+        } catch (\Exception $e) {
+            $data = [
+                'error' => true,
+                'message' => $e->getMessage()
             ];
         }
-
-        $data = [];
-        if ($asn) {
-            $asnData = $this->getAsnData($asn, $orders);
-            $this->addAsnDataToOrders($asnData, $orders);
-            $data['asn'] = $asnData;
-        }
-
-        $this->sortSizes($orders);
-
-        $data['cartons'] = $this->getFactoryCartons();
-        $data['orders'] = array_values($orders);
-
         $jsonResponse->setData($data);
         return $jsonResponse;
     }

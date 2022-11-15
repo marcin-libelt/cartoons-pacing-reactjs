@@ -29,5 +29,9 @@ const validateCartonInput = (dustbin, result) => {
     return true;
 }
 
-export { qtyReducer, validateCartonInput };
+const validateAddress = (message) => {
+    swal("Ops...", message, "error");
+}
+
+export { qtyReducer, validateCartonInput, validateAddress };
 
