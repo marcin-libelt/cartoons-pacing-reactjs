@@ -76,6 +76,9 @@ class UpgradeData implements UpgradeDataInterface
         if (version_compare($context->getVersion(), '1.0.4') < 0) {
             $this->setReleaseStatusForCurrentExistingAsns();
         }
+        if (version_compare($context->getVersion(), '1.0.5') < 0) {
+            $this->createDeleteEmptyAsnProfile($setup);
+        }
 
         $setup->endSetup();
     }
@@ -123,6 +126,26 @@ class UpgradeData implements UpgradeDataInterface
                     'dir_path_2' => '/INT18/ITVOICE/INBOUND_ORIGINAL',
                     'delimiter' => '|',
                     'enclosure' => '"',
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @param $setup
+     */
+    protected function createDeleteEmptyAsnProfile($setup)
+    {
+        $dataflowsSetup = $this->dataflowSetupFactory->create(['setup' => $setup]);
+        $dataflowsSetup->createSchedule(
+            'delete_empty_asn',
+            [
+                'name' => 'Delete Empty Asn',
+                'status' => Schedule::STATUS_ENABLED,
+                'profile_class' => 'ITvoice\AsnCreator\Model\Profile\DeleteEmptyAsnProfile',
+                'schedule' => '0 1 * * *',
+                'parameters' => [
+                    'older_than' => 2,
                 ],
             ]
         );

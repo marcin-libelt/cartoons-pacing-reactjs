@@ -8,10 +8,8 @@ export const Dustbin = memo(function Dustbin({
                                                  assignedItems,
                                                  handleSetQty,
                                                  handleRemoveItemFromDustbin,
-                                                 isMoreDustbins,
                                                  uid,
                                                  info,
-                                                 suffixDisabled,
                                                  toDoorLabel,
                                                  orderType,
                                                  PO,
@@ -22,7 +20,7 @@ export const Dustbin = memo(function Dustbin({
                                                  qty,
                                                  isEmpty,
                                                  cartonOptions,
-                                                 uidsToRename
+                                                 idMap
                                              }) {
 
     const [{isOver, canDrop,}, drop] = useDrop({
@@ -61,10 +59,13 @@ export const Dustbin = memo(function Dustbin({
     }
 
     const suffixRenderer = () => {
-        let cuid = uid;
-        const matched = uidsToRename.find(i => i[0] === uid);
-        if(matched) {
-            cuid = matched[1]['unique_carton_id'];
+        let cuid;
+        const entries = Object.entries(idMap);
+        if(entries.length > 0) {
+            const result = entries.find(i => i[1] === uid);
+            cuid = result ? result[0] : uid;
+        } else {
+            cuid = uid;
         }
         return <span>{cuid}{info.suffix ? '-' + info.suffix : ''}</span>
     }

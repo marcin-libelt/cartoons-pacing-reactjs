@@ -181,8 +181,18 @@ class AsnCreator
      */
     public function setCartonsData($cartonsData)
     {
+        $allCartons = $this->getAsn()->getAllCartons();
+        $cartonCounter = 0;
+        foreach ($allCartons as $carton) {
+            $cartonNumber = (int) $carton->getCartonNumber();
+            if ($cartonNumber > $cartonCounter) {
+                $cartonCounter = $cartonNumber;
+            }
+            $carton->setDeleteThisCarton(true);
+        }
+
         if (!is_array($cartonsData)) {
-            throw new LocalizedException(__('Cannot save ASN without cartons. Please add carton.'));
+            return;
         }
 
         $this->initPoItems($cartonsData);
@@ -194,25 +204,13 @@ class AsnCreator
             'net_weight' => 'net_weight',
         ];
 
-        $allCartons = $this->getAsn()->getAllCartons();
-        $cartonCounter = 0;
-        foreach ($allCartons as $carton) {
-            $cartonNumber = (int) $carton->getCartonNumber();
-            if ($cartonNumber > $cartonCounter) {
-                $cartonCounter = $cartonNumber;
-            }
-            $carton->setDeleteThisCarton(true);
-        }
-
         foreach ($cartonsData as $data) {
 
-            $items = $data['items'] ?? false;
+            $items = $data['items'] ?? [];
             if (!$items) {
-                throw new LocalizedException(__('Cannot save empty carton. Please add item to carton %1 or remove it.', $data['cartonId']));
-                continue; // TODO - we're not sure if w should save empty carton or not ?
+                //throw new LocalizedException(__('Cannot save empty carton. Please add item to carton %1 or remove it.', $data['cartonId']));
+                continue;
             }
-
-
 
             $cartonData = [];
             $cartonId = $data['cartonId'];
@@ -236,7 +234,6 @@ class AsnCreator
             $carton = $this->getAsn()->addCarton($cartonId, $cartonData);
             $carton->setInitCartonId($data['cartonId']);
             $carton->setWarehouseLocation($customerAddress->getWarehouseLocation());
-
             $carton->setDeleteThisCarton(false);
 
             if (!$carton->getId()) {
@@ -454,6 +451,7 @@ class AsnCreator
         if (!$this->getAsn()->getId()) {
             $this->generateAsnNumber();
             $date = $this->dateFactory->create()->gmtDate('d/m/Y');
+            $this->getAsn()->setstatus(Asn::STATUS_EMPTY);
             $this->getAsn()->setAsnCreatedDate($date);
         }
 

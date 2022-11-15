@@ -60,11 +60,10 @@ export const Container = memo(function Container(props) {
         name: ""
     }
 
-
+    const [map, setMap] = useState({});
     const [loadingMsg, setLoadingMsg] = useState("");
     const [autosaveStatus, setAutosaveStatus] = useState({message: "Asn is loading...", status: 2});
     const [cartonOptions, setCartonOptions] = useState([]);
-    const [uidsToRename, setUidsToRename] = useState([]);
     const [packingListDate, setPackingListDate] = useState("");
     const [packingListNumber, setPackingListNumber] = useState("")
     const [isFirstCost, setIsFirstCost] = useState("0")
@@ -180,7 +179,7 @@ export const Container = memo(function Container(props) {
                     dataType: 'json'
                 })
                 .done(function (response, status) {
-                    setUidsToRename(Object.entries(response.cartonsData).filter(elem => elem[0] !== elem[1]['unique_carton_id']))
+                    window.actualCartonsDataFromResponse = response.cartonsData;
                     setAutosaveStatus(response)
                 })
                 .error(function (response, status) {
@@ -610,8 +609,27 @@ export const Container = memo(function Container(props) {
                     });
                 })
 
+                window.actualCartonsDataFromResponse = window.actualCartonsDataFromResponse ? window.actualCartonsDataFromResponse : {};
+                let cartonId;
+                const result = Object.entries(actualCartonsDataFromResponse).find(item =>
+                    item[0] === item[1]['unique_carton_id'] && map[item[0]] === uid
+                )
+
+                if(actualCartonsDataFromResponse[uid]) {
+                    cartonId = actualCartonsDataFromResponse[uid]['unique_carton_id'];
+                    const newMap = {...map}
+                    newMap[cartonId] = uid
+                    setMap(newMap)
+                }
+                else if(result){
+                    cartonId = result[1]['unique_carton_id']
+                }
+                else {
+                    cartonId = uid
+                }
+
                 const binData = {
-                    cartonId: uid,
+                    cartonId,
                     doorCode,
                     gross_weight,
                     net_weight,
@@ -830,10 +848,10 @@ export const Container = memo(function Container(props) {
                                                 setCartonInfo={handleSetCartonInfo}
                                                 readOnly={false}
                                                 info={info}
-                                                uidsToRename={uidsToRename}
                                                 suffixDisabled={suffixDisabled}
                                                 cartonOptions={cartonOptions}
                                                 assignedItems={pickedItems && pickedItems.filter(item => item.cartonBox === uid)}
+                                                idMap={map}
                                                 qty={qty}
                                                 key={uid}/>
                             })}
